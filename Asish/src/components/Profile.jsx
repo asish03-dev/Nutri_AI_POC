@@ -6,67 +6,57 @@ import {
   AlertCircle, Shield, Sparkles,
 } from "lucide-react";
 
-/* ── Sidebar nav item ── */
 function NavItem({ icon: Icon, label, active, onClick }) {
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
         active
-          ? "bg-white/15 text-white shadow-sm border border-white/10"
-          : "text-slate-400 hover:bg-white/8 hover:text-slate-200"
+          ? "bg-emerald-500/10 text-emerald-600 border border-emerald-100"
+          : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
       }`}
     >
-      <Icon size={17} className={active ? "text-teal-300" : ""} />
+      <Icon size={16} className={active ? "text-emerald-500" : ""} />
       {label}
-      {active && <div className="ml-auto w-1.5 h-5 rounded-full bg-teal-400" />}
+      {active && <div className="ml-auto w-1.5 h-4 rounded-full bg-emerald-500" />}
     </button>
   );
 }
 
-/* ── Profile detail chip ── */
 function DetailChip({ label, value, dark }) {
   return (
-    <div className={`rounded-2xl p-4 border transition-colors ${
-      dark ? "bg-slate-800/60 border-slate-700/50" : "bg-slate-50 border-slate-100"
-    }`}>
+    <div className={`rounded-xl p-4 border ${dark ? "bg-slate-800/60 border-slate-700/50" : "bg-slate-50 border-slate-100"}`}>
       <p className={`text-[10px] font-bold uppercase tracking-widest mb-1.5 ${dark ? "text-slate-500" : "text-slate-400"}`}>
         {label}
       </p>
-      <p className={`text-sm font-bold ${value ? (dark ? "text-white" : "text-slate-900") : dark ? "text-slate-600" : "text-slate-300"}`}>
+      <p className={`text-sm font-semibold ${value ? (dark ? "text-white" : "text-slate-900") : dark ? "text-slate-600" : "text-slate-300"}`}>
         {value || "—"}
       </p>
     </div>
   );
 }
 
-/* ── Plan card ── */
-function PlanCard({ name, price, period, features, popular, highlight, icon: Icon, dark }) {
+function PlanCard({ name, price, period, features, popular, icon: Icon, dark }) {
   return (
-    <div className={`relative rounded-2xl p-6 border-2 transition-all duration-300 hover:-translate-y-1 cursor-pointer ${
+    <div className={`relative rounded-2xl p-6 border-2 transition-all duration-200 hover:-translate-y-0.5 cursor-pointer ${
       popular
-        ? "border-teal-500 shadow-xl shadow-teal-500/15"
+        ? "border-emerald-500 shadow-lg shadow-emerald-500/10"
         : dark
-          ? "border-slate-700 hover:border-teal-700"
-          : "border-slate-200 hover:border-teal-300"
+          ? "border-slate-700 hover:border-slate-600"
+          : "border-slate-200 hover:border-slate-300"
     } ${dark ? "bg-slate-800/70" : "bg-white"}`}>
 
-      {/* Most popular badge */}
       {popular && (
-        <div
-          className="absolute -top-3.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-4 py-1 rounded-full text-xs font-bold text-white shadow-lg"
-          style={{ background: "linear-gradient(135deg,#0f766e,#14b8a6)" }}
-        >
-          <Star size={10} fill="white" /> Most Popular
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-white bg-emerald-500 shadow-md">
+          <Star size={9} fill="white" /> Most Popular
         </div>
       )}
 
-      {/* Plan header */}
       <div className="flex items-center gap-3 mb-5">
-        <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${
-          popular ? "bg-teal-500 shadow-lg shadow-teal-500/30" : dark ? "bg-slate-700" : "bg-slate-100"
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+          popular ? "bg-emerald-500" : dark ? "bg-slate-700" : "bg-slate-100"
         }`}>
-          <Icon size={20} className={popular ? "text-white" : dark ? "text-slate-300" : "text-slate-600"} />
+          <Icon size={18} className={popular ? "text-white" : dark ? "text-slate-300" : "text-slate-500"} />
         </div>
         <div>
           <p className={`text-[11px] font-bold uppercase tracking-widest ${dark ? "text-slate-500" : "text-slate-400"}`}>{name}</p>
@@ -77,34 +67,30 @@ function PlanCard({ name, price, period, features, popular, highlight, icon: Ico
         </div>
       </div>
 
-      {/* Feature list */}
       <ul className="space-y-2.5 mb-6">
         {features.map(f => (
           <li key={f} className="flex items-start gap-2.5">
-            <CheckCircle size={14} className="text-teal-500 shrink-0 mt-0.5" />
+            <CheckCircle size={13} className="text-emerald-500 shrink-0 mt-0.5" />
             <span className={`text-sm leading-snug ${dark ? "text-slate-300" : "text-slate-600"}`}>{f}</span>
           </li>
         ))}
       </ul>
 
-      {/* CTA button */}
       <button
-        className={`w-full py-3 rounded-xl text-sm font-bold transition-all duration-200 hover:-translate-y-0.5 ${
+        className={`w-full py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 ${
           popular
-            ? "text-white shadow-lg shadow-teal-500/25 hover:opacity-90"
+            ? "bg-emerald-500 text-white hover:bg-emerald-600 shadow-md shadow-emerald-500/20"
             : dark
-              ? "border border-slate-600 text-slate-300 hover:border-teal-500 hover:text-teal-400 hover:bg-teal-500/5"
-              : "border border-slate-200 text-slate-700 hover:border-teal-400 hover:text-teal-600 hover:bg-teal-50"
+              ? "border border-slate-600 text-slate-300 hover:border-emerald-500 hover:text-emerald-400"
+              : "border border-slate-200 text-slate-700 hover:border-emerald-400 hover:text-emerald-600 hover:bg-emerald-50"
         }`}
-        style={popular ? { background: "linear-gradient(135deg,#0f766e,#14b8a6)" } : {}}
       >
-        {popular ? "Upgrade to Pro →" : "Get Started →"}
+        {popular ? "Upgrade Now →" : "Get Started →"}
       </button>
     </div>
   );
 }
 
-/* ── Plan data based on user category ── */
 function getPlans(category) {
   const isStudent = category === "Student";
   return [
@@ -118,7 +104,7 @@ function getPlans(category) {
       ],
     },
     {
-      name: "Pro", price: isStudent ? 199 : 399, period: "month", icon: Crown, popular: true,
+      name: "Pro", price: isStudent ? 199 : 299, period: "month", icon: Crown, popular: true,
       features: [
         "Unlimited meal scanning",
         "AI-powered nutrition insights",
@@ -145,85 +131,89 @@ export default function Profile({ dark, setDark, profileData, onboardingDone, on
   return (
     <div className={`min-h-screen flex ${dark ? "bg-slate-950 text-white" : "bg-slate-50 text-slate-900"} transition-colors duration-300`}>
 
-      {/* ── Premium dark sidebar ── */}
+      {/* ── Sidebar ── */}
       <aside
-        className="w-64 shrink-0 flex flex-col fixed top-0 left-0 h-screen z-20"
+        className="w-60 shrink-0 flex flex-col fixed top-0 left-0 h-screen z-20"
         style={{
-          background: "linear-gradient(180deg,#0a1628 0%,#0d1f2d 50%,#091520 100%)",
-          borderRight: "1px solid rgba(20,184,166,0.12)",
+          background: dark ? "#0a0f1a" : "#ffffff",
+          borderRight: dark ? "1px solid rgba(255,255,255,0.06)" : "1px solid #f1f5f9",
         }}
       >
-        {/* Sidebar logo */}
-        <div className="px-5 py-5 border-b border-white/5">
+        {/* Logo */}
+        <div className="px-5 py-4 border-b" style={{ borderColor: dark ? "rgba(255,255,255,0.06)" : "#f1f5f9" }}>
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center shadow-lg" style={{ background: "linear-gradient(135deg,#0f766e,#14b8a6)" }}>
-              <Leaf size={15} className="text-white" />
+            <div className="w-7 h-7 rounded-lg bg-emerald-500 flex items-center justify-center">
+              <Leaf size={13} className="text-white" />
             </div>
-            <span className="text-base font-black text-white tracking-tight">NutriAI</span>
-            <span className="ml-auto px-1.5 py-0.5 rounded-md text-[9px] font-bold text-teal-300 border border-teal-500/30 bg-teal-500/10">
+            <span className={`text-sm font-bold tracking-tight ${dark ? "text-white" : "text-slate-900"}`}>NutriAI</span>
+            <span className="ml-auto px-1.5 py-0.5 rounded text-[9px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100">
               BETA
             </span>
           </div>
         </div>
 
-        {/* User mini card */}
-        <div className="px-4 py-4 mx-3 mt-3 rounded-xl border border-white/5 bg-white/4">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl overflow-hidden shrink-0 bg-teal-500/20 flex items-center justify-center ring-2 ring-teal-500/20">
+        {/* User card */}
+        <div className="px-4 py-3 mx-3 mt-3 rounded-xl" style={{ background: dark ? "rgba(255,255,255,0.04)" : "#f8fafc", border: dark ? "1px solid rgba(255,255,255,0.06)" : "1px solid #f1f5f9" }}>
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 bg-emerald-100 flex items-center justify-center">
               {photo
                 ? <img src={photo} alt="avatar" className="w-full h-full object-cover" />
-                : <User size={17} className="text-teal-300" />
+                : <User size={15} className="text-emerald-600" />
               }
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-bold text-white truncate">{name || "Your Name"}</p>
-              <p className="text-[11px] text-slate-500 truncate">{category || "NutriAI User"}</p>
+              <p className={`text-sm font-semibold truncate ${dark ? "text-white" : "text-slate-900"}`}>{name || "Your Name"}</p>
+              <p className={`text-[11px] truncate ${dark ? "text-slate-500" : "text-slate-400"}`}>{category || "NutriAI User"}</p>
             </div>
           </div>
         </div>
 
-        {/* Nav links */}
-        <nav className="flex-1 px-3 py-5 space-y-1">
-          <p className="px-4 mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-600">Menu</p>
+        {/* Nav */}
+        <nav className="flex-1 px-3 py-4 space-y-1">
+          <p className={`px-3 mb-2 text-[10px] font-bold uppercase tracking-widest ${dark ? "text-slate-600" : "text-slate-400"}`}>Menu</p>
           <NavItem icon={User}            label="Profile"  active={activeNav === "profile"}  onClick={() => setActiveNav("profile")} />
           <NavItem icon={LayoutDashboard} label="Plans"    active={activeNav === "plans"}    onClick={() => setActiveNav("plans")} />
           <NavItem icon={Settings}        label="Settings" active={activeNav === "settings"} onClick={() => setActiveNav("settings")} />
         </nav>
 
         {/* Logout */}
-        <div className="px-3 py-4 border-t border-white/5">
+        <div className="px-3 py-4" style={{ borderTop: dark ? "1px solid rgba(255,255,255,0.06)" : "1px solid #f1f5f9" }}>
           <button
             onClick={onLogout}
-            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-red-400/80 hover:bg-red-500/10 hover:text-red-300 transition-all duration-200"
+            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-red-400 hover:bg-red-50 hover:text-red-500 transition-all duration-150"
           >
-            <LogOut size={16} /> Log Out
+            <LogOut size={15} /> Log Out
           </button>
         </div>
       </aside>
 
-      {/* ── Main content ── */}
-      <main className="ml-64 flex-1 min-h-screen">
+      {/* ── Main ── */}
+      <main className="ml-60 flex-1 min-h-screen">
 
-        {/* ── Premium top navbar ── */}
-        <div className={`sticky top-0 z-10 flex items-center justify-between px-8 py-4 border-b backdrop-blur-md transition-colors duration-300 ${
-          dark
-            ? "bg-slate-950/90 border-slate-800/80"
-            : "bg-white/90 border-slate-100"
+        {/* Top navbar */}
+        <div className={`sticky top-0 z-10 flex items-center justify-between px-8 py-3.5 border-b backdrop-blur-md transition-colors duration-300 ${
+          dark ? "bg-slate-950/90 border-slate-800/80" : "bg-white/90 border-slate-100"
         }`}>
           <div>
-            <p className={`text-[10px] font-bold uppercase tracking-widest ${dark ? "text-slate-600" : "text-slate-400"}`}>
-              Dashboard
-            </p>
-            <h2 className={`text-base font-bold mt-0.5 ${dark ? "text-white" : "text-slate-900"}`}>
+            <p className={`text-[10px] font-bold uppercase tracking-widest ${dark ? "text-slate-600" : "text-slate-400"}`}>Dashboard</p>
+            <h2 className={`text-sm font-semibold mt-0.5 ${dark ? "text-white" : "text-slate-900"}`}>
               {name ? `Welcome back, ${name.split(" ")[0]} 👋` : "Your Profile"}
             </h2>
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Dark mode toggle */}
+            {/* Upgrade button */}
+            <button
+              onClick={() => setActiveNav("plans")}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 transition-colors shadow-sm shadow-emerald-500/20"
+            >
+              <Crown size={13} /> Upgrade
+            </button>
+
+            {/* Dark toggle */}
             <button
               onClick={() => setDark(!dark)}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border text-sm font-semibold transition-all duration-200 ${
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border text-sm font-medium transition-all duration-150 ${
                 dark
                   ? "border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700"
                   : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
@@ -239,55 +229,50 @@ export default function Profile({ dark, setDark, profileData, onboardingDone, on
 
           {/* Incomplete profile banner */}
           {!onboardingDone && (
-            <div className={`flex items-center gap-4 p-5 rounded-2xl border-2 border-dashed ${
-              dark ? "border-teal-700/50 bg-teal-900/10" : "border-teal-200 bg-teal-50/60"
+            <div className={`flex items-center gap-4 p-5 rounded-2xl border ${
+              dark ? "border-emerald-800/40 bg-emerald-900/10" : "border-emerald-100 bg-emerald-50/60"
             }`}>
-              <div className="w-10 h-10 rounded-xl bg-teal-500/15 flex items-center justify-center shrink-0">
-                <AlertCircle size={20} className="text-teal-500" />
+              <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
+                <AlertCircle size={18} className="text-emerald-600" />
               </div>
               <div className="flex-1">
-                <p className={`text-sm font-bold ${dark ? "text-teal-300" : "text-teal-800"}`}>Complete your profile</p>
-                <p className={`text-xs mt-0.5 ${dark ? "text-teal-400/60" : "text-teal-600/70"}`}>
+                <p className={`text-sm font-semibold ${dark ? "text-emerald-300" : "text-emerald-800"}`}>Complete your profile</p>
+                <p className={`text-xs mt-0.5 ${dark ? "text-emerald-400/60" : "text-emerald-600/70"}`}>
                   Add your details to unlock personalised meal plans and AI insights.
                 </p>
               </div>
               <button
                 onClick={onCompleteProfile}
-                className="shrink-0 px-4 py-2 rounded-xl text-sm font-bold text-white hover:-translate-y-0.5 transition-all duration-200 shadow-lg shadow-teal-500/20"
-                style={{ background: "linear-gradient(135deg,#0f766e,#14b8a6)" }}
+                className="shrink-0 px-4 py-2 rounded-lg bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 transition-colors"
               >
                 Complete Now →
               </button>
             </div>
           )}
 
-          {/* ── Profile header card ── */}
-          <div className={`rounded-3xl border overflow-hidden shadow-sm transition-colors duration-300 ${
-            dark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-100"
-          }`}>
-            {/* Accent bar */}
-            <div className="h-1.5" style={{ background: "linear-gradient(90deg,#0f766e,#14b8a6,#0f766e)" }} />
+          {/* Profile header */}
+          <div className={`rounded-2xl border overflow-hidden shadow-sm ${dark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-100"}`}>
+            <div className="h-1 bg-emerald-500" />
             <div className="p-8 flex items-end gap-6">
-              {/* Avatar */}
               <div className="relative shrink-0">
-                <div className="w-28 h-28 rounded-2xl overflow-hidden" style={{ boxShadow: "0 12px 40px rgba(20,184,166,0.2)" }}>
+                <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-md">
                   {photo
                     ? <img src={photo} alt="Profile" className="w-full h-full object-cover" />
-                    : <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(135deg,#0f766e,#14b8a6)" }}>
-                        <User size={44} className="text-white" />
+                    : <div className="w-full h-full flex items-center justify-center bg-emerald-500">
+                        <User size={36} className="text-white" />
                       </div>
                   }
                 </div>
                 <button
                   onClick={onCompleteProfile}
-                  className="absolute -bottom-2 -right-2 w-9 h-9 rounded-xl bg-teal-500 flex items-center justify-center shadow-lg hover:bg-teal-400 transition-colors"
+                  className="absolute -bottom-2 -right-2 w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center shadow-md hover:bg-emerald-600 transition-colors"
                 >
-                  <Camera size={15} className="text-white" />
+                  <Camera size={13} className="text-white" />
                 </button>
               </div>
 
               <div className="flex-1 min-w-0 pb-1">
-                <h1 className={`text-3xl font-black tracking-tight truncate ${dark ? "text-white" : "text-slate-900"}`}>
+                <h1 className={`text-2xl font-bold tracking-tight truncate ${dark ? "text-white" : "text-slate-900"}`}>
                   {name || "Your Name"}
                 </h1>
                 <p className={`text-sm mt-1 ${dark ? "text-slate-400" : "text-slate-500"}`}>
@@ -295,13 +280,13 @@ export default function Profile({ dark, setDark, profileData, onboardingDone, on
                 </p>
                 <div className="flex items-center gap-2 mt-3 flex-wrap">
                   {category && (
-                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-teal-50 text-teal-700 border border-teal-100">
+                    <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
                       {category}
                     </span>
                   )}
                   {onboardingDone && (
-                    <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
-                      <CheckCircle size={11} /> Profile Complete
+                    <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                      <CheckCircle size={10} className="text-emerald-500" /> Profile Complete
                     </span>
                   )}
                 </div>
@@ -309,30 +294,28 @@ export default function Profile({ dark, setDark, profileData, onboardingDone, on
             </div>
           </div>
 
-          {/* ── Personal Information ── */}
-          <div className={`rounded-3xl p-8 border shadow-sm transition-colors duration-300 ${
-            dark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-100"
-          }`}>
+          {/* Personal Information */}
+          <div className={`rounded-2xl p-8 border shadow-sm ${dark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-100"}`}>
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className={`text-lg font-black ${dark ? "text-white" : "text-slate-900"}`}>Personal Information</h2>
+                <h2 className={`text-base font-bold ${dark ? "text-white" : "text-slate-900"}`}>Personal Information</h2>
                 <p className={`text-xs mt-0.5 ${dark ? "text-slate-500" : "text-slate-400"}`}>Your health profile details</p>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={onCompleteProfile}
-                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-200 hover:-translate-y-0.5 ${
-                    dark ? "border-slate-700 text-slate-300 hover:border-teal-500 hover:text-teal-400" : "border-slate-200 text-slate-600 hover:border-teal-400 hover:text-teal-600"
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-all duration-150 ${
+                    dark ? "border-slate-700 text-slate-300 hover:border-slate-600" : "border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
                   }`}
                 >
-                  <Edit3 size={13} /> Edit
+                  <Edit3 size={12} /> Edit
                 </button>
                 <button
-                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-200 hover:-translate-y-0.5 ${
-                    dark ? "border-slate-700 text-slate-300 hover:border-slate-500" : "border-slate-200 text-slate-600 hover:border-slate-400"
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-all duration-150 ${
+                    dark ? "border-slate-700 text-slate-300 hover:border-slate-600" : "border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
                   }`}
                 >
-                  <Lock size={13} /> Password
+                  <Lock size={12} /> Password
                 </button>
               </div>
             </div>
@@ -345,75 +328,61 @@ export default function Profile({ dark, setDark, profileData, onboardingDone, on
               <DetailChip label="Weight"    value={weight ? `${weight} kg` : ""} dark={dark} />
             </div>
 
-            {/* Allergies */}
             {allergies && allergies.length > 0 && (
               <div className="mt-5">
-                <p className={`text-[10px] font-bold uppercase tracking-widest mb-2.5 ${dark ? "text-slate-500" : "text-slate-400"}`}>
-                  Allergies
-                </p>
+                <p className={`text-[10px] font-bold uppercase tracking-widest mb-2.5 ${dark ? "text-slate-500" : "text-slate-400"}`}>Allergies</p>
                 <div className="flex flex-wrap gap-2">
                   {allergies.map(a => (
-                    <span key={a} className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-100">
-                      {a}
-                    </span>
+                    <span key={a} className="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-100">{a}</span>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Health notes */}
             {healthIssues && (
               <div className="mt-5">
-                <p className={`text-[10px] font-bold uppercase tracking-widest mb-1.5 ${dark ? "text-slate-500" : "text-slate-400"}`}>
-                  Health Notes
-                </p>
+                <p className={`text-[10px] font-bold uppercase tracking-widest mb-1.5 ${dark ? "text-slate-500" : "text-slate-400"}`}>Health Notes</p>
                 <p className={`text-sm leading-relaxed ${dark ? "text-slate-300" : "text-slate-600"}`}>{healthIssues}</p>
               </div>
             )}
           </div>
 
-          {/* ── Plans section ── */}
+          {/* Plans */}
           {activeNav !== "settings" && (
-            <div className={`rounded-3xl p-8 border shadow-sm transition-colors duration-300 ${
-              dark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-100"
-            }`}>
-              {/* Section header */}
+            <div className={`rounded-2xl p-8 border shadow-sm ${dark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-100"}`}>
               <div className="flex items-start justify-between mb-2">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <Sparkles size={16} className="text-teal-500" />
-                    <h2 className={`text-lg font-black ${dark ? "text-white" : "text-slate-900"}`}>Choose Your Plan</h2>
+                    <Sparkles size={15} className="text-emerald-500" />
+                    <h2 className={`text-base font-bold ${dark ? "text-white" : "text-slate-900"}`}>Choose Your Plan</h2>
                   </div>
                   <p className={`text-sm ${dark ? "text-slate-400" : "text-slate-500"}`}>
                     Unlock the full power of AI-driven nutrition.
-                    {category && <span className={`ml-1 font-semibold ${dark ? "text-teal-400" : "text-teal-600"}`}>{category} pricing applied.</span>}
+                    {category && <span className={`ml-1 font-semibold ${dark ? "text-emerald-400" : "text-emerald-600"}`}>{category} pricing applied.</span>}
                   </p>
                 </div>
               </div>
 
-              {/* Current plan pill */}
-              <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-6 ${
+              <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium mb-6 ${
                 dark ? "bg-slate-800 border border-slate-700 text-slate-400" : "bg-slate-100 border border-slate-200 text-slate-500"
               }`}>
-                <Shield size={11} className="text-teal-500" />
-                Currently on <span className="font-bold text-teal-500 ml-0.5">Free Plan</span> — 5 scans/day
+                <Shield size={10} className="text-emerald-500" />
+                Currently on <span className="font-semibold text-emerald-500 ml-0.5">Free Plan</span> — 5 scans/day
               </div>
 
-              {/* Plan cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 {plans.map(plan => <PlanCard key={plan.name} {...plan} dark={dark} />)}
               </div>
 
-              {/* Footer note */}
-              <div className={`mt-5 flex items-center gap-3 p-4 rounded-2xl ${
+              <div className={`mt-5 flex items-center gap-3 p-4 rounded-xl ${
                 dark ? "bg-slate-800/50 border border-slate-700/40" : "bg-slate-50 border border-slate-100"
               }`}>
-                <CheckCircle size={14} className="text-teal-500 shrink-0" />
+                <CheckCircle size={13} className="text-emerald-500 shrink-0" />
                 <p className={`text-sm ${dark ? "text-slate-400" : "text-slate-500"}`}>
-                  All plans include a <span className="font-semibold">7-day free trial</span>. Cancel anytime, no questions asked.
+                  All plans include a <span className="font-semibold">7-day free trial</span>. Cancel anytime.
                 </p>
-                <button className="ml-auto flex items-center gap-1 text-sm font-semibold text-teal-500 hover:text-teal-400 transition-colors shrink-0 whitespace-nowrap">
-                  Compare plans <ChevronRight size={14} />
+                <button className="ml-auto flex items-center gap-1 text-sm font-semibold text-emerald-500 hover:text-emerald-600 transition-colors shrink-0 whitespace-nowrap">
+                  Compare plans <ChevronRight size={13} />
                 </button>
               </div>
             </div>

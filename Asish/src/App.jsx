@@ -70,8 +70,6 @@ export default function App() {
         {/* Landing page always rendered underneath */}
         {!showProfile && !showOnboarding && (
           <LandingPage
-            dark={dark}
-            setDark={setDark}
             onLoginClick={openLogin}
             onSignupClick={openSignup}
           />
