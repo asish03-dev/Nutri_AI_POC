@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Leaf, Sparkles, CheckCircle2 } from "lucide-react";
+import {  Sparkles, CheckCircle2 } from "lucide-react";
 
 export default function SuccessScreen({ onGetStarted }) {
   const [visible, setVisible] = useState(false);
@@ -29,13 +29,11 @@ export default function SuccessScreen({ onGetStarted }) {
         }}
       >
         {/* Logo */}
-        <div className="flex items-center gap-2 mb-10">
-          <div className="flex items-center justify-center w-9 h-9 rounded-xl shadow-lg"
-            style={{ background: "linear-gradient(135deg, #0f766e, #14b8a6)" }}>
-            <Leaf size={18} className="text-white" />
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <div style={{ fontSize: '28px', fontWeight: 800, color: '#0D9488', letterSpacing: '-1px' }}>
+              Nutri<span style={{ color: '#3B82F6' }}>AI</span>
+            </div>
           </div>
-          <span className="text-xl font-bold text-gray-800 tracking-tight">NutriAi</span>
-        </div>
 
         {/* Success icon */}
         <div className="relative mb-8">
@@ -52,7 +50,7 @@ export default function SuccessScreen({ onGetStarted }) {
 
         {/* Heading */}
         <h1 className="text-4xl font-black text-gray-900 mb-4 tracking-tight">
-          Welcome aboard! 🎉
+          Welcome onboard! 🎉
         </h1>
 
         <p className="text-gray-500 text-lg leading-relaxed mb-10 max-w-md">

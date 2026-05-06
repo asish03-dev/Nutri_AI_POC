@@ -177,12 +177,11 @@ export default function SignupPage({ open, onClose, dark, onSwitchToLogin, onSub
           <X size={16} />
         </button>
 
-        <div className="flex items-center gap-2 mb-6">
-          <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-emerald-500 shadow-lg shadow-emerald-500/30">
-            <Leaf size={18} className="text-white" />
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <div style={{ fontSize: '28px', fontWeight: 800, color: '#0D9488', letterSpacing: '-1px' }}>
+              Nutri<span style={{ color: '#3B82F6' }}>AI</span>
+            </div>
           </div>
-          <span className="text-xl font-bold">NutriAi</span>
-        </div>
 
         <h2 className="text-2xl font-black mb-1">Create Your Account</h2>
         <p className={`text-sm mb-7 ${dark ? "text-gray-400" : "text-gray-500"}`}>

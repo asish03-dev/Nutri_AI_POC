@@ -1,4 +1,4 @@
-import { Leaf, Sun, Moon, Camera, Sparkles } from "lucide-react";
+import {  Sun, Moon, Camera, Sparkles } from "lucide-react";
 
 const FOOD_BG    = "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=1400&q=85";
 const MEAL_PHOTO = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=85";
@@ -21,21 +21,9 @@ function Navbar({ dark, setDark }) {
     >
       {/* Logo */}
       <div className="flex items-center gap-2.5">
-        <div
-          className="flex items-center justify-center w-9 h-9 rounded-xl shadow-lg"
-          style={{ background: "linear-gradient(135deg,#6366f1 0%,#14b8a6 100%)", boxShadow: "0 4px 14px rgba(99,102,241,0.4)" }}
-        >
-          <Leaf size={17} className="text-white" />
+        <div style={{ fontSize: '28px', fontWeight: 800, color: '#0D9488', letterSpacing: '-1px' }}>
+          Nutri<span style={{ color: '#3B82F6' }}>AI</span>
         </div>
-        <span
-          className={`text-xl font-black tracking-tight ${T}`}
-          style={dark
-            ? { background: "linear-gradient(90deg,#a5b4fc,#5eead4)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }
-            : { background: "linear-gradient(90deg,#4f46e5,#0f766e)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }
-          }
-        >
-          NutriAi
-        </span>
       </div>
 
       {/* Right side: dark toggle */}
@@ -58,8 +46,8 @@ function Navbar({ dark, setDark }) {
   );
 }
 
-/* ─── iPhone Mockup ──────────────────────────────────────── */
-function IPhoneMockup() {
+/* ─── Phone  */
+function IPhoneMockup({ dark }) {
   return (
     <div className="relative">
       {/* Ambient glow */}
@@ -79,27 +67,26 @@ function IPhoneMockup() {
         {/* Dynamic Island */}
         <div className="absolute top-3 left-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-full z-30" />
 
-        {/* Screen */}
-        <div className="absolute inset-0 bg-[#0a0a0a] flex flex-col">
+        {/* Screen — follows dark prop */}
+        <div className={`absolute inset-0 flex flex-col ${dark ? 'bg-[#0a0a0a]' : 'bg-[#f8fafc]'}`}>
           {/* Status bar */}
           <div className="flex justify-between items-center px-6 pt-12 pb-1">
-            <span className="text-white text-xs font-semibold">9:41</span>
+            <span className={`text-xs font-semibold ${dark ? 'text-white' : 'text-gray-800'}`}>9:41</span>
             <div className="flex items-center gap-1">
-              <div className="w-4 h-2 border border-white/50 rounded-sm">
-                <div className="w-3/4 h-full bg-white/50 rounded-sm" />
+              <div className={`w-4 h-2 border rounded-sm ${dark ? 'border-white/50' : 'border-gray-400/60'}`}>
+                <div className={`w-3/4 h-full rounded-sm ${dark ? 'bg-white/50' : 'bg-gray-400/60'}`} />
               </div>
             </div>
           </div>
 
-          {/* App header */}
+          {/* App header — landing page logo */}
           <div className="px-5 py-2 flex items-center justify-between">
-            <div className="flex items-center gap-1.5">
-              <div className="w-5 h-5 rounded-md bg-emerald-500 flex items-center justify-center">
-                <span className="text-white text-[8px] font-black">N</span>
+            <div className="flex items-center gap-2">
+              <div style={{ fontSize: '18px', fontWeight: 800, color: '#0D9488', letterSpacing: '-1px' }}>
+                Nutri<span style={{ color: '#3B82F6' }}>AI</span>
               </div>
-              <span className="text-white text-sm font-bold">NutriAi</span>
             </div>
-            <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-xs">👤</div>
+            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs ${dark ? 'bg-white/10' : 'bg-gray-200'}`}>👤</div>
           </div>
 
           {/* Meal photo + scan overlay */}
@@ -108,25 +95,22 @@ function IPhoneMockup() {
               src={MEAL_PHOTO}
               alt="Meal"
               className="w-full h-full object-cover"
-              style={{ filter: "brightness(0.85) saturate(1.2)" }}
+              style={{ filter: `brightness(${dark ? 0.75 : 0.95}) saturate(1.2)` }}
             />
-            {/* Corner brackets */}
             {[
               "top-3 left-3 border-l-2 border-t-2 rounded-tl-lg",
               "top-3 right-3 border-r-2 border-t-2 rounded-tr-lg",
               "bottom-3 left-3 border-l-2 border-b-2 rounded-bl-lg",
               "bottom-3 right-3 border-r-2 border-b-2 rounded-br-lg",
             ].map((cls, i) => (
-              <div key={i} className={`absolute w-5 h-5 border-white/75 ${cls}`} />
+              <div key={i} className={`absolute w-5 h-5 ${dark ? 'border-white/75' : 'border-white/90'} ${cls}`} />
             ))}
-            {/* Scan line */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-4/5 h-px bg-emerald-400/90 shadow-[0_0_12px_4px_rgba(52,211,153,0.55)]" />
             </div>
-            {/* Label */}
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/55 backdrop-blur-sm border border-white/20">
-              <Camera size={11} className="text-white" />
-              <span className="text-white text-[10px] font-medium whitespace-nowrap">
+            <div className={`absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-full backdrop-blur-sm border ${dark ? 'bg-black/55 border-white/20' : 'bg-white/80 border-gray-200'}`}>
+              <Camera size={11} className={dark ? 'text-white' : 'text-gray-700'} />
+              <span className={`text-[10px] font-medium whitespace-nowrap ${dark ? 'text-white' : 'text-gray-700'}`}>
                 Take a photo of your meal
               </span>
             </div>
@@ -135,9 +119,15 @@ function IPhoneMockup() {
           {/* Nutrition cards */}
           <div className="px-4 pt-3 grid grid-cols-3 gap-2">
             {[
-              { label: "Calories", value: "485", unit: "kcal", bg: "bg-orange-500/20", text: "text-orange-400" },
-              { label: "Protein",  value: "32g",  unit: "",     bg: "bg-blue-500/20",   text: "text-blue-400"    },
-              { label: "Carbs",    value: "48g",  unit: "",     bg: "bg-emerald-500/20",text: "text-emerald-400" },
+              { label: "Calories", value: "485", unit: "kcal",
+                bg: dark ? "bg-orange-500/20" : "bg-orange-50",
+                text: dark ? "text-orange-400" : "text-orange-500" },
+              { label: "Protein",  value: "32g",  unit: "",
+                bg: dark ? "bg-blue-500/20"   : "bg-blue-50",
+                text: dark ? "text-blue-400"   : "text-blue-500" },
+              { label: "Carbs",    value: "48g",  unit: "",
+                bg: dark ? "bg-emerald-500/20": "bg-emerald-50",
+                text: dark ? "text-emerald-400": "text-emerald-600" },
             ].map((item) => (
               <div key={item.label} className={`rounded-xl p-2 ${item.bg}`}>
                 <p className={`text-[10px] font-medium ${item.text} opacity-80`}>{item.label}</p>
@@ -150,12 +140,12 @@ function IPhoneMockup() {
           </div>
 
           {/* AI insight */}
-          <div className="mx-4 mt-3 p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30">
+          <div className={`mx-4 mt-3 p-3 rounded-xl ${dark ? 'bg-emerald-500/15 border border-emerald-500/30' : 'bg-emerald-50 border border-emerald-200'}`}>
             <div className="flex items-start gap-2">
-              <Sparkles size={12} className="text-emerald-400 mt-0.5 shrink-0" />
+              <Sparkles size={12} className={`mt-0.5 shrink-0 ${dark ? 'text-emerald-400' : 'text-emerald-500'}`} />
               <div>
-                <p className="text-emerald-400 text-[10px] font-semibold mb-0.5">AI Insight</p>
-                <p className="text-white/65 text-[9px] leading-relaxed">
+                <p className={`text-[10px] font-semibold mb-0.5 ${dark ? 'text-emerald-400' : 'text-emerald-600'}`}>AI Insight</p>
+                <p className={`text-[9px] leading-relaxed ${dark ? 'text-white/65' : 'text-gray-500'}`}>
                   Great balanced meal! High in protein and fiber. Consider adding healthy fats.
                 </p>
               </div>
@@ -163,7 +153,7 @@ function IPhoneMockup() {
           </div>
 
           {/* Bottom nav */}
-          <div className="mt-auto mx-4 mb-4 flex justify-around py-2 rounded-2xl bg-white/5 border border-white/10">
+          <div className={`mt-auto mx-4 mb-4 flex justify-around py-2 rounded-2xl ${dark ? 'bg-white/5 border border-white/10' : 'bg-white border border-gray-100 shadow-sm'}`}>
             {["🏠", "📷", "📊", "👤"].map((icon, i) => (
               <button
                 key={i}
@@ -271,8 +261,8 @@ export default function LandingPage({ dark, setDark, onLoginClick, onSignupClick
         </div>
 
         {/* RIGHT */}
-        <div className="flex-1 flex justify-center lg:justify-end items-center">
-          <IPhoneMockup />
+        <div className="flex-1 flex justify-center lg:justify-start items-center lg:-ml-8">
+          <IPhoneMockup dark={dark} />
         </div>
       </div>
 

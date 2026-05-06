@@ -3,13 +3,13 @@ import { Leaf } from "lucide-react";
 
 /* ── Messages cycling below the spinner ─────────────────── */
 const MESSAGES = {
-  login:  ["Verifying credentials...", "Logging you in...", "Almost there..."],
+  login: ["Verifying credentials...", "Logging you in...", "Almost there..."],
   signup: ["Setting up your profile...", "Creating your account...", "Almost ready..."],
 };
 
-export default function LoadingScreen({ visible, type = "login" }) {
-  const [opacity, setOpacity]   = useState(0);
-  const [msgIdx, setMsgIdx]     = useState(0);
+export default function LoadingScreen({ visible, type = "login", dark = false }) {
+  const [opacity, setOpacity] = useState(0);
+  const [msgIdx, setMsgIdx] = useState(0);
 
   /* Fade in/out + reset message index */
   useEffect(() => {
@@ -53,16 +53,20 @@ export default function LoadingScreen({ visible, type = "login" }) {
         backdropFilter: "blur(18px) saturate(1.4)",
         WebkitBackdropFilter: "blur(18px) saturate(1.4)",
         background:
-          "radial-gradient(ellipse at 50% 40%, rgba(16,185,129,0.12) 0%, transparent 65%), rgba(255,255,255,0.82)",
+          dark
+            ? "radial-gradient(ellipse at 50% 40%, rgba(16,185,129,0.10) 0%, transparent 65%), rgba(10,15,26,0.92)"
+            : "radial-gradient(ellipse at 50% 40%, rgba(16,185,129,0.12) 0%, transparent 65%), rgba(255,255,255,0.82)",
       }}
     >
       {/* Card */}
       <div
         className="flex flex-col items-center gap-7 px-12 py-10 rounded-3xl"
         style={{
-          background: "rgba(255,255,255,0.7)",
-          boxShadow: "0 8px 48px rgba(16,185,129,0.10), 0 2px 16px rgba(0,0,0,0.06)",
-          border: "1px solid rgba(16,185,129,0.12)",
+          background: dark ? "rgba(15,23,42,0.75)" : "rgba(255,255,255,0.7)",
+          boxShadow: dark
+            ? "0 8px 48px rgba(16,185,129,0.08), 0 2px 16px rgba(0,0,0,0.4)"
+            : "0 8px 48px rgba(16,185,129,0.10), 0 2px 16px rgba(0,0,0,0.06)",
+          border: dark ? "1px solid rgba(16,185,129,0.18)" : "1px solid rgba(16,185,129,0.12)",
           transform: `scale(${opacity === 1 ? 1 : 0.94})`,
           transition: "transform 400ms cubic-bezier(0.34,1.56,0.64,1)",
         }}
@@ -75,7 +79,7 @@ export default function LoadingScreen({ visible, type = "login" }) {
           >
             <Leaf size={16} className="text-white" />
           </div>
-          <span className="text-lg font-bold text-gray-800 tracking-tight">NutriAi</span>
+          <span className={`text-lg font-bold tracking-tight ${dark ? 'text-white' : 'text-gray-800'}`}>NutriAi</span>
         </div>
 
         {/* Spinner stack */}
@@ -123,7 +127,7 @@ export default function LoadingScreen({ visible, type = "login" }) {
         <div className="flex flex-col items-center gap-2">
           <p
             key={msgIdx}
-            className="text-sm font-semibold text-gray-700 text-center"
+            className={`text-sm font-semibold text-center ${dark ? 'text-gray-300' : 'text-gray-700'}`}
             style={{ animation: "fadeSlideUp 0.4s ease forwards" }}
           >
             {messages[msgIdx]}
