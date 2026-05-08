@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { Camera, ChevronLeft, Flame, Check, Activity, Plus, X, Leaf, ChevronDown } from 'lucide-react';
+import { Camera, ChevronLeft, Flame, Check, Activity, Plus, X, ChevronDown } from 'lucide-react';
+import logo from '../assets/Screenshot_2026-05-08_184522-removebg-preview.png';
 
 const TOTAL_STEPS = 7;
 
@@ -118,7 +119,7 @@ const ChipGroup = ({ items, selected, onToggle, onAdd, addValue, onAddChange, pl
 const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, backTo = '' }) => {
   const [step, setStep] = useState(1);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [photoPreview, setPhotoPreview] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(initialData?.photo || null);
   const fileRef = useRef();
 
   const buildForm = (d) => ({
@@ -143,22 +144,7 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
 
   const [formData, setFormData] = useState(() => buildForm(initialData));
 
-  // When initialData changes (e.g. Edit Profile clicked), reload the form
-  useEffect(() => {
-    setFormData(buildForm(initialData));
-    setStep(1);
-    setIsAnalyzing(false);
-    setPhotoPreview(null);
-  }, [initialData]);
-
   const isEditMode = backTo === 'profile';
-
-  // Restore photo preview if we have a saved photo from initialData
-  useEffect(() => {
-    if (initialData?.photo) {
-      setPhotoPreview(initialData.photo);
-    }
-  }, []);
 
   const set = (name, value) => setFormData(prev => ({ ...prev, [name]: value }));
   const handleChange = (e) => set(e.target.name, e.target.value);
@@ -300,9 +286,11 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
         {/* Navbar */}
         <nav className="sticky top-0 z-50 h-[72px] bg-white/90 dark:bg-[#0a0f1a]/90 backdrop-blur-md border-b border-[#E2E8F0] dark:border-slate-800 flex items-center justify-between px-6 md:px-12 transition-all shadow-[0_4px_20px_rgba(0,0,0,0.03)] dark:shadow-none">
           <div className="flex items-center gap-2.5">
-            <div style={{ fontSize: '28px', fontWeight: 800, color: '#0D9488', letterSpacing: '-1px' }}>
-              Nutri<span style={{ color: '#3B82F6' }}>AI</span>
-            </div>
+            <img
+              src={logo}
+              alt="NutriAI"
+              style={{ height: 32, width: 'auto', objectFit: 'contain', filter: dark ? 'brightness(0) invert(1)' : 'none' }}
+            />
           </div>
         </nav>
 
@@ -616,65 +604,128 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
             {/* ── Step 7: Pricing ── */}
             {step === 7 && (
               <div className="flex flex-col gap-6 fade-in">
-                <div className="flex flex-col gap-2">
-                  <h1 className="text-[34px] font-extrabold tracking-[-0.02em] text-[#0F172A] dark:text-slate-100 leading-tight text-center">Choose your plan</h1>
-                  <p className="text-[16px] font-medium text-[#475569] dark:text-slate-400 leading-relaxed -mt-2.5 text-center">Unlock the full power of NutriAI tailored to your goals</p>
+                <div className="flex flex-col gap-2 text-center">
+                  <h1 className="text-[34px] font-extrabold tracking-[-0.02em] text-[#0F172A] dark:text-slate-100 leading-tight">Choose your plan</h1>
+                  <p className="text-[16px] font-medium text-[#475569] dark:text-slate-400 leading-relaxed">Simple, transparent pricing. Upgrade or downgrade anytime.</p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
 
-                  {/* Free */}
-                  <div className={`bg-white dark:bg-slate-800 border rounded-[24px] p-8 flex flex-col gap-6 cursor-pointer relative transition-all duration-300 hover:border-[#14B8A6] hover:shadow-[0_12px_40px_rgba(20,184,166,0.12)] hover:-translate-y-1 ${formData.selectedPlan === 'Free' ? 'border-[#14B8A6] shadow-[0_0_0_4px_rgba(20,184,166,0.15),0_12px_40px_rgba(20,184,166,0.15)] dark:shadow-[0_0_0_4px_rgba(20,184,166,0.15)]' : 'border-[#E2E8F0] shadow-[0_4px_20px_rgba(0,0,0,0.03)] dark:border-slate-700'}`} onClick={() => set('selectedPlan', 'Free')}>
-                    <div className="text-[20px] font-bold text-[#0F172A] dark:text-slate-100 tracking-[-0.01em]">Free</div>
-                    <div className="text-[36px] font-extrabold text-[#0F172A] dark:text-slate-100 tracking-[-0.03em] leading-none">₹0<span className="text-[15px] font-bold text-[#475569] tracking-normal ml-1">/month</span></div>
-                    <ul className="flex flex-col gap-3.5 flex-1 list-none mt-2">
-                      {['Basic calorie tracking', 'Generic meal templates', 'Community access'].map(f => (
-                        <li key={f} className="flex items-start gap-2.5 text-[14px] font-semibold text-[#475569] dark:text-slate-400 leading-snug"><Check size={18} strokeWidth={3} className="text-[#14B8A6] shrink-0" />{f}</li>
-                      ))}
-                      {['AI Chat Guidance', 'Personalised meal plans', 'Priority support'].map(f => (
-                        <li key={f} className="flex items-start gap-2.5 text-[14px] font-semibold text-[#E2E8F0] dark:text-slate-600 leading-snug"><Check size={18} strokeWidth={3} className="text-[#FAFBFC] dark:text-slate-700 shrink-0" />{f}</li>
-                      ))}
-                    </ul>
-                    <button className={`w-full h-[52px] rounded-[16px] border text-[15px] font-bold transition-all duration-300 mt-2 ${formData.selectedPlan === 'Free' ? 'bg-[#14B8A6] border-[#14B8A6] text-white shadow-[0_8px_20px_rgba(20,184,166,0.3)] hover:bg-[#0D9488]' : 'border-[#E2E8F0] dark:border-slate-700 bg-white dark:bg-slate-900 text-[#0F172A] dark:text-slate-400 hover:border-[#14B8A6] hover:text-[#14B8A6] dark:hover:text-[#14B8A6]'}`}>
-                      {formData.selectedPlan === 'Free' ? '✓ Selected' : 'Get Started'}
-                    </button>
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
 
-                  {/* Standard */}
-                  <div className={`border rounded-[24px] p-8 flex flex-col gap-6 cursor-pointer relative transition-all duration-300 hover:border-[#14B8A6] hover:shadow-[0_12px_40px_rgba(20,184,166,0.12)] hover:-translate-y-1 bg-gradient-to-br from-[#14B8A6]/5 to-white dark:from-[#14B8A6]/10 dark:to-slate-800 ${formData.selectedPlan === 'Standard' ? 'border-[#14B8A6] shadow-[0_0_0_4px_rgba(20,184,166,0.15),0_12px_40px_rgba(20,184,166,0.15)] dark:shadow-[0_0_0_4px_rgba(20,184,166,0.15)]' : 'border-[#14B8A6]/40 shadow-[0_8px_24px_rgba(20,184,166,0.06)] dark:border-slate-700'}`} onClick={() => set('selectedPlan', 'Standard')}>
-                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#0F172A] dark:bg-[#14B8A6] text-white text-[12px] font-bold tracking-[0.06em] uppercase px-4 py-1.5 rounded-full whitespace-nowrap shadow-md">Most Popular</div>
-                    <div className="text-[20px] font-bold text-[#0F172A] dark:text-slate-100 tracking-[-0.01em]">Standard</div>
-                    <div className="text-[36px] font-extrabold text-[#0F172A] dark:text-slate-100 tracking-[-0.03em] leading-none">₹149<span className="text-[15px] font-bold text-[#475569] tracking-normal ml-1">/month</span></div>
-                    <ul className="flex flex-col gap-3.5 flex-1 list-none mt-2">
-                      {['Smart calorie & macro tracking', 'Personalised meal plans', 'Basic AI Chat Support', 'Weekly progress reports'].map(f => (
-                        <li key={f} className="flex items-start gap-2.5 text-[14px] font-semibold text-[#0F172A] dark:text-slate-300 leading-snug"><Check size={18} strokeWidth={3} className="text-[#14B8A6] shrink-0" />{f}</li>
-                      ))}
-                      {['24/7 Advanced AI Coach', 'Grocery list automation'].map(f => (
-                        <li key={f} className="flex items-start gap-2.5 text-[14px] font-semibold text-[#E2E8F0] dark:text-slate-600 leading-snug"><Check size={18} strokeWidth={3} className="text-[#FAFBFC] dark:text-slate-700 shrink-0" />{f}</li>
-                      ))}
-                    </ul>
-                    <button className={`w-full h-[52px] rounded-[16px] border text-[15px] font-bold transition-all duration-300 mt-2 ${formData.selectedPlan === 'Standard' ? 'bg-[#14B8A6] border-[#14B8A6] text-white shadow-[0_8px_20px_rgba(20,184,166,0.3)] hover:bg-[#0D9488]' : 'border-[#14B8A6] bg-[#14B8A6] text-white hover:bg-[#0D9488]'}`}>
-                      {formData.selectedPlan === 'Standard' ? '✓ Selected' : 'Get Started'}
-                    </button>
-                  </div>
+                  {[{
+                    id: 'Free',
+                    tag: 'Free',
+                    subtitle: 'Always free, no card needed',
+                    free: true,
+                    recommended: false,
+                    features: ['5 Meal Scans / day', 'Limited Nia AI Chat', '7 Days Meal History', 'Basic Access'],
+                  }, {
+                    id: 'Pro',
+                    tag: 'Pro',
+                    price: 149,
+                    subtitle: 'Best for serious health goals',
+                    recommended: true,
+                    features: ['20 Meal Scans / day', 'More Nia AI Access', '30 Days Meal History', 'PDF Report Export'],
+                  }, {
+                    id: 'Premium',
+                    tag: 'Premium',
+                    price: 349,
+                    subtitle: 'Everything, no limits',
+                    recommended: false,
+                    features: ['Unlimited Meal Scans', 'Unlimited Nia AI', 'Unlimited Meal History', 'PDF Report Export', 'Smart Reminders'],
+                  }].map(plan => {
+                    const selected = formData.selectedPlan === plan.id;
+                    return (
+                      <div
+                        key={plan.id}
+                        onClick={() => set('selectedPlan', plan.id)}
+                        className={`relative flex flex-col rounded-3xl border-2 cursor-pointer transition-all duration-300 hover:-translate-y-1
+                          ${
+                            selected
+                              ? 'border-[#0D9488] shadow-[0_0_0_4px_rgba(20,184,166,0.15),0_16px_48px_rgba(20,184,166,0.18)]'
+                              : plan.recommended
+                                ? 'border-[#0D9488]/50 shadow-lg shadow-[#0D9488]/10 hover:border-[#0D9488] hover:shadow-xl'
+                                : 'border-[#E2E8F0] dark:border-slate-700 shadow-sm hover:border-[#0D9488]/50 hover:shadow-lg'
+                          }
+                          ${
+                            plan.recommended
+                              ? dark ? 'bg-gradient-to-b from-[#0D9488]/10 to-slate-800' : 'bg-gradient-to-b from-teal-50/80 to-white'
+                              : dark ? 'bg-slate-800/60' : 'bg-white'
+                          }
+                        `}
+                      >
+                        {/* Recommended badge */}
+                        {plan.recommended && (
+                          <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
+                            <div className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest text-white bg-[#0D9488] shadow-lg shadow-[#0D9488]/30 whitespace-nowrap">
+                              ★ Recommended
+                            </div>
+                          </div>
+                        )}
 
-                  {/* Premium */}
-                  <div className={`border rounded-[24px] p-8 flex flex-col gap-6 cursor-pointer relative transition-all duration-300 hover:border-[#14B8A6] hover:shadow-[0_12px_40px_rgba(20,184,166,0.12)] hover:-translate-y-1 bg-gradient-to-br from-orange-50/50 to-white dark:from-orange-500/5 dark:to-slate-800 ${formData.selectedPlan === 'Premium' ? 'border-[#14B8A6] shadow-[0_0_0_4px_rgba(20,184,166,0.15),0_12px_40px_rgba(20,184,166,0.15)] dark:shadow-[0_0_0_4px_rgba(20,184,166,0.15)]' : 'border-[#E2E8F0] shadow-[0_4px_20px_rgba(0,0,0,0.03)] dark:border-slate-700'}`} onClick={() => set('selectedPlan', 'Premium')}>
-                    <div className="text-[20px] font-bold text-[#0F172A] dark:text-slate-100 tracking-[-0.01em]">Premium</div>
-                    <div className="text-[36px] font-extrabold text-[#0F172A] dark:text-slate-100 tracking-[-0.03em] leading-none">₹349<span className="text-[15px] font-bold text-[#475569] tracking-normal ml-1">/month</span></div>
-                    <ul className="flex flex-col gap-3.5 flex-1 list-none mt-2">
-                      {['Everything in Standard', '24/7 Advanced AI Coach', 'Grocery list automation', 'Custom recipe generation', '1-on-1 dietitian access', 'Priority support'].map(f => (
-                        <li key={f} className="flex items-start gap-2.5 text-[14px] font-semibold text-[#0F172A] dark:text-slate-300 leading-snug"><Check size={18} strokeWidth={3} className="text-[#14B8A6] shrink-0" />{f}</li>
-                      ))}
-                    </ul>
-                    <button className={`w-full h-[52px] rounded-[16px] border text-[15px] font-bold transition-all duration-300 mt-2 ${formData.selectedPlan === 'Premium' ? 'bg-[#14B8A6] border-[#14B8A6] text-white shadow-[0_8px_20px_rgba(20,184,166,0.3)] hover:bg-[#0D9488]' : 'border-[#E2E8F0] dark:border-slate-700 bg-white dark:bg-slate-900 text-[#0F172A] dark:text-slate-400 hover:border-[#14B8A6] hover:text-[#14B8A6] dark:hover:text-[#14B8A6]'}`}>
-                      {formData.selectedPlan === 'Premium' ? '✓ Selected' : 'Get Started'}
-                    </button>
-                  </div>
+                        <div className="p-7 flex flex-col flex-1">
+                          {/* Tag + price */}
+                          <div className="mb-5">
+                            <p className={`text-[11px] font-black uppercase tracking-[0.15em] mb-3 ${
+                              plan.recommended ? 'text-[#0D9488]' : dark ? 'text-slate-500' : 'text-slate-400'
+                            }`}>{plan.tag}</p>
+                            <div className="flex items-baseline gap-1.5">
+                              {plan.free ? (
+                                <span className={`text-4xl font-black tracking-tight ${dark ? 'text-white' : 'text-slate-900'}`}>Free</span>
+                              ) : (
+                                <>
+                                  <span className={`text-[13px] font-bold mt-1 ${dark ? 'text-slate-400' : 'text-slate-500'}`}>₹</span>
+                                  <span className={`text-5xl font-black tracking-tight leading-none ${dark ? 'text-white' : 'text-slate-900'}`}>{plan.price}</span>
+                                  <span className={`text-[13px] font-semibold ${dark ? 'text-slate-500' : 'text-slate-400'}`}>/mo</span>
+                                </>
+                              )}
+                            </div>
+                            <p className={`text-sm mt-2 font-medium ${dark ? 'text-slate-400' : 'text-slate-500'}`}>{plan.subtitle}</p>
+                          </div>
+
+                          {/* Divider */}
+                          <div className={`h-px mb-5 ${plan.recommended ? 'bg-[#0D9488]/20' : dark ? 'bg-slate-700/60' : 'bg-slate-100'}`} />
+
+                          {/* Features */}
+                          <ul className="space-y-3 flex-1 mb-7">
+                            {plan.features.map(f => (
+                              <li key={f} className="flex items-center gap-3">
+                                <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
+                                  plan.recommended ? 'bg-[#0D9488]/15' : dark ? 'bg-slate-700' : 'bg-slate-100'
+                                }`}>
+                                  <Check size={11} strokeWidth={3} className={plan.recommended ? 'text-[#0D9488]' : dark ? 'text-slate-400' : 'text-slate-500'} />
+                                </div>
+                                <span className={`text-[13px] font-medium ${dark ? 'text-slate-300' : 'text-slate-600'}`}>{f}</span>
+                              </li>
+                            ))}
+                          </ul>
+
+                          {/* CTA */}
+                          <button
+                            className={`w-full py-3 rounded-2xl text-[14px] font-bold tracking-wide transition-all duration-200 ${
+                              selected
+                                ? 'bg-[#0D9488] text-white shadow-lg shadow-[#0D9488]/25'
+                                : plan.recommended
+                                  ? 'bg-[#0D9488] text-white hover:bg-[#0F766E] shadow-lg shadow-[#0D9488]/20'
+                                  : plan.free
+                                    ? dark ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                    : dark ? 'border-2 border-[#0D9488]/50 text-[#14B8A6] hover:bg-[#0D9488]/10' : 'border-2 border-[#0D9488] text-[#0D9488] hover:bg-teal-50'
+                            }`}
+                          >
+                            {selected ? '✓ Selected' : plan.free ? 'Start Free' : plan.recommended ? 'Upgrade to Pro →' : 'Get Premium →'}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
 
                 </div>
+
                 {formData.selectedPlan && (
-                  <div className="flex items-center justify-center mt-12 pt-8 border-t border-[#E2E8F0] dark:border-slate-800 fade-in">
-                    <button className="w-full inline-flex items-center justify-center h-[60px] px-8 bg-[#14B8A6] text-white text-[17px] font-bold rounded-[20px] tracking-[-0.01em] transition-all duration-300 shadow-[0_8px_24px_rgba(20,184,166,0.3)] hover:bg-[#0D9488] hover:shadow-[0_12px_32px_rgba(20,184,166,0.4)] hover:-translate-y-[2px] active:translate-y-0" onClick={handleFinish}>
+                  <div className="flex items-center justify-center mt-10 pt-8 border-t border-[#E2E8F0] dark:border-slate-800 fade-in">
+                    <button
+                      className="w-full inline-flex items-center justify-center h-[60px] px-8 bg-[#14B8A6] text-white text-[17px] font-bold rounded-[20px] tracking-[-0.01em] transition-all duration-300 shadow-[0_8px_24px_rgba(20,184,166,0.3)] hover:bg-[#0D9488] hover:shadow-[0_12px_32px_rgba(20,184,166,0.4)] hover:-translate-y-[2px] active:translate-y-0"
+                      onClick={handleFinish}
+                    >
                       Continue to Dashboard →
                     </button>
                   </div>

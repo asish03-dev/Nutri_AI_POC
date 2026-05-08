@@ -17,10 +17,15 @@ export function UserProvider({ children }) {
 
   const [dailyLogs, setDailyLogs] = useState({
     current_water: 2.4,
-    daily_calories_consumed: 1480,
-    junk_score: 8.5,
+    daily_calories_consumed: 0,
+    daily_protein: 0,
+    daily_carbs: 0,
+    daily_fat: 0,
+    junk_score: 0,
+    junk_count: 0,
     recent_weight_logs: []
   });
+  
 
   const updateUserData = (data) => setUserData(prev => ({ ...prev, ...data }));
 
@@ -37,13 +42,26 @@ export function UserProvider({ children }) {
     setDailyLogs(prev => ({ ...prev, current_water: 0 }));
   };
   
-  // Real-time update function for water
   const updateWaterIntake = (amount) => {
     setDailyLogs(prev => ({
       ...prev,
       current_water: Math.min(parseFloat((prev.current_water + amount).toFixed(2)), userMetrics.water_goal)
     }));
-    // TODO: Send update to backend here
+  };
+
+  const addMealLog = (meal) => {
+    setDailyLogs(prev => {
+      const newCount = prev.junk_count + 1;
+      return {
+        ...prev,
+        daily_calories_consumed: prev.daily_calories_consumed + (meal.calories || 0),
+        daily_protein: prev.daily_protein + (meal.protein || 0),
+        daily_carbs: prev.daily_carbs + (meal.carbs || 0),
+        daily_fat: prev.daily_fat + (meal.fat || 0),
+        junk_score: parseFloat(((prev.junk_score * prev.junk_count + (meal.junkScore || 0)) / newCount).toFixed(1)),
+        junk_count: newCount,
+      };
+    });
   };
 
   return (
@@ -52,7 +70,7 @@ export function UserProvider({ children }) {
       dark, setDark,
       userMetrics, setUserMetrics,
       dailyLogs, setDailyLogs,
-      updateWaterIntake
+      updateWaterIntake, addMealLog
     }}>
       {children}
     </UserContext.Provider>

@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import { Leaf, User, Mail, Lock, Eye, EyeOff, X, ShieldCheck } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Mail, Lock, Eye, EyeOff, X, ShieldCheck } from "lucide-react";
+import logo from '../assets/Screenshot_2026-05-08_184522-removebg-preview.png';
 
 /* ── Spinner ────────────────────────────────────────────────── */
 function Spinner() {
@@ -95,33 +96,35 @@ export default function SignupPage({ open, onClose, dark, onSwitchToLogin, onSub
     onSubmit();
   }
 
-  useEffect(() => {
-    if (!open) setSubmitting(false);
-  }, [open]);
+  const raf1 = useRef();
+  const raf2 = useRef();
 
   useEffect(() => {
-    let raf1, raf2, timer;
+    let timer;
     if (open) {
       timer = setTimeout(() => {
         setMounted(true);
-        raf1 = requestAnimationFrame(() => {
-          raf2 = requestAnimationFrame(() => setVisible(true));
+        raf1.current = requestAnimationFrame(() => {
+          raf2.current = requestAnimationFrame(() => setVisible(true));
         });
       }, 0);
     } else {
-      setVisible(false);
       timer = setTimeout(() => {
-        setMounted(false);
-        setPassword("");
-        setShowPw(false);
-        setShowConfirm(false);
-        setAgreed(false);
-      }, 350);
+        setVisible(false);
+        setTimeout(() => {
+          setMounted(false);
+          setSubmitting(false);
+          setPassword("");
+          setShowPw(false);
+          setShowConfirm(false);
+          setAgreed(false);
+        }, 350);
+      }, 0);
     }
     return () => {
       clearTimeout(timer);
-      cancelAnimationFrame(raf1);
-      cancelAnimationFrame(raf2);
+      cancelAnimationFrame(raf1.current);
+      cancelAnimationFrame(raf2.current);
     };
   }, [open]);
 
@@ -178,9 +181,11 @@ export default function SignupPage({ open, onClose, dark, onSwitchToLogin, onSub
         </button>
 
           <div className="flex items-center justify-center gap-2 mb-6">
-            <div style={{ fontSize: '28px', fontWeight: 800, color: '#0D9488', letterSpacing: '-1px' }}>
-              Nutri<span style={{ color: '#3B82F6' }}>AI</span>
-            </div>
+            <img
+              src={logo}
+              alt="NutriAI"
+              style={{ height: 32, width: 'auto', objectFit: 'contain', filter: dark ? 'brightness(0) invert(1)' : 'none' }}
+            />
           </div>
 
         <h2 className="text-2xl font-black mb-1">Create Your Account</h2>
@@ -189,18 +194,6 @@ export default function SignupPage({ open, onClose, dark, onSwitchToLogin, onSub
         </p>
 
         <div className="space-y-4">
-          <div>
-            <FieldLabel dark={dark}>Full Name</FieldLabel>
-            <div className="relative">
-              <User size={15} className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${iconCls}`} />
-              <input
-                type="text"
-                placeholder="John Doe"
-                className={`w-full pl-10 pr-4 py-3 rounded-xl border text-sm outline-none transition-colors duration-200 ${input}`}
-              />
-            </div>
-          </div>
-
           <div>
             <FieldLabel dark={dark}>Email / Phone Number</FieldLabel>
             <div className="relative">

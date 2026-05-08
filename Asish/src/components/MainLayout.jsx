@@ -29,8 +29,10 @@ export default function MainLayout({ children, dark, setDark, profileData, activ
         className="flex-1 flex flex-col overflow-hidden"
         style={{ marginLeft: collapsed ? '68px' : '232px', height: '100vh', transition: 'margin-left 280ms cubic-bezier(0.4, 0, 0.2, 1)' }}
       >
-        <Navbar dark={dark} setDark={setDark} name={name} onUpgrade={onUpgrade} onOpenReport={onOpenReport} />
-        <div ref={scrollRef} className="flex-1 overflow-y-auto">
+        {activeNav !== 'nia' && (
+          <Navbar dark={dark} setDark={setDark} name={name} onUpgrade={onUpgrade} onOpenReport={onOpenReport} />
+        )}
+        <div ref={scrollRef} className={`flex-1 ${activeNav === 'nia' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
           {children}
         </div>
       </main>

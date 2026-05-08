@@ -6,10 +6,13 @@ import LoadingScreen from "./components/LoadingScreen";
 import Onboarding    from "./components/Onboarding";
 import Profile       from "./components/Profile";
 import Dashboard     from "./components/Dashboard";
+import MealLogs      from "./components/MealLogs";
+import Nia           from "./components/Nia";
 import MainLayout        from "./components/MainLayout";
 import WeeklyReportModal from "./components/WeeklyReportModal";
 import SuccessScreen     from "./components/SuccessScreen";
 import { useUser }       from "./context/UserContext";
+import { getProfileCompletion } from "./lib/profileCompletion";
 
 export default function App() {
   const { saveOnboardingData } = useUser();
@@ -29,6 +32,7 @@ export default function App() {
   const [showSuccessScreen, setShowSuccessScreen] = useState(false);
   const [currentView, setCurrentView]       = useState("dashboard");
   const [showReport, setShowReport]         = useState(false);
+  const [niaMsgs, setNiaMsgs]               = useState([]);
 
   // Hydrate UserContext on initial load if we have saved data
   useEffect(() => {
@@ -150,9 +154,9 @@ export default function App() {
             onUpgrade={() => setCurrentView('plans')}
             onOpenReport={() => setShowReport(true)}
           >
-            {currentView === 'dashboard' && <Dashboard dark={dark} />}
-            {currentView === 'meal-logs' && <Dashboard dark={dark} />}
-            {currentView === 'nia' && <Dashboard dark={dark} />}
+            {currentView === 'dashboard' && <Dashboard dark={dark} onOpenReport={() => setShowReport(true)} profileComplete={getProfileCompletion(profileData) === 100} />}
+            {currentView === 'meal-logs' && <MealLogs dark={dark} />}
+            {currentView === 'nia' && <Nia dark={dark} profileData={profileData} niaMsgs={niaMsgs} setNiaMsgs={setNiaMsgs} />}
             {(currentView === 'profile' || currentView === 'plans' || currentView === 'settings') && (
               <Profile
                 dark={dark}
@@ -166,7 +170,7 @@ export default function App() {
         )}
 
         {/* Success Transition Screen */}
-        {showSuccessScreen && <SuccessScreen onGetStarted={handleSuccessComplete} />}
+        {showSuccessScreen && <SuccessScreen dark={dark} onGetStarted={handleSuccessComplete} />}
 
         {/* Weekly Report Modal */}
         {showReport && <WeeklyReportModal onClose={() => setShowReport(false)} />}

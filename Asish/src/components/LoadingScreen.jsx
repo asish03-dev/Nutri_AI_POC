@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Leaf } from "lucide-react";
+import logo from '../assets/Screenshot_2026-05-08_184522-removebg-preview.png';
 
 /* ── Messages cycling below the spinner ─────────────────── */
 const MESSAGES = {
@@ -73,13 +73,12 @@ export default function LoadingScreen({ visible, type = "login", dark = false })
       >
         {/* Logo */}
         <div className="flex items-center gap-2">
-          <div
-            className="flex items-center justify-center w-8 h-8 rounded-xl bg-emerald-500 shadow-lg shadow-emerald-500/30"
-            style={{ animation: "logoPulse 2s ease-in-out infinite" }}
-          >
-            <Leaf size={16} className="text-white" />
-          </div>
-          <span className={`text-lg font-bold tracking-tight ${dark ? 'text-white' : 'text-gray-800'}`}>NutriAi</span>
+          <img
+            src={logo}
+            alt="NutriAI"
+            className="h-7 w-auto object-contain"
+            style={{ filter: dark ? 'brightness(0) invert(1)' : 'none' }}
+          />
         </div>
 
         {/* Spinner stack */}

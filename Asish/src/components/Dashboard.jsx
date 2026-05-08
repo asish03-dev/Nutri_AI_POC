@@ -1,8 +1,9 @@
+import { useState } from 'react';
 import { BarChart, Bar, AreaChart, Area, Line,
   XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, ReferenceLine, CartesianGrid
 } from 'recharts';
 import { 
-  Flame, Target, TrendingUp, TrendingDown, Droplets
+  Flame, Target, TrendingUp, TrendingDown, Droplets, Download, Loader2, CheckCircle2
 } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 
@@ -108,7 +109,18 @@ const renderCustomDot = (props) => {
   return null;
 };
 
-const AnalyticsDashboard = ({ dark }) => {
+const AnalyticsDashboard = ({ dark, onOpenReport, profileComplete }) => {
+  const [reportState, setReportState] = useState('idle');
+
+  const handleReport = () => {
+    if (reportState !== 'idle') return;
+    setReportState('loading');
+    setTimeout(() => {
+      setReportState('done');
+      if (onOpenReport) onOpenReport();
+      setTimeout(() => setReportState('idle'), 2500);
+    }, 1500);
+  };
   const { userMetrics, dailyLogs, updateWaterIntake } = useUser();
   const water = dailyLogs?.current_water || 0;
   const waterGoal = userMetrics?.water_goal || 3.0;
@@ -119,12 +131,16 @@ const AnalyticsDashboard = ({ dark }) => {
 
   const displayCal = Math.round(data.calTrend.reduce((a, b) => a + b.val, 0) / data.calTrend.length);
   const avgJunk = (data.junkScore.reduce((a, b) => a + b.score, 0) / data.junkScore.length).toFixed(1);
-  
-  // Today's Junk Logic
-  const todayJunk = 8.5;
+
+  // Live today stats from meal logs
+  const todayCal = dailyLogs?.daily_calories_consumed || 0;
+  const todayProtein = dailyLogs?.daily_protein || 0;
+  const todayCarbs = dailyLogs?.daily_carbs || 0;
+  const todayFat = dailyLogs?.daily_fat || 0;
+  const todayJunk = (dailyLogs?.junk_count > 0) ? (dailyLogs?.junk_score || 0) : 0;
   const junkColor = todayJunk >= 7.5 ? COLORS.danger : todayJunk >= 5 ? COLORS.warning : COLORS.success;
-  const junkLabel = todayJunk >= 7.5 ? 'High Junk Intake' : todayJunk >= 5 ? 'Moderate Control' : 'Excellent Control';
-  const junkMessage = todayJunk >= 7.5 ? "Your cravings were high today. Try focusing on whole foods for your next meal." : "Great job keeping junk food low today!";
+  const junkLabel = todayJunk === 0 ? 'No meals yet' : todayJunk >= 7.5 ? 'High Junk Intake' : todayJunk >= 5 ? 'Moderate Control' : 'Excellent Control';
+  const junkMessage = todayJunk === 0 ? 'Log your first meal to see your junk score.' : todayJunk >= 7.5 ? 'Your cravings were high today. Try focusing on whole foods for your next meal.' : 'Great job keeping junk food low today!';
 
   return (
     <div className="w-full relative px-6 md:px-10 py-8">
@@ -176,21 +192,21 @@ const AnalyticsDashboard = ({ dark }) => {
                 <circle stroke={dark ? "#1E293B" : "#F1F5F9"} fill="transparent" strokeWidth="18" r="91" cx="110" cy="110" />
                 <circle 
                   stroke={COLORS.teal} fill="transparent" strokeWidth="18" strokeLinecap="round" 
-                  strokeDasharray="571" strokeDashoffset={571 - (1480 / data.calGoal) * 571}
+                  strokeDasharray="571" strokeDashoffset={571 - Math.min(todayCal / data.calGoal, 1) * 571}
                   r="91" cx="110" cy="110" className="transition-all duration-1500 ease-out" 
                 />
               </svg>
               <div className="absolute flex flex-col items-center justify-center text-center">
-                <div className="text-[32px] font-extrabold text-[#0F172A] dark:text-white tracking-[-0.02em] leading-none mb-1">1,480</div>
+                <div className="text-[32px] font-extrabold text-[#0F172A] dark:text-white tracking-[-0.02em] leading-none mb-1">{todayCal.toLocaleString()}</div>
                 <div className="text-[14px] font-bold text-[#94A3B8] dark:text-slate-400 uppercase tracking-wider">/ {data.calGoal} kcal</div>
               </div>
             </div>
             
             <div className="w-full flex flex-col gap-4">
               {[ 
-                { label: 'Protein', val: 98, max: 140, color: '#3182CE' }, 
-                { label: 'Carbs', val: 120, max: 200, color: COLORS.amber }, 
-                { label: 'Fat', val: 45, max: 65, color: '#805AD5' } 
+                { label: 'Protein', val: todayProtein, max: 140, color: '#3182CE' }, 
+                { label: 'Carbs', val: todayCarbs, max: 200, color: COLORS.amber }, 
+                { label: 'Fat', val: todayFat, max: 65, color: '#805AD5' } 
               ].map(m => (
                 <div key={m.label} className="w-full">
                   <div className="flex justify-between text-[13px] font-bold mb-2">
@@ -241,7 +257,7 @@ const AnalyticsDashboard = ({ dark }) => {
                 />
               </svg>
               <div className="absolute flex flex-col items-center justify-center text-center">
-                <div className="text-[42px] font-extrabold tracking-tight leading-none mb-1" style={{ color: junkColor }}>{todayJunk}</div>
+                <div className="text-[42px] font-extrabold tracking-tight leading-none mb-1" style={{ color: junkColor }}>{todayJunk || '—'}</div>
                 <div className="text-[13px] font-bold text-[#94A3B8] uppercase tracking-wider">/ 10</div>
               </div>
             </div>
@@ -383,6 +399,25 @@ const AnalyticsDashboard = ({ dark }) => {
           </div>
 
         </div>
+        {/* ── REPORT BUTTON ── */}
+        <div className="flex justify-center pb-8">
+          <button
+            onClick={profileComplete ? handleReport : undefined}
+            disabled={!profileComplete}
+            title={!profileComplete ? 'Complete your profile to 100% to unlock reports' : undefined}
+            className="h-11 px-8 text-white rounded-[14px] text-[15px] font-bold flex items-center gap-2 transition-all duration-200"
+            style={{
+              backgroundColor: profileComplete ? '#14B8A6' : '#94A3B8',
+              cursor: profileComplete ? 'pointer' : 'not-allowed',
+              opacity: profileComplete ? 1 : 0.6,
+              boxShadow: profileComplete ? '0 4px 16px rgba(20,184,166,0.3)' : 'none',
+            }}
+          >
+            {reportState === 'loading' ? <Loader2 size={16} className="animate-spin" /> : reportState === 'done' ? <CheckCircle2 size={16} /> : <Download size={16} />}
+            {!profileComplete ? 'Complete Profile to Unlock' : reportState === 'loading' ? 'Generating...' : reportState === 'done' ? 'Report Ready!' : 'Generate Report'}
+          </button>
+        </div>
+
       </div>
     </div>
   );

@@ -37,14 +37,12 @@ dist-ssr
 *.html
 !index.html
 
-# Images (optional - careful if used in project)
-*.jpeg
-*.jpg
-*.png
-
 # Notes / misc
 *.txt
 
 # Markdown (keep only README)
 *.md
 !README.md
+
+# Archive files
+*.zip

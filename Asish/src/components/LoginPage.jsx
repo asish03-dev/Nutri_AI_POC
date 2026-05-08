@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Leaf, Mail, Lock, Eye, EyeOff, X, ShieldCheck } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, X, ShieldCheck } from "lucide-react";
+import logo from '../assets/Screenshot_2026-05-08_184522-removebg-preview.png';
 
 /* ── Spinner ────────────────────────────────────────────────── */
 function Spinner() {
@@ -126,9 +127,11 @@ export default function LoginPage({ open, onClose, dark, onSwitchToSignup, onSub
         </button>
 
           <div className="flex items-center justify-center gap-2 mb-6">
-            <div style={{ fontSize: '28px', fontWeight: 800, color: '#0D9488', letterSpacing: '-1px' }}>
-              Nutri<span style={{ color: '#3B82F6' }}>AI</span>
-            </div>
+            <img
+              src={logo}
+              alt="NutriAI"
+              style={{ height: 32, width: 'auto', objectFit: 'contain', filter: dark ? 'brightness(0) invert(1)' : 'none' }}
+            />
           </div>
 
         <h2 className="text-2xl font-black mb-1">

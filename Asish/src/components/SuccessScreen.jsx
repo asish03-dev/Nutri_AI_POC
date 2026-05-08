@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import {  Sparkles, CheckCircle2 } from "lucide-react";
+import logo from '../assets/Screenshot_2026-05-08_184522-removebg-preview.png';
 
-export default function SuccessScreen({ onGetStarted }) {
+export default function SuccessScreen({ onGetStarted, dark }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -12,7 +13,9 @@ export default function SuccessScreen({ onGetStarted }) {
   return (
     <div
       className="fixed inset-0 z-[300] flex items-center justify-center"
-      style={{ background: "linear-gradient(135deg, #fdfaf5 0%, #f0fdf8 50%, #f1f8f5 100%)" }}
+      style={{ background: dark
+        ? "linear-gradient(135deg, #0a0f1a 0%, #0f1f1a 50%, #0a1510 100%)"
+        : "linear-gradient(135deg, #fdfaf5 0%, #f0fdf8 50%, #f1f8f5 100%)" }}
     >
       {/* Ambient blobs */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full opacity-20 blur-3xl pointer-events-none"
@@ -30,9 +33,11 @@ export default function SuccessScreen({ onGetStarted }) {
       >
         {/* Logo */}
           <div className="flex items-center justify-center gap-2 mb-4">
-            <div style={{ fontSize: '28px', fontWeight: 800, color: '#0D9488', letterSpacing: '-1px' }}>
-              Nutri<span style={{ color: '#3B82F6' }}>AI</span>
-            </div>
+            <img
+              src={logo}
+              alt="NutriAI"
+              style={{ height: 32, width: 'auto', objectFit: 'contain', filter: dark ? 'brightness(0) invert(1)' : 'none' }}
+            />
           </div>
 
         {/* Success icon */}
@@ -49,11 +54,11 @@ export default function SuccessScreen({ onGetStarted }) {
         </div>
 
         {/* Heading */}
-        <h1 className="text-4xl font-black text-gray-900 mb-4 tracking-tight">
+        <h1 className={`text-4xl font-black mb-4 tracking-tight ${dark ? 'text-white' : 'text-gray-900'}`}>
           Welcome onboard! 🎉
         </h1>
 
-        <p className="text-gray-500 text-lg leading-relaxed mb-10 max-w-md">
+        <p className={`text-lg leading-relaxed mb-10 max-w-md ${dark ? 'text-slate-400' : 'text-gray-500'}`}>
           Your personalized nutrition journey starts now. We're preparing custom meal plans
           and insights based on your profile.
         </p>
@@ -65,9 +70,9 @@ export default function SuccessScreen({ onGetStarted }) {
             { icon: "📊", text: "Nutrition Tracking" },
             { icon: "🤖", text: "AI Insights" },
           ].map((f) => (
-            <div key={f.text} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-teal-100 shadow-sm">
+            <div key={f.text} className={`flex items-center gap-2 px-4 py-2 rounded-full border shadow-sm ${dark ? 'bg-slate-800 border-teal-900/50' : 'bg-white border-teal-100'}`}>
               <span className="text-sm">{f.icon}</span>
-              <span className="text-sm font-semibold text-gray-700">{f.text}</span>
+              <span className={`text-sm font-semibold ${dark ? 'text-slate-300' : 'text-gray-700'}`}>{f.text}</span>
             </div>
           ))}
         </div>
@@ -84,7 +89,7 @@ export default function SuccessScreen({ onGetStarted }) {
           Get Started →
         </button>
 
-        <div className="flex items-center gap-1.5 mt-5 text-gray-400">
+        <div className={`flex items-center gap-1.5 mt-5 ${dark ? 'text-slate-500' : 'text-gray-400'}`}>
           <Sparkles size={13} className="text-teal-400" />
           <span className="text-xs">Powered by AI nutrition science</span>
         </div>
