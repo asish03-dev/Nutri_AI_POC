@@ -1,0 +1,50 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencies & build
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Documents & reports (don't upload)
+*.doc
+*.docx
+*.pdf
+*.ppt
+*.pptx
+*.xls
+*.xlsx
+
+# HTML (ignore all except main file)
+*.html
+!index.html
+
+# Images (optional - careful if used in project)
+*.jpeg
+*.jpg
+*.png
+
+# Notes / misc
+*.txt
+
+# Markdown (keep only README)
+*.md
+!README.md
