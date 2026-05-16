@@ -11,11 +11,14 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+
 import os
 from dotenv import load_dotenv
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
@@ -24,10 +27,16 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'django-insecure-j9yjsxh-r071eupo41np#_a6t-@c^i1c3ztt#d@p&(3yl5#ug)'
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-j9yjsxh-r071eupo41np#_a6t-@c^i1c3ztt#d@p&(3yl5#ug)')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+
 
 ALLOWED_HOSTS = []
 
@@ -60,7 +69,7 @@ MIDDLEWARE = [
 
 CORS_ALLOW_ALL_ORIGINS = True
 # Allow your machine's IP so Android emulator can reach it
-ALLOWED_HOSTS = ['10.83.193.151']
+ALLOWED_HOSTS = ['10.135.4.38']
 
 ROOT_URLCONF = 'core.urls'
 
@@ -88,11 +97,13 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME', 'nutri_db'),    # The name of your existing postgres DB
-        'USER': os.environ.get('DB_USER', 'postgres'),       # e.g., 'postgres'
-        'PASSWORD': os.environ.get('DB_PASSWORD', '2507'),        # Your postgres password
-        'HOST': os.environ.get('DB_HOST', 'localhost'),                # Or the remote IP (e.g., AWS RDS endpoint)
-        'PORT': os.environ.get('DB_PORT', '5432'),                     # Default postgres port
+
+        'NAME': os.environ.get('DB_NAME'),    # The name of your existing postgres DB
+        'USER': os.environ.get('DB_USER'),       # e.g., 'postgres'
+        'PASSWORD': os.environ.get('DB_PASSWORD'),        # Your postgres password
+        'HOST': os.environ.get('DB_HOST'),                # Or the remote IP (e.g., AWS RDS endpoint)
+        'PORT': os.environ.get('DB_PORT'),                     # Default postgres port
+
     }
 }
 
@@ -151,6 +162,6 @@ from datetime import timedelta
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_TYPES': ('Bearer'),
 
 }

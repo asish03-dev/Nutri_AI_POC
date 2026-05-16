@@ -2,18 +2,22 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
+User = get_user_model()
+from .models import UserProfile,meal_logs
+from .serializer import RegisterSerializer, OnboardingSerializer,MealLogSerializer, MealImageUploadSerializer
+from rest_framework import status,viewsets,generics
+from rest_framework import authentication, permissions
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.permissions import IsAuthenticated
+from django.db import models
+from .utils import analyze_meal_image_with_gemini
+
 from google.oauth2 import id_token
 import requests as standard_requests
 from google.auth.transport import requests as google_requests
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
-User = get_user_model()
-from .models import UserProfile
-from .serializer import RegisterSerializer, OnboardingSerializer
-from rest_framework import status,viewsets
-from rest_framework import authentication, permissions
-from django.db import models
 
 class RegisterView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -90,6 +94,45 @@ class OnboardingView(viewsets.ModelViewSet):
         return super().partial_update(request, *args, **kwargs)
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
+
+class AnalyzeMealImageView(APIView):
+    """
+    Takes an image, passes it to Gemini, calculates a junk score,
+    and returns the data so the frontend can preview it.
+    Does NOT save to the database.
+    """
+    # Requires multipart parsing for file uploads
+    parser_classes = (MultiPartParser, FormParser)
+    permission_classes = [IsAuthenticated]
+    def post(self, request, *args, **kwargs):
+        serializer = MealImageUploadSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            image_file = serializer.validated_data['image']
+            
+            # Call our utility function
+            analysis_result = analyze_meal_image_with_gemini(image_file)
+            
+            if "error" in analysis_result:
+                return Response(analysis_result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                
+            return Response(analysis_result, status=status.HTTP_200_OK)
+            
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+class MealLogListCreateView(generics.ListCreateAPIView):
+    """
+    Handles saving a finalized meal log (POST) 
+    and fetching a user's logs (GET).
+    """
+    serializer_class = MealLogSerializer
+    permission_classes = [IsAuthenticated]
+    def get_queryset(self):
+        # Only return meal logs for the logged-in user
+        return meal_logs.objects.filter(user=self.request.user).order_by('-meal_timedate')
+    def perform_create(self, serializer):
+        # Automatically assign the logged-in user when saving
+        serializer.save(user=self.request.user)
     
 
 

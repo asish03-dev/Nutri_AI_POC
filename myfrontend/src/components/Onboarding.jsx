@@ -206,16 +206,16 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
   const handleFinish = async () => {
     setErrorMsg("");
     try {
-      const rawToken = localStorage.getItem('access_token'); 
+      const rawToken = localStorage.getItem('access_token');
       const token = rawToken ? rawToken.replace(/['"]+/g, '') : "";
-      
+
       let userId = "";  // change here for getting the user id from the token dynamically
       if (token) {
         const payload = JSON.parse(atob(token.split('.')[1]));
         console.log("User ID from token:", payload);
-        userId = payload.user_id || payload.id || payload.sub; 
+        userId = payload.user_id || payload.id || payload.sub;
       }
-      const response = await axios.patch(`http://10.83.193.151:8000/api/onboarding/${userId}/`, {
+      const response = await axios.patch(`http://10.135.4.38:8000/api/onboarding/${userId}/`, {
         first_name: formData.first_Name,
         last_name: formData.last_Name,
         day_of_birth: formData.day_of_birth,
@@ -249,7 +249,7 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
         active_subscription: formData.active_subscription,
       }, {
         headers: { Authorization: `Bearer ${token}` }
-      
+
       });
 
       console.log("Success:", response.data);
@@ -263,10 +263,10 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
       }
     } catch (error) {
       console.error("Error submitting onboarding data:", error);
-      
+
       // ADD THIS LINE: This will print the exact message from Django!
       console.error("Django Server Says:", JSON.stringify(error.response?.data));
-      
+
       setErrorMsg("Something went wrong. Please try again later");
     }
   };
@@ -665,17 +665,15 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
                         key={plan.id}
                         onClick={() => set('selectedPlan', plan.id)}
                         className={`relative flex flex-col rounded-3xl border-2 cursor-pointer transition-all duration-300 hover:-translate-y-1
-                          ${
-                            selected
-                              ? 'border-[#0D9488] shadow-[0_0_0_4px_rgba(20,184,166,0.15),0_16px_48px_rgba(20,184,166,0.18)]'
-                              : plan.recommended
-                                ? 'border-[#0D9488]/50 shadow-lg shadow-[#0D9488]/10 hover:border-[#0D9488] hover:shadow-xl'
-                                : 'border-[#E2E8F0] dark:border-slate-700 shadow-sm hover:border-[#0D9488]/50 hover:shadow-lg'
+                          ${selected
+                            ? 'border-[#0D9488] shadow-[0_0_0_4px_rgba(20,184,166,0.15),0_16px_48px_rgba(20,184,166,0.18)]'
+                            : plan.recommended
+                              ? 'border-[#0D9488]/50 shadow-lg shadow-[#0D9488]/10 hover:border-[#0D9488] hover:shadow-xl'
+                              : 'border-[#E2E8F0] dark:border-slate-700 shadow-sm hover:border-[#0D9488]/50 hover:shadow-lg'
                           }
-                          ${
-                            plan.recommended
-                              ? dark ? 'bg-gradient-to-b from-[#0D9488]/10 to-slate-800' : 'bg-gradient-to-b from-teal-50/80 to-white'
-                              : dark ? 'bg-slate-800/60' : 'bg-white'
+                          ${plan.recommended
+                            ? dark ? 'bg-gradient-to-b from-[#0D9488]/10 to-slate-800' : 'bg-gradient-to-b from-teal-50/80 to-white'
+                            : dark ? 'bg-slate-800/60' : 'bg-white'
                           }
                         `}
                       >
@@ -691,9 +689,8 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
                         <div className="p-7 flex flex-col flex-1">
                           {/* Tag + price */}
                           <div className="mb-5">
-                            <p className={`text-[11px] font-black uppercase tracking-[0.15em] mb-3 ${
-                              plan.recommended ? 'text-[#0D9488]' : dark ? 'text-slate-500' : 'text-slate-400'
-                            }`}>{plan.tag}</p>
+                            <p className={`text-[11px] font-black uppercase tracking-[0.15em] mb-3 ${plan.recommended ? 'text-[#0D9488]' : dark ? 'text-slate-500' : 'text-slate-400'
+                              }`}>{plan.tag}</p>
                             <div className="flex items-baseline gap-1.5">
                               {plan.free ? (
                                 <span className={`text-4xl font-black tracking-tight ${dark ? 'text-white' : 'text-slate-900'}`}>Free</span>
@@ -715,9 +712,8 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
                           <ul className="space-y-3 flex-1 mb-7">
                             {plan.features.map(f => (
                               <li key={f} className="flex items-center gap-3">
-                                <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
-                                  plan.recommended ? 'bg-[#0D9488]/15' : dark ? 'bg-slate-700' : 'bg-slate-100'
-                                }`}>
+                                <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${plan.recommended ? 'bg-[#0D9488]/15' : dark ? 'bg-slate-700' : 'bg-slate-100'
+                                  }`}>
                                   <Check size={11} strokeWidth={3} className={plan.recommended ? 'text-[#0D9488]' : dark ? 'text-slate-400' : 'text-slate-500'} />
                                 </div>
                                 <span className={`text-[13px] font-medium ${dark ? 'text-slate-300' : 'text-slate-600'}`}>{f}</span>
@@ -727,15 +723,14 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
 
                           {/* CTA */}
                           <button
-                            className={`w-full py-3 rounded-2xl text-[14px] font-bold tracking-wide transition-all duration-200 ${
-                              selected
+                            className={`w-full py-3 rounded-2xl text-[14px] font-bold tracking-wide transition-all duration-200 ${selected
                                 ? 'bg-[#0D9488] text-white shadow-lg shadow-[#0D9488]/25'
                                 : plan.recommended
                                   ? 'bg-[#0D9488] text-white hover:bg-[#0F766E] shadow-lg shadow-[#0D9488]/20'
                                   : plan.free
                                     ? dark ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                                     : dark ? 'border-2 border-[#0D9488]/50 text-[#14B8A6] hover:bg-[#0D9488]/10' : 'border-2 border-[#0D9488] text-[#0D9488] hover:bg-teal-50'
-                            }`}
+                              }`}
                           >
                             {selected ? '✓ Selected' : plan.free ? 'Start Free' : plan.recommended ? 'Upgrade to Pro →' : 'Get Premium →'}
                           </button>

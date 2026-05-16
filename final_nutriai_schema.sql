@@ -32,7 +32,7 @@ CREATE TABLE user_profiles (
     dietary_preference VARCHAR(50),
     
     meal_intake_per_day INTEGER,
-    water_goal_litres DECIMAL(4,2),
+    water_intake_litres DECIMAL(4,2),
     sleep_schedule VARCHAR(100),
     regional_culture VARCHAR(100),
     available_cooking_time VARCHAR(100),
@@ -93,13 +93,12 @@ CREATE TABLE daily_tracking (
     total_protein DECIMAL(5,2) DEFAULT 0,
     total_carbs DECIMAL(5,2) DEFAULT 0,
     total_fat DECIMAL(5,2) DEFAULT 0,
-    water_consumed_litres DECIMAL(4,2) DEFAULT 0,
+    water_intake_litres DECIMAL(4,2) DEFAULT 0,
     junk_score_avg DECIMAL(4,2) DEFAULT 0,
     surplus_or_deficit INTEGER,
     
     behaviour_summary TEXT,
     meal_count INTEGER DEFAULT 0,
-    momentum_score INTEGER DEFAULT 0, -- NEW: The score at the end of this specific day
     
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
