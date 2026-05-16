@@ -54,11 +54,56 @@ git commit -m "added login feature"
 git push origin main
 ```
 
-## 4. Pro-Tips for your Hackathon
-1. **Never commit secrets**: I've ignored `.env` files. Share your API keys/DB passwords via WhatsApp/Discord instead, or create a `.env.example` file with dummy values.
-2. **Commit often**: Small commits with good messages (e.g., "fixed sidebar layout") are better than one huge commit.
-3. **Conflicts**: If two people edit the same line, Git will ask you to "Resolve Conflict". Don't panic! It just asks you which version to keep.
+## 4. Professional Collaboration Roadmap 🛣️
 
-## Current Git Status
-I've already cleaned up the repository. You can check it anytime with:
-`git status`
+Now that you've resolved the initial conflicts, here is the sustainable way to work with your friend.
+
+### A. The "Golden Rule": Always Pull First
+Before you write a single line of code, make sure you have your friend's latest work.
+```bash
+git pull origin main
+```
+
+### B. Use Feature Branches (Avoid "Master" for coding)
+Instead of everyone coding on `master`, create a branch for each new feature. This prevents conflicts!
+
+1. **Create a branch**: `git checkout -b feature/login-ui`
+2. **Work and Commit**: `git add .`, `git commit -m "Added login screen"`
+3. **Push the branch**: `git push origin feature/login-ui`
+
+### C. The Pull Request (PR) 🔄
+Once you push a branch, go to GitHub. You will see a button: **"Compare & pull request"**.
+1. Click it.
+2. Ask your friend to review your code.
+3. Once approved, click **"Merge pull request"**.
+4. Your changes are now safely in `main`!
+
+### D. Summary of Daily Commands
+| Goal | Command |
+| :--- | :--- |
+| Start the day | `git pull origin main` |
+| Start a new feature | `git checkout -b feature/NAME` |
+| Save progress | `git add .` then `git commit -m "msg"` |
+| Share with friend | `git push origin feature/NAME` |
+| Switch back to main | `git checkout main` |
+
+## 5. What if you get a conflict? 💥
+If Git says "Conflict", don't panic!
+1. Open the file in VS Code.
+2. You will see markers like `<<<<<<< HEAD` and `>>>>>>> branch-name`.
+3. Choose which code to keep (or keep both).
+4. Save the file, run `git add .`, and `git commit`.
+
+## 6. How to ensure everything is working fine? ✅
+1. **Backend**: Run `python manage.py runserver`. If it starts without errors, your models and settings are good.
+2. **Migrations**: If you change `models.py`, run:
+   - `python manage.py makemigrations`
+   - `python manage.py migrate`
+3. **Frontend**: Run `npm run dev` in the `myfrontend` folder.
+
+---
+**Current Repo Status**:
+I have fixed the `max_digits` typo, missing imports, and database migration errors. Your `master` branch is now healthy!
+
+**Next Step**:
+Run `git push origin master` to share these fixes with your friend.
