@@ -1,11 +1,16 @@
 {
+<<<<<<< HEAD
   "name": "nutri",
+=======
+  "name": "nutriai-frontend",
+>>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+<<<<<<< HEAD
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -33,5 +38,27 @@
     "globals": "^17.5.0",
     "tailwindcss": "^4.2.4",
     "vite": "^8.0.10"
+=======
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@react-oauth/google": "^0.13.5",
+    "axios": "^1.16.0",
+    "framer-motion": "^11.0.0",
+    "html2pdf.js": "^0.14.0",
+    "jspdf": "^4.2.1",
+    "jwt-decode": "^4.0.0",
+    "lucide-react": "^0.400.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "react-router-dom": "^7.15.0",
+    "recharts": "^2.12.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "tailwindcss": "^4.0.0",
+    "vite": "^6.3.5"
+>>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
   }
 }

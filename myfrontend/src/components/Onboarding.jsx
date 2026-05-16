@@ -1,6 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
+<<<<<<< HEAD
 import { Camera, ChevronLeft, Flame, Check, Activity, Plus, X, ChevronDown } from 'lucide-react';
 import axios from 'axios';
+=======
+import axios from 'axios';
+import { Camera, ChevronLeft, Flame, Check, Activity, Plus, X, ChevronDown } from 'lucide-react';
+import logo from '../assets/Screenshot_2026-05-08_184522-removebg-preview.png';
+>>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
 
 const TOTAL_STEPS = 7;
 
@@ -204,6 +210,7 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
 
   const handleFinish = async () => {
     setErrorMsg("");
+<<<<<<< HEAD
 
     try {
       const response = await axios.patch("http://10.135.4.38:8000/api/onboarding/", {
@@ -238,6 +245,53 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
         bmi: formData.bmi,
         daily_calorie_target: formData.calorieTarget,
         active_subscription: formData.selectedPlan,
+=======
+    try {
+      const rawToken = localStorage.getItem('access_token'); 
+      const token = rawToken ? rawToken.replace(/['"]+/g, '') : "";
+      
+      let userId = "";  // change here for getting the user id from the token dynamically
+      if (token) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        console.log("User ID from token:", payload);
+        userId = payload.user_id || payload.id || payload.sub; 
+      }
+      const response = await axios.patch(`http://10.83.193.151:8000/api/onboarding/${userId}/`, {
+        first_name: formData.first_Name,
+        last_name: formData.last_Name,
+        day_of_birth: formData.day_of_birth,
+        month_of_birth: formData.month_of_birth,
+        year_of_birth: formData.year_of_birth,
+        phone_number: formData.phone_number,
+        profile_photo_url: photoPreview,
+        gender: formData.gender,
+        height_cm: formData.height_cm,
+        current_weight_kg: formData.current_weight_kg,
+        targeted_weight_kg: formData.targeted_weight_kg,
+        water_intake_litres: parseFloat(formData.water_intake_litres) || 3.0,
+        primary_goal: formData.primary_goal,
+        activity_level: formData.activity_Level,
+        occupation: formData.occupation,
+        sleep_schedule: formData.sleep_Schedule,
+        dietaryPreference: formData.dietaryPreference,
+        cooking_oil: formData.cooking_Oil,
+        regional_culture: formData.regional_Culture,
+        allergies: Array.isArray(formData.allergies) ? formData.allergies.join(', ') : "",
+        health_issues: Array.isArray(formData.healthIssues) ? formData.healthIssues.join(', ') : "",
+        liked_foods: formData.liked_Foods,
+        disliked_foods: formData.disliked_Foods,
+        meal_intake_per_day: formData.meals_intake_per_day,
+        available_cooking_time: formData.available_cooking_time,
+        grocery_budget: formData.grocery_budget,
+        preferred_meal_location: formData.preferred_meal_location,
+        main_carbs_source: formData.main_carbs_source,
+        bmi: formData.bmi,
+        daily_calorie_target: formData.daily_calorie_target,
+        active_subscription: formData.active_subscription,
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      
+>>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
       });
 
       console.log("Success:", response.data);
@@ -251,10 +305,20 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
       }
     } catch (error) {
       console.error("Error submitting onboarding data:", error);
+<<<<<<< HEAD
       setErrorMsg("Something went wrong. Please try again later");
     }
   };
 
+=======
+      
+      // ADD THIS LINE: This will print the exact message from Django!
+      console.error("Django Server Says:", JSON.stringify(error.response?.data));
+      
+      setErrorMsg("Something went wrong. Please try again later");
+    }
+  };
+>>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
   // Convert file to base64 for persistence across sessions
   const handlePhoto = (e) => {
     const file = e.target.files[0];
@@ -297,9 +361,17 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
         {/* Navbar */}
         <nav className="sticky top-0 z-50 h-[72px] bg-white/90 dark:bg-[#0a0f1a]/90 backdrop-blur-md border-b border-[#E2E8F0] dark:border-slate-800 flex items-center justify-between px-6 md:px-12 transition-all shadow-[0_4px_20px_rgba(0,0,0,0.03)] dark:shadow-none">
           <div className="flex items-center gap-2.5">
+<<<<<<< HEAD
             <div style={{ fontSize: '28px', fontWeight: 800, color: '#0D9488', letterSpacing: '-1px' }}>
               Nutri<span style={{ color: '#3B82F6' }}>AI</span>
             </div>
+=======
+            <img
+              src={logo}
+              alt="NutriAI"
+              style={{ height: 52, width: 'auto', objectFit: 'contain', filter: dark ? 'brightness(0) invert(1)' : 'none' }}
+            />
+>>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
           </div>
         </nav>
 
@@ -613,6 +685,7 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
             {/* ── Step 7: Pricing ── */}
             {step === 7 && (
               <div className="flex flex-col gap-6 fade-in">
+<<<<<<< HEAD
                 <div className="flex flex-col gap-2">
                   <h1 className="text-[34px] font-extrabold tracking-[-0.02em] text-[#0F172A] dark:text-slate-100 leading-tight text-center">Choose your plan</h1>
                   <p className="text-[16px] font-medium text-[#475569] dark:text-slate-400 leading-relaxed -mt-2.5 text-center">Unlock the full power of NutriAI tailored to your goals</p>
@@ -677,6 +750,130 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
                       </div>
                     )}
                     <button className="w-full inline-flex items-center justify-center h-[60px] px-8 bg-[#14B8A6] text-white text-[17px] font-bold rounded-[20px] tracking-[-0.01em] transition-all duration-300 shadow-[0_8px_24px_rgba(20,184,166,0.3)] hover:bg-[#0D9488] hover:shadow-[0_12px_32px_rgba(20,184,166,0.4)] hover:-translate-y-[2px] active:translate-y-0" onClick={handleFinish}>
+=======
+                <div className="flex flex-col gap-2 text-center">
+                  <h1 className="text-[34px] font-extrabold tracking-[-0.02em] text-[#0F172A] dark:text-slate-100 leading-tight">Choose your plan</h1>
+                  <p className="text-[16px] font-medium text-[#475569] dark:text-slate-400 leading-relaxed">Simple, transparent pricing. Upgrade or downgrade anytime.</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+
+                  {[{
+                    id: 'Free',
+                    tag: 'Free',
+                    subtitle: 'Always free, no card needed',
+                    free: true,
+                    recommended: false,
+                    features: ['5 Meal Scans / day', 'Limited Nia AI Chat', '7 Days Meal History', 'Basic Access'],
+                  }, {
+                    id: 'Pro',
+                    tag: 'Pro',
+                    price: 149,
+                    subtitle: 'Best for serious health goals',
+                    recommended: true,
+                    features: ['20 Meal Scans / day', 'More Nia AI Access', '30 Days Meal History', 'PDF Report Export'],
+                  }, {
+                    id: 'Premium',
+                    tag: 'Premium',
+                    price: 349,
+                    subtitle: 'Everything, no limits',
+                    recommended: false,
+                    features: ['Unlimited Meal Scans', 'Unlimited Nia AI', 'Unlimited Meal History', 'PDF Report Export', 'Smart Reminders'],
+                  }].map(plan => {
+                    const selected = formData.selectedPlan === plan.id;
+                    return (
+                      <div
+                        key={plan.id}
+                        onClick={() => set('selectedPlan', plan.id)}
+                        className={`relative flex flex-col rounded-3xl border-2 cursor-pointer transition-all duration-300 hover:-translate-y-1
+                          ${
+                            selected
+                              ? 'border-[#0D9488] shadow-[0_0_0_4px_rgba(20,184,166,0.15),0_16px_48px_rgba(20,184,166,0.18)]'
+                              : plan.recommended
+                                ? 'border-[#0D9488]/50 shadow-lg shadow-[#0D9488]/10 hover:border-[#0D9488] hover:shadow-xl'
+                                : 'border-[#E2E8F0] dark:border-slate-700 shadow-sm hover:border-[#0D9488]/50 hover:shadow-lg'
+                          }
+                          ${
+                            plan.recommended
+                              ? dark ? 'bg-gradient-to-b from-[#0D9488]/10 to-slate-800' : 'bg-gradient-to-b from-teal-50/80 to-white'
+                              : dark ? 'bg-slate-800/60' : 'bg-white'
+                          }
+                        `}
+                      >
+                        {/* Recommended badge */}
+                        {plan.recommended && (
+                          <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
+                            <div className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest text-white bg-[#0D9488] shadow-lg shadow-[#0D9488]/30 whitespace-nowrap">
+                              ★ Recommended
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="p-7 flex flex-col flex-1">
+                          {/* Tag + price */}
+                          <div className="mb-5">
+                            <p className={`text-[11px] font-black uppercase tracking-[0.15em] mb-3 ${
+                              plan.recommended ? 'text-[#0D9488]' : dark ? 'text-slate-500' : 'text-slate-400'
+                            }`}>{plan.tag}</p>
+                            <div className="flex items-baseline gap-1.5">
+                              {plan.free ? (
+                                <span className={`text-4xl font-black tracking-tight ${dark ? 'text-white' : 'text-slate-900'}`}>Free</span>
+                              ) : (
+                                <>
+                                  <span className={`text-[13px] font-bold mt-1 ${dark ? 'text-slate-400' : 'text-slate-500'}`}>₹</span>
+                                  <span className={`text-5xl font-black tracking-tight leading-none ${dark ? 'text-white' : 'text-slate-900'}`}>{plan.price}</span>
+                                  <span className={`text-[13px] font-semibold ${dark ? 'text-slate-500' : 'text-slate-400'}`}>/mo</span>
+                                </>
+                              )}
+                            </div>
+                            <p className={`text-sm mt-2 font-medium ${dark ? 'text-slate-400' : 'text-slate-500'}`}>{plan.subtitle}</p>
+                          </div>
+
+                          {/* Divider */}
+                          <div className={`h-px mb-5 ${plan.recommended ? 'bg-[#0D9488]/20' : dark ? 'bg-slate-700/60' : 'bg-slate-100'}`} />
+
+                          {/* Features */}
+                          <ul className="space-y-3 flex-1 mb-7">
+                            {plan.features.map(f => (
+                              <li key={f} className="flex items-center gap-3">
+                                <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
+                                  plan.recommended ? 'bg-[#0D9488]/15' : dark ? 'bg-slate-700' : 'bg-slate-100'
+                                }`}>
+                                  <Check size={11} strokeWidth={3} className={plan.recommended ? 'text-[#0D9488]' : dark ? 'text-slate-400' : 'text-slate-500'} />
+                                </div>
+                                <span className={`text-[13px] font-medium ${dark ? 'text-slate-300' : 'text-slate-600'}`}>{f}</span>
+                              </li>
+                            ))}
+                          </ul>
+
+                          {/* CTA */}
+                          <button
+                            className={`w-full py-3 rounded-2xl text-[14px] font-bold tracking-wide transition-all duration-200 ${
+                              selected
+                                ? 'bg-[#0D9488] text-white shadow-lg shadow-[#0D9488]/25'
+                                : plan.recommended
+                                  ? 'bg-[#0D9488] text-white hover:bg-[#0F766E] shadow-lg shadow-[#0D9488]/20'
+                                  : plan.free
+                                    ? dark ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                    : dark ? 'border-2 border-[#0D9488]/50 text-[#14B8A6] hover:bg-[#0D9488]/10' : 'border-2 border-[#0D9488] text-[#0D9488] hover:bg-teal-50'
+                            }`}
+                          >
+                            {selected ? '✓ Selected' : plan.free ? 'Start Free' : plan.recommended ? 'Upgrade to Pro →' : 'Get Premium →'}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                </div>
+
+                {formData.selectedPlan && (
+                  <div className="flex items-center justify-center mt-10 pt-8 border-t border-[#E2E8F0] dark:border-slate-800 fade-in">
+                    <button
+                      className="w-full inline-flex items-center justify-center h-[60px] px-8 bg-[#14B8A6] text-white text-[17px] font-bold rounded-[20px] tracking-[-0.01em] transition-all duration-300 shadow-[0_8px_24px_rgba(20,184,166,0.3)] hover:bg-[#0D9488] hover:shadow-[0_12px_32px_rgba(20,184,166,0.4)] hover:-translate-y-[2px] active:translate-y-0"
+                      onClick={handleFinish}
+                    >
+>>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
                       Continue to Dashboard →
                     </button>
                   </div>

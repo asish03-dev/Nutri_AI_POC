@@ -32,8 +32,19 @@ class OnboardingSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = '__all__'
 
+class MealImageUploadSerializer(serializers.Serializer):
+    """
+    A simple serializer used just to validate the image upload
+    before sending it to Gemini.
+    """
+    image = serializers.ImageField(required=True)
 class MealLogSerializer(serializers.ModelSerializer):
+    """
+    Serializer for saving and listing the actual meal logs in the database.
+    """
     class Meta:
         model = meal_logs
-        fields = ['meal_id','user_id','meal_type','meal_location','meal_timedate','meal_url']
+        # You can specify exact fields, or use '__all__'
+        fields = '__all__'
+        read_only_fields = ['meal_id', 'created_at']
         

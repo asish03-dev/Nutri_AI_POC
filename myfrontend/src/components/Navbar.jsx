@@ -1,5 +1,6 @@
 import { Sun, Moon, Crown } from "lucide-react";
 
+<<<<<<< HEAD
 export default function Navbar({ dark, setDark, name, onUpgrade, onOpenReport }) {
 
   return (
@@ -13,6 +14,14 @@ export default function Navbar({ dark, setDark, name, onUpgrade, onOpenReport })
         </h2>
       </div>
 
+=======
+export default function Navbar({ dark, setDark, onUpgrade }) {
+
+  return (
+    <div className={`sticky top-0 z-10 flex items-center justify-end px-8 py-3.5 border-b backdrop-blur-md transition-colors duration-300 ${
+      dark ? "bg-slate-950/90 border-slate-800/80" : "bg-white/90 border-slate-100"
+    }`}>
+>>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
       <div className="flex items-center gap-3 relative">
 
 

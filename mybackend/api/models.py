@@ -9,7 +9,9 @@ class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
     is_verified = models.BooleanField(default=False)
-    
+    otp = models.CharField(max_length=6, null=True, blank=True)
+    otp_created_at = models.DateTimeField(null=True, blank=True)
+
     # Custom Role ENUM
     ROLE_CHOICES = (
         ('user', 'User'),

@@ -1,4 +1,8 @@
 import {  Sun, Moon, Camera, Sparkles } from "lucide-react";
+<<<<<<< HEAD
+=======
+import logo from '../assets/Screenshot_2026-05-08_184522-removebg-preview.png';
+>>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
 
 const FOOD_BG    = "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=1400&q=85";
 const MEAL_PHOTO = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=85";
@@ -21,9 +25,17 @@ function Navbar({ dark, setDark }) {
     >
       {/* Logo */}
       <div className="flex items-center gap-2.5">
+<<<<<<< HEAD
         <div style={{ fontSize: '28px', fontWeight: 800, color: '#0D9488', letterSpacing: '-1px' }}>
           Nutri<span style={{ color: '#3B82F6' }}>AI</span>
         </div>
+=======
+        <img
+          src={logo}
+          alt="NutriAI"
+          style={{ height: 52, width: 'auto', objectFit: 'contain', filter: dark ? 'brightness(0) invert(1)' : 'none' }}
+        />
+>>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
       </div>
 
       {/* Right side: dark toggle */}
@@ -82,9 +94,17 @@ function IPhoneMockup({ dark }) {
           {/* App header — landing page logo */}
           <div className="px-5 py-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
+<<<<<<< HEAD
               <div style={{ fontSize: '18px', fontWeight: 800, color: '#0D9488', letterSpacing: '-1px' }}>
                 Nutri<span style={{ color: '#3B82F6' }}>AI</span>
               </div>
+=======
+              <img
+                src={logo}
+                alt="NutriAI"
+                style={{ height: 20, width: 'auto', objectFit: 'contain', filter: dark ? 'brightness(0) invert(1)' : 'none' }}
+              />
+>>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
             </div>
             <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs ${dark ? 'bg-white/10' : 'bg-gray-200'}`}>👤</div>
           </div>

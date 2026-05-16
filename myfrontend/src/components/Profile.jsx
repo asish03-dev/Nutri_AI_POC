@@ -1,7 +1,11 @@
 import { useState } from "react";
 import {
   User, Edit3, CheckCircle, AlertCircle,
+<<<<<<< HEAD
   Star, Zap, Crown, Activity, Flame, Heart, Target,
+=======
+  Star, Crown, Activity, Flame, Heart, Target,
+>>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
   Settings as SettingsIcon
 } from "lucide-react";
 import { getProfileCompletion } from "../lib/profileCompletion";
@@ -45,6 +49,7 @@ function TagList({ items, colorClass, dark }) {
   );
 }
 
+<<<<<<< HEAD
 function PlanCard({ name, price, period, features, popular, icon: Icon, dark }) {
   return (
     <div className={`relative rounded-2xl p-6 border-2 transition-all duration-200 hover:-translate-y-0.5 cursor-pointer ${
@@ -96,6 +101,91 @@ function PlanCard({ name, price, period, features, popular, icon: Icon, dark }) 
       >
         {popular ? "Upgrade Now →" : "Get Started →"}
       </button>
+=======
+function PlanCard({ name, price, tag, features, recommended, free, dark }) {
+  return (
+    <div
+      className={`relative flex flex-col rounded-3xl border-2 transition-all duration-300 cursor-pointer group
+        hover:-translate-y-1 hover:shadow-2xl
+        ${
+          recommended
+            ? 'border-[#0D9488] shadow-xl shadow-[#0D9488]/15'
+            : dark
+              ? 'border-slate-700/80 hover:border-slate-600'
+              : 'border-slate-200 hover:border-slate-300 shadow-sm hover:shadow-lg'
+        }
+        ${recommended
+          ? dark ? 'bg-gradient-to-b from-[#0D9488]/10 to-slate-900' : 'bg-gradient-to-b from-teal-50/80 to-white'
+          : dark ? 'bg-slate-800/60' : 'bg-white'
+        }
+      `}
+    >
+      {/* Recommended badge */}
+      {recommended && (
+        <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
+          <div className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest text-white bg-[#0D9488] shadow-lg shadow-[#0D9488]/30">
+            <Star size={9} fill="white" strokeWidth={0} /> Recommended
+          </div>
+        </div>
+      )}
+
+      <div className="p-8 flex flex-col flex-1">
+        {/* Plan name + tag */}
+        <div className="mb-6">
+          <p className={`text-[11px] font-black uppercase tracking-[0.15em] mb-3 ${
+            recommended ? 'text-[#0D9488]' : dark ? 'text-slate-500' : 'text-slate-400'
+          }`}>{tag}</p>
+          <div className="flex items-baseline gap-1.5">
+            {free ? (
+              <span className={`text-4xl font-black tracking-tight ${dark ? 'text-white' : 'text-slate-900'}`}>Free</span>
+            ) : (
+              <>
+                <span className={`text-[13px] font-bold mt-1 ${dark ? 'text-slate-400' : 'text-slate-500'}`}>₹</span>
+                <span className={`text-5xl font-black tracking-tight leading-none ${dark ? 'text-white' : 'text-slate-900'}`}>{price}</span>
+                <span className={`text-[13px] font-semibold ${dark ? 'text-slate-500' : 'text-slate-400'}`}>/mo</span>
+              </>
+            )}
+          </div>
+          <p className={`text-sm mt-2 font-medium ${dark ? 'text-slate-400' : 'text-slate-500'}`}>{name}</p>
+        </div>
+
+        {/* Divider */}
+        <div className={`h-px mb-6 ${recommended ? 'bg-[#0D9488]/20' : dark ? 'bg-slate-700/60' : 'bg-slate-100'}`} />
+
+        {/* Features */}
+        <ul className="space-y-3.5 flex-1 mb-8">
+          {features.map(f => (
+            <li key={f} className="flex items-center gap-3">
+              <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
+                recommended ? 'bg-[#0D9488]/15' : dark ? 'bg-slate-700' : 'bg-slate-100'
+              }`}>
+                <CheckCircle size={12} className={recommended ? 'text-[#0D9488]' : dark ? 'text-slate-400' : 'text-slate-500'} />
+              </div>
+              <span className={`text-[14px] font-medium leading-snug ${
+                dark ? 'text-slate-300' : 'text-slate-600'
+              }`}>{f}</span>
+            </li>
+          ))}
+        </ul>
+
+        {/* CTA */}
+        <button
+          className={`w-full py-3.5 rounded-2xl text-[14px] font-bold tracking-wide transition-all duration-200 ${
+            recommended
+              ? 'bg-[#0D9488] text-white hover:bg-[#0F766E] shadow-lg shadow-[#0D9488]/25 hover:shadow-[#0D9488]/40'
+              : free
+                ? dark
+                  ? 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                : dark
+                  ? 'border-2 border-[#0D9488]/50 text-[#14B8A6] hover:bg-[#0D9488]/10'
+                  : 'border-2 border-[#0D9488] text-[#0D9488] hover:bg-teal-50'
+          }`}
+        >
+          {free ? 'Current Plan' : recommended ? 'Upgrade to Pro →' : 'Get Premium →'}
+        </button>
+      </div>
+>>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
     </div>
   );
 }
@@ -374,6 +464,7 @@ export default function Profile({ dark, profileData, onboardingDone, onCompleteP
           {/* TAB: Subscription Plans */}
           {currentTab === "plans" && (
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+<<<<<<< HEAD
               <div className="flex items-start justify-between mb-8">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
@@ -382,10 +473,21 @@ export default function Profile({ dark, profileData, onboardingDone, onCompleteP
                   </div>
                   <p className={`text-sm mt-1 ${dark ? "text-slate-400" : "text-slate-500"}`}>
                     Unlock the full power of AI-driven nutrition and insights.
+=======
+              <div className="flex items-start justify-between mb-10">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Crown size={22} className="text-[#0D9488]" />
+                    <h2 className={`text-2xl font-black tracking-tight ${dark ? 'text-white' : 'text-slate-900'}`}>Choose Your Plan</h2>
+                  </div>
+                  <p className={`text-sm mt-1.5 ${dark ? 'text-slate-400' : 'text-slate-500'}`}>
+                    Simple, transparent pricing. Upgrade or downgrade anytime.
+>>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
                   </p>
                 </div>
               </div>
 
+<<<<<<< HEAD
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <PlanCard name="Basic" price={199} period="month" icon={Zap} popular={false} dark={dark} features={[
                   "20 meal scans per day",
@@ -401,6 +503,47 @@ export default function Profile({ dark, profileData, onboardingDone, onCompleteP
                   "Advanced progress analytics",
                   "Allergy-aware recommendations"
                 ]} />
+=======
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+                <PlanCard
+                  name="Always free, no card needed"
+                  tag="Free"
+                  free
+                  dark={dark}
+                  features={[
+                    '5 Meal Scans / day',
+                    'Limited Nia AI Chat',
+                    '7 Days Meal History',
+                    'Basic Access',
+                  ]}
+                />
+                <PlanCard
+                  name="Best for serious health goals"
+                  tag="Pro"
+                  price={149}
+                  recommended
+                  dark={dark}
+                  features={[
+                    '20 Meal Scans / day',
+                    'More Nia AI Access',
+                    '30 Days Meal History',
+                    'PDF Report Export',
+                  ]}
+                />
+                <PlanCard
+                  name="Everything, no limits"
+                  tag="Premium"
+                  price={349}
+                  dark={dark}
+                  features={[
+                    'Unlimited Meal Scans',
+                    'Unlimited Nia AI',
+                    'Unlimited Meal History',
+                    'PDF Report Export',
+                    'Smart Reminders',
+                  ]}
+                />
+>>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
               </div>
             </div>
           )}

@@ -25,6 +25,10 @@ export function UserProvider({ children }) {
     junk_count: 0,
     recent_weight_logs: []
   });
+<<<<<<< HEAD
+=======
+  
+>>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
 
   const updateUserData = (data) => setUserData(prev => ({ ...prev, ...data }));
 

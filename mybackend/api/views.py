@@ -2,7 +2,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
-
 User = get_user_model()
 from .models import UserProfile,meal_logs
 from .serializer import RegisterSerializer, OnboardingSerializer,MealLogSerializer, MealImageUploadSerializer
@@ -10,6 +9,13 @@ from rest_framework import status,viewsets,generics
 from rest_framework import authentication, permissions
 from django.db import models
 from .utils import analyze_meal_image_with_gemini
+
+from google.oauth2 import id_token
+import requests as standard_requests
+from google.auth.transport import requests as google_requests
+from rest_framework_simplejwt.tokens import RefreshToken
+
+
 
 class RegisterView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -60,7 +66,7 @@ class LoginView(APIView):
 class ProfileView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     def get(self, request):
-        profile = getattr(user, 'profile', None)
+        profile = getattr(request.user, 'profile', None)
         serializer = OnboardingSerializer(profile)
         return Response({
             "message": "user profile",
@@ -69,9 +75,11 @@ class ProfileView(APIView):
         
         
 class OnboardingView(viewsets.ModelViewSet):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = OnboardingSerializer
-    queryset = UserProfile.objects.all()
+    def get_queryset(self):
+        # This ensures a user only sees their own profile
+        return UserProfile.objects.filter(user=self.request.user)
     def create(self, request):
         return super().create(request)
     def list(self, request):
@@ -123,3 +131,56 @@ class MealLogListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         # Automatically assign the logged-in user when saving
         serializer.save(user=self.request.user)
+    
+
+
+# Replace this with your actual Google Client ID
+GOOGLE_CLIENT_ID = "418733621307-ajvgk9mk30meca1cs7k83tcl63mse6b5.apps.googleusercontent.com"
+class GoogleLoginView(APIView):
+    permission_classes = [permissions.AllowAny]
+    def post(self, request):
+        token = request.data.get('token')
+        
+        if not token:
+            return Response({"message": "No token provided"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            google_response = standard_requests.get(
+                "https://www.googleapis.com/oauth2/v3/userinfo",
+                headers={"Authorization": f"Bearer {token}"}
+            )
+
+            if google_response.status_code != 200:
+                return Response({"message": "Invalid Google token"}, status=status.HTTP_401_UNAUTHORIZED)
+
+            idinfo = google_response.json()
+
+            email = idinfo['email']
+            first_name = idinfo.get('given_name', '')
+            last_name = idinfo.get('family_name', '')
+
+            user = User.objects.filter(email=email).first()
+
+            if not user:
+                user = User.objects.create_user(
+                    username=email,
+                    email=email,
+                    first_name=first_name,
+                    last_name=last_name
+                )
+                user.set_unusable_password()
+                user.save()
+
+            refresh = RefreshToken.for_user(user)
+
+            return Response({
+                "access_token": str(refresh.access_token),
+                "refresh_token": str(refresh),
+                "user": {
+                    "username": user.username,
+                    "email": user.email
+                }
+            }, status=status.HTTP_200_OK)
+
+        except ValueError:
+            return Response({"message": "Invalid Google token"}, status=status.HTTP_401_UNAUTHORIZED)

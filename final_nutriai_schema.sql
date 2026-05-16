@@ -45,6 +45,8 @@ CREATE TABLE user_profiles (
     profile_photo_url TEXT,
     phone_number VARCHAR(20),
     
+    current_momentum_score INTEGER DEFAULT 0, -- NEW: Tracks their ongoing Habit/Momentum score
+    
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

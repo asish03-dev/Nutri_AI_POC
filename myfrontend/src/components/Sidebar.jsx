@@ -1,4 +1,8 @@
 import { User, LogOut, LayoutDashboard, UtensilsCrossed, Bot, Menu, ChevronRight, Settings } from 'lucide-react';
+<<<<<<< HEAD
+=======
+import logo from '../assets/Screenshot_2026-05-08_184522-removebg-preview.png';
+>>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
 
 const LIGHT = { bg: '#0D9488', card: '#0F766E', border: 'rgba(255,255,255,0.15)' };
 const DARK  = { bg: '#0F172A', card: '#1E293B', border: 'rgba(255,255,255,0.06)' };
@@ -56,9 +60,13 @@ export default function Sidebar({ dark, name, category, photo, activeNav, setAct
       <div style={{ display: 'flex', alignItems: 'center', padding: '16px', borderBottom: `1px solid ${C.border}`, minHeight: '60px' }}>
         {!collapsed && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
+<<<<<<< HEAD
             <div style={{ fontSize: '20px', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-1px' }}>
               Nutri<span style={{ color: '#93C5FD' }}>AI</span>
             </div>
+=======
+            <img src={logo} alt="NutriAI" style={{ height: 36, width: 'auto', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+>>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
             <span style={{ marginLeft: 'auto', padding: '2px 6px', borderRadius: 4, fontSize: 9, fontWeight: 700, color: '#fff', background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.3)', flexShrink: 0 }}>BETA</span>
           </div>
         )}

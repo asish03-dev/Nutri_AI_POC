@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+<<<<<<< HEAD
 import axios from 'axios';
 import LandingPage from "./components/LandingPage";
 import LoginPage from "./components/LoginPage";
@@ -12,10 +13,27 @@ import MainLayout from "./components/MainLayout";
 import WeeklyReportModal from "./components/WeeklyReportModal";
 import SuccessScreen from "./components/SuccessScreen";
 import { useUser } from "./context/UserContext";
+=======
+import LandingPage   from "./components/LandingPage";
+import LoginPage     from "./components/LoginPage";
+import SignupPage    from "./components/SignupPage";
+import LoadingScreen from "./components/LoadingScreen";
+import Onboarding    from "./components/Onboarding";
+import Profile       from "./components/Profile";
+import Dashboard     from "./components/Dashboard";
+import MealLogs      from "./components/MealLogs";
+import Nia           from "./components/Nia";
+import MainLayout        from "./components/MainLayout";
+import { lazy, Suspense } from 'react';
+const WeeklyReportModal = lazy(() => import('./components/WeeklyReportModal'));
+import SuccessScreen     from "./components/SuccessScreen";
+import { useUser }       from "./context/UserContext";
+>>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
 import { getProfileCompletion } from "./lib/profileCompletion";
 
 export default function App() {
   const { saveOnboardingData } = useUser();
+<<<<<<< HEAD
   const [dark, setDark] = useState(false);
   const [loginOpen, setLogin] = useState(false);
   const [signupOpen, setSignup] = useState(false);
@@ -32,6 +50,25 @@ export default function App() {
   const [showSuccessScreen, setShowSuccessScreen] = useState(false);
   const [currentView, setCurrentView] = useState("dashboard");
   const [showReport, setShowReport] = useState(false);
+=======
+  const [dark, setDark]                 = useState(false);
+  const [loginOpen, setLogin]           = useState(false);
+  const [signupOpen, setSignup]         = useState(false);
+  const [loading, setLoading]           = useState(false);
+  const [loadingType, setLoadingType]   = useState("login");
+  const [showOnboarding, setOnboarding] = useState(false);
+  const [backTo, setBackTo]             = useState("signup");
+  const [profileData, setProfileData]   = useState(() => {
+    const saved = localStorage.getItem("nutriai_profile_data");
+    return saved ? JSON.parse(saved) : {};
+  });
+  
+  const [onboardingDone, setOnboardingDone] = useState(false);
+  const [showSuccessScreen, setShowSuccessScreen] = useState(false);
+  const [currentView, setCurrentView]       = useState("dashboard");
+  const [showReport, setShowReport]         = useState(false);
+  const [niaMsgs, setNiaMsgs]               = useState([]);
+>>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
 
   // Hydrate UserContext on initial load if we have saved data
   useEffect(() => {
@@ -40,8 +77,13 @@ export default function App() {
     }
   }, []);
 
+<<<<<<< HEAD
   const openLogin = () => { setSignup(false); setLogin(true); };
   const openSignup = () => { setLogin(false); setSignup(true); };
+=======
+  const openLogin  = () => { setSignup(false); setLogin(true);  };
+  const openSignup = () => { setLogin(false);  setSignup(true); };
+>>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
 
   function startLoading(type, closeModal) {
     closeModal();
@@ -119,14 +161,22 @@ export default function App() {
           onClose={() => setLogin(false)}
           dark={dark}
           onSwitchToSignup={openSignup}
+<<<<<<< HEAD
           onSubmit={() => { setLogin(false); startLoading("login", () => { }); }}
+=======
+          onSubmit={() => { setLogin(false); startLoading("login", () => {}); }}
+>>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
         />
         <SignupPage
           open={signupOpen}
           onClose={() => setSignup(false)}
           dark={dark}
           onSwitchToLogin={openLogin}
+<<<<<<< HEAD
           onSubmit={() => { setSignup(false); startLoading("signup", () => { }); }}
+=======
+          onSubmit={() => { setSignup(false); startLoading("signup", () => {}); }}
+>>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
         />
 
         <LoadingScreen visible={loading} type={loadingType} dark={dark} />
@@ -155,7 +205,11 @@ export default function App() {
           >
             {currentView === 'dashboard' && <Dashboard dark={dark} onOpenReport={() => setShowReport(true)} profileComplete={getProfileCompletion(profileData) === 100} />}
             {currentView === 'meal-logs' && <MealLogs dark={dark} />}
+<<<<<<< HEAD
             {currentView === 'nia' && <Dashboard dark={dark} onOpenReport={() => setShowReport(true)} profileComplete={getProfileCompletion(profileData) === 100} />}
+=======
+            {currentView === 'nia' && <Nia dark={dark} profileData={profileData} niaMsgs={niaMsgs} setNiaMsgs={setNiaMsgs} />}
+>>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
             {(currentView === 'profile' || currentView === 'plans' || currentView === 'settings') && (
               <Profile
                 dark={dark}
@@ -172,7 +226,11 @@ export default function App() {
         {showSuccessScreen && <SuccessScreen dark={dark} onGetStarted={handleSuccessComplete} />}
 
         {/* Weekly Report Modal */}
+<<<<<<< HEAD
         {showReport && <WeeklyReportModal onClose={() => setShowReport(false)} />}
+=======
+        {showReport && <Suspense fallback={null}><WeeklyReportModal onClose={() => setShowReport(false)} /></Suspense>}
+>>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
       </div>
     </div>
   );
