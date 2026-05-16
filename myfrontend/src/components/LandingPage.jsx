@@ -1,10 +1,7 @@
-import {  Sun, Moon, Camera, Sparkles } from "lucide-react";
-<<<<<<< HEAD
-=======
+import { Sun, Moon, Camera, Sparkles } from "lucide-react";
 import logo from '../assets/Screenshot_2026-05-08_184522-removebg-preview.png';
->>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
 
-const FOOD_BG    = "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=1400&q=85";
+const FOOD_BG = "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=1400&q=85";
 const MEAL_PHOTO = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=85";
 
 const T = "transition-all duration-500 ease-in-out";
@@ -25,17 +22,11 @@ function Navbar({ dark, setDark }) {
     >
       {/* Logo */}
       <div className="flex items-center gap-2.5">
-<<<<<<< HEAD
-        <div style={{ fontSize: '28px', fontWeight: 800, color: '#0D9488', letterSpacing: '-1px' }}>
-          Nutri<span style={{ color: '#3B82F6' }}>AI</span>
-        </div>
-=======
         <img
           src={logo}
           alt="NutriAI"
           style={{ height: 52, width: 'auto', objectFit: 'contain', filter: dark ? 'brightness(0) invert(1)' : 'none' }}
         />
->>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
       </div>
 
       {/* Right side: dark toggle */}
@@ -94,17 +85,11 @@ function IPhoneMockup({ dark }) {
           {/* App header — landing page logo */}
           <div className="px-5 py-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
-<<<<<<< HEAD
-              <div style={{ fontSize: '18px', fontWeight: 800, color: '#0D9488', letterSpacing: '-1px' }}>
-                Nutri<span style={{ color: '#3B82F6' }}>AI</span>
-              </div>
-=======
               <img
                 src={logo}
                 alt="NutriAI"
                 style={{ height: 20, width: 'auto', objectFit: 'contain', filter: dark ? 'brightness(0) invert(1)' : 'none' }}
               />
->>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
             </div>
             <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs ${dark ? 'bg-white/10' : 'bg-gray-200'}`}>👤</div>
           </div>
@@ -139,15 +124,21 @@ function IPhoneMockup({ dark }) {
           {/* Nutrition cards */}
           <div className="px-4 pt-3 grid grid-cols-3 gap-2">
             {[
-              { label: "Calories", value: "485", unit: "kcal",
+              {
+                label: "Calories", value: "485", unit: "kcal",
                 bg: dark ? "bg-orange-500/20" : "bg-orange-50",
-                text: dark ? "text-orange-400" : "text-orange-500" },
-              { label: "Protein",  value: "32g",  unit: "",
-                bg: dark ? "bg-blue-500/20"   : "bg-blue-50",
-                text: dark ? "text-blue-400"   : "text-blue-500" },
-              { label: "Carbs",    value: "48g",  unit: "",
-                bg: dark ? "bg-emerald-500/20": "bg-emerald-50",
-                text: dark ? "text-emerald-400": "text-emerald-600" },
+                text: dark ? "text-orange-400" : "text-orange-500"
+              },
+              {
+                label: "Protein", value: "32g", unit: "",
+                bg: dark ? "bg-blue-500/20" : "bg-blue-50",
+                text: dark ? "text-blue-400" : "text-blue-500"
+              },
+              {
+                label: "Carbs", value: "48g", unit: "",
+                bg: dark ? "bg-emerald-500/20" : "bg-emerald-50",
+                text: dark ? "text-emerald-400" : "text-emerald-600"
+              },
             ].map((item) => (
               <div key={item.label} className={`rounded-xl p-2 ${item.bg}`}>
                 <p className={`text-[10px] font-medium ${item.text} opacity-80`}>{item.label}</p>

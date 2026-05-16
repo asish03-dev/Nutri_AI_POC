@@ -7,6 +7,8 @@ from .models import UserProfile,meal_logs
 from .serializer import RegisterSerializer, OnboardingSerializer,MealLogSerializer, MealImageUploadSerializer
 from rest_framework import status,viewsets,generics
 from rest_framework import authentication, permissions
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.permissions import IsAuthenticated
 from django.db import models
 from .utils import analyze_meal_image_with_gemini
 

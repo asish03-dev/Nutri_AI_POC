@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
-import {  Sparkles, CheckCircle2 } from "lucide-react";
-<<<<<<< HEAD
-=======
+import { Sparkles, CheckCircle2 } from "lucide-react";
 import logo from '../assets/Screenshot_2026-05-08_184522-removebg-preview.png';
->>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
 
 export default function SuccessScreen({ onGetStarted, dark }) {
   const [visible, setVisible] = useState(false);
@@ -16,9 +13,11 @@ export default function SuccessScreen({ onGetStarted, dark }) {
   return (
     <div
       className="fixed inset-0 z-[300] flex items-center justify-center"
-      style={{ background: dark
-        ? "linear-gradient(135deg, #0a0f1a 0%, #0f1f1a 50%, #0a1510 100%)"
-        : "linear-gradient(135deg, #fdfaf5 0%, #f0fdf8 50%, #f1f8f5 100%)" }}
+      style={{
+        background: dark
+          ? "linear-gradient(135deg, #0a0f1a 0%, #0f1f1a 50%, #0a1510 100%)"
+          : "linear-gradient(135deg, #fdfaf5 0%, #f0fdf8 50%, #f1f8f5 100%)"
+      }}
     >
       {/* Ambient blobs */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full opacity-20 blur-3xl pointer-events-none"
@@ -35,19 +34,13 @@ export default function SuccessScreen({ onGetStarted, dark }) {
         }}
       >
         {/* Logo */}
-          <div className="flex items-center justify-center gap-2 mb-4">
-<<<<<<< HEAD
-            <div style={{ fontSize: '28px', fontWeight: 800, color: '#0D9488', letterSpacing: '-1px' }}>
-              Nutri<span style={{ color: '#3B82F6' }}>AI</span>
-            </div>
-=======
-            <img
-              src={logo}
-              alt="NutriAI"
-              style={{ height: 36, width: 'auto', objectFit: 'contain', filter: dark ? 'brightness(0) invert(1)' : 'none' }}
-            />
->>>>>>> 7ba8efab5d7ed634e2885490524dd019b0a2596a
-          </div>
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <img
+            src={logo}
+            alt="NutriAI"
+            style={{ height: 36, width: 'auto', objectFit: 'contain', filter: dark ? 'brightness(0) invert(1)' : 'none' }}
+          />
+        </div>
 
         {/* Success icon */}
         <div className="relative mb-8">

@@ -25,12 +25,23 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
-
+class Subscription(models.Model):
+    subscription_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscriptions')
+    plan_type = models.CharField(max_length=100) # 'free', 'Student', 'Working Professional', 'gym'
+    price_paid = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    status = models.CharField(max_length=50, null=True, blank=True)
+    payment_id = models.CharField(max_length=255, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name='profile')
     first_name = models.CharField(max_length=100, null=True, blank=True)
     last_name = models.CharField(max_length=100, null=True, blank=True)
-    day_of_birth = models.IntegerFieldField(null=True, blank=True)
+    day_of_birth = models.IntegerField(null=True, blank=True)
     month_of_birth = models.IntegerField(null=True, blank=True)
     year_of_birth = models.IntegerField(null=True, blank=True)
     height_cm = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
@@ -74,27 +85,16 @@ def create_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
 
-class Subscription(models.Model):
-    subscription_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscriptions')
-    plan_type = models.CharField(max_length=100) # 'free', 'Student', 'Working Professional', 'gym'
-    price_paid = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    start_date = models.DateField(null=True, blank=True)
-    end_date = models.DateField(null=True, blank=True)
-    status = models.CharField(max_length=50, null=True, blank=True)
-    payment_id = models.CharField(max_length=255, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
 class daily_tracking(models.Model):
     tracking_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='daily_tracking')
     total_calories_consumed = models.IntegerField(null=True, blank=True)
-    total_carbs = models.DecimalField(max_digit=5, decimal_places=2, null=True, blank=True)
-    total_fat = models.DecimalField(max_digit=5, decimal_places=2, null=True,blank=True)
-    water_intake_liters = models.DecimalField(max_digit=5, decimal_places=2, null=True,blank=True)
-    junk_score_avg = models.DecimalField(max_digit=5, decimal_places=2, null=True,blank=True)
-    surplus_or_deficit = models.DecimalField(max_digit=5, decimal_places=2, null=True,blank=True)
+    total_carbs = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    total_fat = models.DecimalField(max_digits=5, decimal_places=2, null=True,blank=True)
+    water_intake_liters = models.DecimalField(max_digits=5, decimal_places=2, null=True,blank=True)
+    junk_score_avg = models.DecimalField(max_digits=5, decimal_places=2, null=True,blank=True)
+    surplus_or_deficit = models.DecimalField(max_digits=5, decimal_places=2, null=True,blank=True)
     behaviour_summary = models.CharField(max_length=100)
     meal_count = models.IntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
