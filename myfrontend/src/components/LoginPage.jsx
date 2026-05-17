@@ -1,6 +1,5 @@
 import { useGoogleLogin } from '@react-oauth/google';
-import { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Mail, Lock, Eye, EyeOff, X, ShieldCheck } from "lucide-react";
 import logo from '../assets/Screenshot_2026-05-08_184522-removebg-preview.png';
@@ -47,6 +46,10 @@ export default function LoginPage({ open, onClose, dark, onSwitchToSignup, onSub
   const [loadingApple, setLoadingApple]   = useState(false);
   const [visible, setVisible]             = useState(false);
   const [mounted, setMounted]             = useState(false);
+  const [step, setStep]                   = useState(1);
+  const [otpArray, setOtpArray]             = useState(["", "", "", "", "", ""]);
+  const inputRefs = useRef([]); 
+  const [loginEmail, setLoginEmail]       = useState("");
 
 
   const loginWithGoogle = useGoogleLogin({
@@ -91,16 +94,69 @@ export default function LoginPage({ open, onClose, dark, onSwitchToSignup, onSub
         username: email, // Backend expects 'username' field
         password,
       });
+    if (response.data.requires_otp) {
+      setLoginEmail(response.data.email );
+      setStep(2);
+    } else {
       localStorage.setItem("access_token", response.data.access_token);
       onSubmit();
+    }
     } catch (error) {
       setErrorMsg("Invalid credentials");
     }
     setSubmitting(false);
   }
 
+const handleOtpChange = (index, value) => {
+  if (isNaN(value)) return;
+  const newOtpArray = [...otpArray];
+  newOtpArray[index] = value.slice(-1);
+  setOtpArray(newOtpArray);
+  if (value !== "" && index < 5) {
+    (inputRefs.current[index + 1]); {
+    inputRefs.current[index + 1].focus();}    
+  }
+};
+
+const handleOtpKeyDown = (index, e) => {
+  if (e.key === "Backspace" && otpArray[index] === "" && index > 0) {
+    const prevInput = document.getElementById('otp-${index - 1}');
+    inputRefs.current[index - 1].focus();
+    if (prevInput) prevInput.focus();
+  }
+};
+
+const submitOTPCode = () => {
+  const finalCode = otpArray.join("");
+    if (finalCode.length === 6) {
+      handleVerifyOtp(finalCode);
+    } else {
+      setErrorMsg("Please enter the 6-digit code");
+    }
+};
+
+
+const handleVerifyOtp = async (code) => { 
+  setErrorMsg("");
+  setSubmitting(true);
+  try {
+    const response = await axios.post("http://10.83.193.151:8000/api/verify-otp/", {
+      email: loginEmail,
+      otp: code
+    });
+    localStorage.setItem("access_token", response.data.access_token);
+    onSubmit();
+  } catch (error) {
+    setErrorMsg("Invalid or expired OTP");
+  }
+  setSubmitting(false);
+};
+
   useEffect(() => {
     if (!open) setSubmitting(false);
+    setStep(1);
+    setOtpArray(["", "", "", "", "", ""]);
+    setErrorMsg("");
   }, [open]);
 
   useEffect(() => {
@@ -144,7 +200,7 @@ export default function LoginPage({ open, onClose, dark, onSwitchToSignup, onSub
     ? "bg-gray-800 border-gray-700 text-gray-200 hover:bg-gray-700"
     : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50";
 
-  return (
+    return (
     <div
       onClick={onClose}
       className="fixed inset-0 z-[100] flex items-center justify-center px-4"
@@ -181,137 +237,199 @@ export default function LoginPage({ open, onClose, dark, onSwitchToSignup, onSub
             />
           </div>
 
-        <h2 className="text-2xl font-black mb-1">
-          Welcome Back <span className="not-italic">👋</span>
-        </h2>
-        <p className={`text-sm mb-7 ${dark ? "text-gray-400" : "text-gray-500"}`}>
-          Log in to continue your personalized nutrition journey
-        </p>
+        {/* ================= STEP 1: EMAIL & PASSWORD ================= */}
+        {step === 1 && (
+          <>
+            <h2 className="text-2xl font-black mb-1">
+              Welcome Back <span className="not-italic">👋</span>
+            </h2>
+            <p className={`text-sm mb-7 ${dark ? "text-gray-400" : "text-gray-500"}`}>
+              Log in to continue your personalized nutrition journey
+            </p>
 
-        <div className="space-y-4">
-          <div>
-            <label className={`block text-xs font-semibold mb-1.5 ${dark ? "text-gray-300" : "text-gray-600"}`}>
-              Email / Phone Number
-            </label>
-            <div className="relative">
-              <Mail size={15} className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${dark ? "text-gray-500" : "text-gray-400"}`} />
-              <input
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={`w-full pl-10 pr-4 py-3 rounded-xl border text-sm outline-none transition-colors duration-200 ${input}`}
-              />
-            </div>
-          </div>
+            <div className="space-y-4">
+              <div>
+                <label className={`block text-xs font-semibold mb-1.5 ${dark ? "text-gray-300" : "text-gray-600"}`}>
+                  Email / Phone Number
+                </label>
+                <div className="relative">
+                  <Mail size={15} className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${dark ? "text-gray-500" : "text-gray-400"}`} />
+                  <input
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className={`w-full pl-10 pr-4 py-3 rounded-xl border text-sm outline-none transition-colors duration-200 ${input}`}
+                  />
+                </div>
+              </div>
 
-          <div>
-            <label className={`block text-xs font-semibold mb-1.5 ${dark ? "text-gray-300" : "text-gray-600"}`}>
-              Password
-            </label>
-            <div className="relative">
-              <Lock size={15} className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${dark ? "text-gray-500" : "text-gray-400"}`} />
-              <input
-                type={showPw ? "text" : "password"}
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={`w-full pl-10 pr-11 py-3 rounded-xl border text-sm outline-none transition-colors duration-200 ${input}`}
-              />
+              <div>
+                <label className={`block text-xs font-semibold mb-1.5 ${dark ? "text-gray-300" : "text-gray-600"}`}>
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock size={15} className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${dark ? "text-gray-500" : "text-gray-400"}`} />
+                  <input
+                    type={showPw ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={`w-full pl-10 pr-11 py-3 rounded-xl border text-sm outline-none transition-colors duration-200 ${input}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPw(!showPw)}
+                    className={`absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors ${dark ? "text-gray-500 hover:text-gray-300" : "text-gray-400 hover:text-gray-600"}`}
+                  >
+                    {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <div
+                    onClick={() => setRemember(!remember)}
+                    className={`w-4 h-4 rounded flex items-center justify-center border transition-colors duration-200 cursor-pointer
+                      ${remember ? "bg-emerald-500 border-emerald-500" : dark ? "border-gray-600 bg-gray-800" : "border-gray-300 bg-white"}`}
+                  >
+                    {remember && (
+                      <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
+                        <path d="M1 3.5L3.5 6L8 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    )}
+                  </div>
+                  <span className={`text-xs font-medium ${dark ? "text-gray-300" : "text-gray-600"}`}>Remember me</span>
+                </label>
+                <button className="text-xs font-semibold text-emerald-500 hover:text-emerald-400 transition-colors">
+                  Forgot Password?
+                </button>
+              </div>
+
+              {errorMsg && (
+                <p className="text-xs text-red-500 font-medium">{errorMsg}</p>
+              )}
+
               <button
-                type="button"
-                onClick={() => setShowPw(!showPw)}
-                className={`absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors ${dark ? "text-gray-500 hover:text-gray-300" : "text-gray-400 hover:text-gray-600"}`}
+                onClick={handleSubmit}
+                disabled={submitting}
+                className="w-full flex items-center justify-center py-3.5 rounded-xl text-white font-bold text-sm shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-90"
+                style={{ background: "linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)" }}
               >
-                {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
-              </button>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <label className="flex items-center gap-2 cursor-pointer select-none">
-              <div
-                onClick={() => setRemember(!remember)}
-                className={`w-4 h-4 rounded flex items-center justify-center border transition-colors duration-200 cursor-pointer
-                  ${remember ? "bg-emerald-500 border-emerald-500" : dark ? "border-gray-600 bg-gray-800" : "border-gray-300 bg-white"}`}
-              >
-                {remember && (
-                  <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
-                    <path d="M1 3.5L3.5 6L8 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <span
+                  className="flex items-center justify-center gap-2 transition-all duration-200"
+                  style={{ opacity: submitting ? 0 : 1, position: submitting ? "absolute" : "relative" }}
+                >
+                  Log In
+                </span>
+                {submitting && (
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                    <path className="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                   </svg>
                 )}
+              </button>
+
+              <div className={`flex items-center justify-center gap-1.5 ${dark ? "text-gray-500" : "text-gray-400"}`}>
+                <ShieldCheck size={12} />
+                <span className="text-[11px]">Secure login powered by encryption</span>
               </div>
-              <span className={`text-xs font-medium ${dark ? "text-gray-300" : "text-gray-600"}`}>Remember me</span>
-            </label>
-            <button className="text-xs font-semibold text-emerald-500 hover:text-emerald-400 transition-colors">
-              Forgot Password?
-            </button>
-          </div>
+            </div>
 
-          {errorMsg && (
-            <p className="text-xs text-red-500 font-medium">{errorMsg}</p>
-          )}
+            <div className="flex items-center gap-3 my-5">
+              <div className={`flex-1 h-px ${dark ? "bg-gray-700" : "bg-gray-200"}`} />
+              <span className={`text-xs font-medium ${dark ? "text-gray-500" : "text-gray-400"}`}>Or continue with</span>
+              <div className={`flex-1 h-px ${dark ? "bg-gray-700" : "bg-gray-200"}`} />
+            </div>
 
-          <button
-            onClick={handleSubmit}
-            disabled={submitting}
-            className="w-full flex items-center justify-center py-3.5 rounded-xl text-white font-bold text-sm shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-90"
-            style={{ background: "linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)" }}
-          >
-            <span
-              className="flex items-center justify-center gap-2 transition-all duration-200"
-              style={{ opacity: submitting ? 0 : 1, position: submitting ? "absolute" : "relative" }}
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => loginWithGoogle()}
+                disabled={loadingGoogle}
+                className={`flex items-center justify-center gap-2.5 py-3 rounded-xl border text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-80 disabled:cursor-not-allowed ${social}`}
+              >
+                {loadingGoogle ? <Spinner /> : <GoogleIcon />}
+                Google
+              </button>
+              <button
+                onClick={() => handleSocial(setLoadingApple)}
+                disabled={loadingApple}
+                className={`flex items-center justify-center gap-2.5 py-3 rounded-xl border text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-80 disabled:cursor-not-allowed ${social}`}
+              >
+                {loadingApple ? <Spinner /> : <AppleIcon />}
+                Apple
+              </button>
+            </div>
+
+            <p className={`text-center text-sm mt-6 ${dark ? "text-gray-400" : "text-gray-500"}`}>
+              Don't have an account?{" "}
+              <button
+                onClick={onSwitchToSignup}
+                className="font-bold text-emerald-500 hover:text-emerald-400 transition-colors"
+              >
+                Sign Up
+              </button>
+            </p>
+          </>
+        )}
+
+
+               {/* ------ STEP 2: 6 BOX OTP VERIFICATION ------ */}
+        {step === 2 && (
+          <div className="flex flex-col items-center animate-fade-in-up">
+            <h3 className={`text-xl font-bold mb-2 ${dark ? "text-white" : "text-gray-900"}`}>
+              Check your Email
+            </h3>
+            <p className={`text-sm text-center mb-6 ${dark ? "text-gray-400" : "text-gray-500"}`}>
+              We sent a 6-digit code to <br/>
+              <span className="font-bold text-emerald-500">{loginEmail}</span>
+            </p>
+            
+            {/* The 6 OTP Boxes */}
+            <div className="flex gap-3 justify-center w-full mb-6">
+              {otpArray.map((digit, index) => (
+                <input
+                  key={index}
+                  ref={el => inputRefs.current[index] = el}
+                  id={`otp-${index}`}
+                  type="text"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => handleOtpChange(index, e.target.value)}
+                  onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                  className={`w-12 h-14 text-center font-bold text-2xl rounded-xl border outline-none transition-all duration-200 
+                  ${dark ? "bg-gray-800 border-gray-700 text-white focus:border-emerald-500 focus:shadow-[0_0_15px_rgba(16,185,129,0.3)]" 
+                         : "bg-gray-50 border-gray-200 text-gray-900 focus:border-emerald-500 focus:shadow-[0_0_15px_rgba(16,185,129,0.3)]"}`}
+                />
+              ))}
+            </div>
+
+            {errorMsg && <p className="text-xs text-red-500 font-medium mb-4">{errorMsg}</p>}
+            
+            {/* Submit Button */}
+            <button
+              onClick={submitOTPCode}
+              disabled={submitting}
+              className="w-full flex items-center justify-center py-3.5 mt-2 rounded-xl text-white font-bold text-sm shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-90"
+              style={{ background: "linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)" }}
             >
-              Log In
-            </span>
-            {submitting && (
-              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
-                <path className="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-              </svg>
-            )}
-          </button>
+              {submitting ? <Spinner /> : "Verify Code"}
+            </button>
+             <button
+              onClick={() => {
+                setStep(1); 
+                setOtpArray(["", "", "", "", "", ""]); 
+                setErrorMsg("");
+              }}
+              className={`w-full py-3 mt-3 text-sm font-semibold transition-colors duration-200 
+                ${dark ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-800"}`}
+            >
+              Back to Login
+            </button>
 
-          <div className={`flex items-center justify-center gap-1.5 ${dark ? "text-gray-500" : "text-gray-400"}`}>
-            <ShieldCheck size={12} />
-            <span className="text-[11px]">Secure login powered by encryption</span>
           </div>
-        </div>
-
-        <div className="flex items-center gap-3 my-5">
-          <div className={`flex-1 h-px ${dark ? "bg-gray-700" : "bg-gray-200"}`} />
-          <span className={`text-xs font-medium ${dark ? "text-gray-500" : "text-gray-400"}`}>Or continue with</span>
-          <div className={`flex-1 h-px ${dark ? "bg-gray-700" : "bg-gray-200"}`} />
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <button
-         onClick={() => loginWithGoogle()}
-         disabled={loadingGoogle}
-         className={`flex items-center justify-center gap-2.5 py-3 rounded-xl border text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-80 disabled:cursor-not-allowed ${social}`}
-        >
-        {loadingGoogle ? <Spinner /> : <GoogleIcon />}
-        Google
-       </button>
-          <button
-            onClick={() => handleSocial(setLoadingApple)}
-            disabled={loadingApple}
-            className={`flex items-center justify-center gap-2.5 py-3 rounded-xl border text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-80 disabled:cursor-not-allowed ${social}`}
-          >
-            {loadingApple ? <Spinner /> : <AppleIcon />}
-            Apple
-          </button>
-        </div>
-
-        <p className={`text-center text-sm mt-6 ${dark ? "text-gray-400" : "text-gray-500"}`}>
-          Don't have an account?{" "}
-          <button
-            onClick={onSwitchToSignup}
-            className="font-bold text-emerald-500 hover:text-emerald-400 transition-colors"
-          >
-            Sign Up
-          </button>
-        </p>
+        )}
       </div>
     </div>
   );
