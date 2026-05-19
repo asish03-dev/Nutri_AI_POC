@@ -58,7 +58,7 @@ export default function LoginPage({ open, onClose, dark, onSwitchToSignup, onSub
         setLoadingGoogle(true);
         
         // Send the Google token to your new Django endpoint
-        const response = await axios.post("http://10.83.193.151:8000/api/auth/google/", {
+        const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/google/`, {
           token: tokenResponse.access_token
         });
         
@@ -66,7 +66,7 @@ export default function LoginPage({ open, onClose, dark, onSwitchToSignup, onSub
         localStorage.setItem("access_token", response.data.access_token);
         
         // Close the modal / trigger the redirect
-        onSubmit(); 
+        onSubmit(response.data.user.is_onboarded); 
       } catch (error) {
         setErrorMsg("Google authentication failed");
         setLoadingGoogle(false);
@@ -88,9 +88,10 @@ export default function LoginPage({ open, onClose, dark, onSwitchToSignup, onSub
       setErrorMsg("Please fill all the fields");
       return;
     }
+    setSubmitting(true);
 
     try {
-      const response = await axios.post("http://10.83.193.151:8000/api/login/", {
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/login/`, {
         username: email, // Backend expects 'username' field
         password,
       });
@@ -99,7 +100,7 @@ export default function LoginPage({ open, onClose, dark, onSwitchToSignup, onSub
       setStep(2);
     } else {
       localStorage.setItem("access_token", response.data.access_token);
-      onSubmit();
+      onSubmit(response.data.user?.is_onboarded || false);
     }
     } catch (error) {
       setErrorMsg("Invalid credentials");
@@ -140,12 +141,12 @@ const handleVerifyOtp = async (code) => {
   setErrorMsg("");
   setSubmitting(true);
   try {
-    const response = await axios.post("http://10.83.193.151:8000/api/verify-otp/", {
+    const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/verify-otp/`, {
       email: loginEmail,
       otp: code
     });
     localStorage.setItem("access_token", response.data.access_token);
-    onSubmit();
+    onSubmit(response.data.user.is_onboarded);
   } catch (error) {
     setErrorMsg("Invalid or expired OTP");
   }

@@ -203,53 +203,57 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
     else if (onBack) onBack();
   };
 
-  const handleFinish = async () => {
+   const handleFinish = async () => {
     setErrorMsg("");
     try {
       const rawToken = localStorage.getItem('access_token'); 
       const token = rawToken ? rawToken.replace(/['"]+/g, '') : "";
       
-      let userId = "";  // change here for getting the user id from the token dynamically
+      let userId = "";  
       if (token) {
         const payload = JSON.parse(atob(token.split('.')[1]));
-        console.log("User ID from token:", payload);
         userId = payload.user_id || payload.id || payload.sub; 
       }
-      const response = await axios.patch(`http://10.83.193.151:8000/api/onboarding/${userId}/`, {
-        first_name: formData.first_Name,
-        last_name: formData.last_Name,
-        day_of_birth: formData.day_of_birth,
-        month_of_birth: formData.month_of_birth,
-        year_of_birth: formData.year_of_birth,
-        phone_number: formData.phone_number,
+
+      
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      const monthInt = formData.dobMonth ? monthNames.indexOf(formData.dobMonth) + 1 : null;
+
+    
+      const response = await axios.patch(`${import.meta.env.VITE_API_BASE_URL}/api/onboarding/${userId}/`, {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        date_of_birth: parseInt(formData.dobDay) || null,
+        month_of_birth: monthInt,
+        year_of_birth: parseInt(formData.dobYear) || null,
+        phone_number: formData.phone,
         profile_photo_url: photoPreview,
         gender: formData.gender,
-        height_cm: formData.height_cm,
-        current_weight_kg: formData.current_weight_kg,
-        targeted_weight_kg: formData.targeted_weight_kg,
-        water_intake_litres: parseFloat(formData.water_intake_litres) || 3.0,
-        primary_goal: formData.primary_goal,
-        activity_level: formData.activity_Level,
+        height_cm: parseFloat(formData.height) || null,
+        current_weight_kg: parseFloat(formData.weight) || null,
+        targeted_weight_kg: parseFloat(formData.targetWeight) || null,
+        water_intake_litres: parseFloat(formData.waterGoal) || 3.0,
+        primary_goal: formData.mainGoal,
+        activity_level: formData.activityLevel,
         occupation: formData.occupation,
-        sleep_schedule: formData.sleep_Schedule,
-        dietaryPreference: formData.dietaryPreference,
-        cooking_oil: formData.cooking_Oil,
-        regional_culture: formData.regional_Culture,
+        sleep_schedule: formData.sleepSchedule,
+        dietary_preference: formData.dietaryPreference,
+        preferred_cooking_oil: formData.cookingOil,
+        regional_culture: formData.regionalCulture,
         allergies: Array.isArray(formData.allergies) ? formData.allergies.join(', ') : "",
         health_issues: Array.isArray(formData.healthIssues) ? formData.healthIssues.join(', ') : "",
-        liked_foods: formData.liked_Foods,
-        disliked_foods: formData.disliked_Foods,
-        meal_intake_per_day: formData.meals_intake_per_day,
-        available_cooking_time: formData.available_cooking_time,
-        grocery_budget: formData.grocery_budget,
-        preferred_meal_location: formData.preferred_meal_location,
-        main_carbs_source: formData.main_carbs_source,
+        liked_foods: formData.likedFoods,
+        disliked_foods: formData.dislikedFoods,
+        meal_intake_per_day: parseInt(formData.mealsPerDay) || null,
+        available_cooking_time: formData.cookingTime,
+        grocery_budget: formData.groceryBudget,
+        preferred_meal_location: formData.mealLocation,
+        main_carbs_source: formData.mainCarbs,
         bmi: formData.bmi,
-        daily_calorie_target: formData.daily_calorie_target,
-        active_subscription: formData.active_subscription,
+        daily_calorie_target: formData.calorieTarget,
+        is_onboarded: true,
       }, {
         headers: { Authorization: `Bearer ${token}` }
-      
       });
 
       console.log("Success:", response.data);
@@ -257,19 +261,17 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
       if (onComplete) {
         onComplete({
           ...formData,
+          photo: photoPreview,
           name: `${formData.firstName} ${formData.lastName}`.trim(),
           age: formData.dobYear ? new Date().getFullYear() - parseInt(formData.dobYear) : ''
         }, true);
       }
     } catch (error) {
       console.error("Error submitting onboarding data:", error);
-      
-      // ADD THIS LINE: This will print the exact message from Django!
-      console.error("Django Server Says:", JSON.stringify(error.response?.data));
-      
       setErrorMsg("Something went wrong. Please try again later");
     }
   };
+
   // Convert file to base64 for persistence across sessions
   const handlePhoto = (e) => {
     const file = e.target.files[0];

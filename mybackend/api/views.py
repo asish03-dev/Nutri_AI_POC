@@ -120,7 +120,8 @@ class OnboardingView(viewsets.ModelViewSet):
 
 
 # Replace this with your actual Google Client ID
-GOOGLE_CLIENT_ID = "418733621307-ajvgk9mk30meca1cs7k83tcl63mse6b5.apps.googleusercontent.com"
+import os
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "418733621307-ajvgk9mk30meca1cs7k83tcl63mse6b5.apps.googleusercontent.com")
 class GoogleLoginView(APIView):
     permission_classes = [permissions.AllowAny]
     def post(self, request):
@@ -163,7 +164,8 @@ class GoogleLoginView(APIView):
                 "refresh_token": str(refresh),
                 "user": {
                     "username": user.username,
-                    "email": user.email
+                    "email": user.email,
+                    "is_onboarded": user.profile.is_onboarded
                 }
             }, status=status.HTTP_200_OK)
 
@@ -250,6 +252,7 @@ class VerifyOTPView(APIView):
             "user": {
                 "id": str(user.id),
                 "username": user.username,
-                "email": user.email
+                "email": user.email,
+                "is_onboarded": user.profile.is_onboarded
             }
         }, status=status.HTTP_200_OK)
