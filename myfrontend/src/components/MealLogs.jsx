@@ -1,10 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { Camera, Upload, Mic, MicOff, X, Clock, Utensils, MapPin, Plus, Check, Trash2, ChevronDown, ChevronLeft, Zap, Flame, Droplets, Beef, ScanLine, ShieldAlert } from 'lucide-react';
 import { useUser } from '../context/UserContext';
+import axios from 'axios';
 
 const MEAL_TYPES = ['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Pre-workout', 'Post-workout'];
 const MEAL_LOCATIONS = ['Home-cooked', 'Office / Canteen', 'Restaurant', 'Street Food', 'Café', 'Ordered In'];
 const DAILY_SCAN_LIMIT = 5;
+
+const baseURL = import.meta.env.VITE_BACKEND_URL;
 
 const MOCK_FOODS = [
   { name: 'Dal Tadka with Rice', calories: 420, protein: 18, fat: 8, carbs: 65, junkScore: 2 },
@@ -60,18 +63,18 @@ function NutriBadge({ icon: Icon, label, value, color, dark }) {
 }
 
 function JunkMeter({ score, dark }) {
-  const color = score <= 3 ? '#14B8A6' : score <= 6 ? '#F59E0B' : '#EF4444';
-  const label = score <= 3 ? 'Clean' : score <= 6 ? 'Moderate' : 'Junky';
+  const color = score <= 30 ? '#14B8A6' : score <= 60 ? '#F59E0B' : '#EF4444';
+  const label = score <= 30 ? 'Clean' : score <= 60 ? 'Moderate' : 'Junky';
   return (
     <div className={`flex items-center gap-4 px-5 py-4 rounded-2xl border ${dark ? 'bg-slate-800/60 border-slate-700/50' : 'bg-slate-50 border-slate-100'}`}>
       <ShieldAlert size={22} style={{ color }} />
       <div className="flex-1">
         <div className="flex items-center justify-between mb-2">
           <span className={`text-[12px] font-bold uppercase tracking-widest ${dark ? 'text-slate-500' : 'text-slate-400'}`}>Junk Score</span>
-          <span className="text-[15px] font-black" style={{ color }}>{score}/10 — {label}</span>
+          <span className="text-[15px] font-black" style={{ color }}>{score}/100 — {label}</span>
         </div>
         <div className={`h-2 rounded-full ${dark ? 'bg-slate-700' : 'bg-slate-200'}`}>
-          <div className="h-full rounded-full transition-all duration-700" style={{ width: `${score * 10}%`, background: color }} />
+          <div className="h-full rounded-full transition-all duration-700" style={{ width: `${score}%`, background: color }} />
         </div>
       </div>
     </div>
@@ -211,10 +214,45 @@ export default function MealLogs({ dark }) {
   const handleAnalyze = async () => {
     if (!photo || limitReached) return;
     setAnalysisState('analyzing');
-    const result = await simulateAnalysis();
-    setScansUsed(s => s + 1);
-    setAnalysisResult(result);
-    setAnalysisState('done');
+
+    try {
+      const rawToken = localStorage.getItem('access_token');
+      const token = rawToken ? rawToken.replace(/['"]+/g, '') : "";
+
+      // Convert base64/dataURL to a Blob
+      const responseBlob = await fetch(photo);
+      const blob = await responseBlob.blob();
+
+      const formData = new FormData();
+      formData.append('image', blob, 'meal.jpg');
+
+      const apiResponse = await axios.post(`${baseURL}/api/meal-logs/analyze/`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = apiResponse.data;
+
+      // Map backend response to frontend expected structure
+      const result = {
+        name: data.detected_items || 'Unknown Food',
+        calories: data.calories || 0,
+        protein: data.protein_gm || 0,
+        fat: data.fat_gm || 0,
+        carbs: data.carbs_gm || 0,
+        junkScore: data.junk_score || 0
+      };
+
+      setScansUsed(s => s + 1);
+      setAnalysisResult(result);
+      setAnalysisState('done');
+    } catch (error) {
+      console.error("Error analyzing meal:", error);
+      alert("Failed to analyze image. Please check your connection or backend server.");
+      setAnalysisState('idle');
+    }
   };
 
   const handleSaveMeal = () => {
@@ -235,6 +273,36 @@ export default function MealLogs({ dark }) {
     setTodaysMeals(updated);
     saveToStorage(updated);
     addMealLog(newMeal);
+
+    // Persist to Django backend database
+    const rawToken = localStorage.getItem('access_token');
+    const token = rawToken ? rawToken.replace(/['\"]+/g, '') : "";
+    if (token) {
+      const postBody = {
+        meal_type: newMeal.type,
+        meal_location: newMeal.location || "",
+        detected_items: (newMeal.name || 'Unnamed Meal').substring(0, 95),
+        calories: newMeal.calories || 0,
+        protein_gm: newMeal.protein || 0,
+        carbs_gm: newMeal.carbs || 0,
+        fat_gm: newMeal.fat || 0,
+        junk_score: newMeal.junkScore || 0,
+        meal_photo_url: ""
+      };
+
+      axios.post(`${baseURL}/api/meal-logs/`, postBody, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(res => {
+        console.log("Meal log successfully persisted in Django DB:", res.data);
+      })
+      .catch(err => {
+        console.warn("Failed to persist meal log in Django DB:", err.response?.data || err.message);
+      });
+    }
+
     setPhoto(null); setMealName(''); setMealType(''); setMealLocation('');
     setAnalysisState('idle'); setAnalysisResult(null);
   };
@@ -284,13 +352,12 @@ export default function MealLogs({ dark }) {
                 : `${todaysMeals.length} meal${todaysMeals.length > 1 ? 's' : ''} logged today`}
             </p>
           </div>
-          <div className={`flex items-center gap-2.5 px-5 py-3 rounded-2xl border text-[15px] font-bold shrink-0 ${
-            limitReached
+          <div className={`flex items-center gap-2.5 px-5 py-3 rounded-2xl border text-[15px] font-bold shrink-0 ${limitReached
               ? 'border-red-200 bg-red-50 text-red-600 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400'
               : scansLeft <= 2
                 ? 'border-amber-200 bg-amber-50 text-amber-600 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-400'
                 : `border-slate-200 dark:border-slate-700 ${dark ? 'bg-slate-800 text-slate-300' : 'bg-white text-slate-600'}`
-          }`}>
+            }`}>
             <ScanLine size={17} />
             <span>{limitReached ? 'Limit reached' : `${scansLeft}/${DAILY_SCAN_LIMIT} scans remaining today`}</span>
           </div>
@@ -337,11 +404,10 @@ export default function MealLogs({ dark }) {
         <div className="grid grid-cols-2 gap-4">
           <button
             onClick={openCamera}
-            className={`flex items-center justify-center gap-3 h-16 rounded-2xl border-2 text-[15px] font-bold transition-all hover:-translate-y-0.5 active:translate-y-0 ${
-              dark
+            className={`flex items-center justify-center gap-3 h-16 rounded-2xl border-2 text-[15px] font-bold transition-all hover:-translate-y-0.5 active:translate-y-0 ${dark
                 ? 'border-slate-700 bg-slate-800 text-slate-200 hover:border-[#14B8A6] hover:text-[#14B8A6]'
                 : 'border-slate-200 bg-white text-slate-700 hover:border-[#14B8A6] hover:text-[#14B8A6] shadow-sm'
-            }`}>
+              }`}>
             <Camera size={20} />
             Open Camera
           </button>
@@ -354,9 +420,8 @@ export default function MealLogs({ dark }) {
         </div>
 
         {/* ── Meal Name + Voice ── */}
-        <div className={`flex items-center gap-3 h-16 px-5 rounded-2xl border-2 transition-all ${
-          dark ? 'bg-slate-800/50 border-slate-700 focus-within:border-[#14B8A6]' : 'bg-white border-slate-200 focus-within:border-[#14B8A6] focus-within:shadow-md'
-        }`}>
+        <div className={`flex items-center gap-3 h-16 px-5 rounded-2xl border-2 transition-all ${dark ? 'bg-slate-800/50 border-slate-700 focus-within:border-[#14B8A6]' : 'bg-white border-slate-200 focus-within:border-[#14B8A6] focus-within:shadow-md'
+          }`}>
           <Utensils size={18} className="text-[#14B8A6] shrink-0" />
           <input
             type="text" value={mealName} onChange={e => setMealName(e.target.value)}
@@ -364,11 +429,10 @@ export default function MealLogs({ dark }) {
             className={`flex-1 bg-transparent text-[16px] font-medium outline-none ${dark ? 'text-slate-100 placeholder-slate-500' : 'text-slate-900 placeholder-slate-400'}`} />
           {isListening && <span className="text-[14px] font-semibold text-red-500 animate-pulse shrink-0">Listening...</span>}
           <button onClick={startVoice}
-            className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all shrink-0 ${
-              isListening ? 'bg-red-500 text-white animate-pulse'
+            className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all shrink-0 ${isListening ? 'bg-red-500 text-white animate-pulse'
                 : dark ? 'bg-slate-700 text-slate-300 hover:bg-[#14B8A6]/20 hover:text-[#14B8A6]'
                   : 'bg-slate-100 text-slate-500 hover:bg-[#14B8A6]/10 hover:text-[#14B8A6]'
-            }`}>
+              }`}>
             {isListening ? <MicOff size={16} /> : <Mic size={16} />}
           </button>
         </div>
@@ -382,11 +446,10 @@ export default function MealLogs({ dark }) {
         {/* ── Analyze + Results (below dropdowns) ── */}
         {photo && analysisState === 'idle' && (
           <button onClick={handleAnalyze} disabled={limitReached}
-            className={`w-full h-16 rounded-2xl text-[17px] font-black flex items-center justify-center gap-3 transition-all ${
-              limitReached
+            className={`w-full h-16 rounded-2xl text-[17px] font-black flex items-center justify-center gap-3 transition-all ${limitReached
                 ? 'bg-slate-200 dark:bg-slate-700 text-slate-400 cursor-not-allowed'
                 : 'bg-[#14B8A6] text-white shadow-xl shadow-[#14B8A6]/25 hover:bg-[#0D9488] hover:-translate-y-0.5 active:translate-y-0'
-            }`}>
+              }`}>
             <ScanLine size={22} />{limitReached ? 'Daily limit reached' : 'Analyze with Nia'}
           </button>
         )}

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import UserProfile,meal_logs
+from .models import UserProfile,meal_logs, chat_logs
 
 User = get_user_model()
 
@@ -46,5 +46,16 @@ class MealLogSerializer(serializers.ModelSerializer):
         model = meal_logs
         # You can specify exact fields, or use '__all__'
         fields = '__all__'
-        read_only_fields = ['meal_id', 'created_at']
+        read_only_fields = ['meal_id', 'created_at', 'tracking_id', 'user']
+
+
+class ChatLogSerializer(serializers.ModelSerializer):
+    """
+    Serializer for saving and listing the actual chat logs in the database.
+    """
+    class Meta:
+        model = chat_logs
+        # You can specify exact fields, or use '__all__'
+        fields = '__all__'
+        read_only_fields = ['session_id', 'created_at', 'user','ai_response']
         

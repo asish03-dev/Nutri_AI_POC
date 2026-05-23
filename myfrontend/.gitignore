@@ -32,6 +32,7 @@ dist-ssr
 *.pptx
 *.xls
 *.xlsx
+.env
 
 # HTML (ignore all except main file)
 *.html

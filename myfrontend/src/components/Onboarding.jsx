@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Camera, ChevronLeft, Flame, Check, Activity, Plus, X, ChevronDown } from 'lucide-react';
 import logo from '../assets/Screenshot_2026-05-08_184522-removebg-preview.png';
 
+const baseURL = import.meta.env.VITE_BACKEND_URL;
+
 const TOTAL_STEPS = 7;
 
 const getBmiCategory = (bmi) => {
@@ -215,38 +217,37 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
         console.log("User ID from token:", payload);
         userId = payload.user_id || payload.id || payload.sub;
       }
-      const response = await axios.patch(`http://10.135.4.38:8000/api/onboarding/${userId}/`, {
-        first_name: formData.first_Name,
-        last_name: formData.last_Name,
-        day_of_birth: formData.day_of_birth,
-        month_of_birth: formData.month_of_birth,
-        year_of_birth: formData.year_of_birth,
-        phone_number: formData.phone_number,
+      const response = await axios.patch(`${baseURL}/api/onboarding/${userId}/`, {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        day_of_birth: parseInt(formData.dobDay) || null,
+        month_of_birth: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].indexOf(formData.dobMonth) + 1 || null,
+        year_of_birth: parseInt(formData.dobYear) || null,
+        phone_number: formData.phone,
         profile_photo_url: photoPreview,
         gender: formData.gender,
-        height_cm: formData.height_cm,
-        current_weight_kg: formData.current_weight_kg,
-        targeted_weight_kg: formData.targeted_weight_kg,
-        water_intake_litres: parseFloat(formData.water_intake_litres) || 3.0,
-        primary_goal: formData.primary_goal,
-        activity_level: formData.activity_Level,
+        height_cm: parseFloat(formData.height) || null,
+        current_weight_kg: parseFloat(formData.weight) || null,
+        targeted_weight_kg: parseFloat(formData.targetWeight) || null,
+        water_intake_litres: parseFloat(formData.waterGoal) || 3.0,
+        primary_goal: formData.mainGoal,
+        activity_level: formData.activityLevel,
         occupation: formData.occupation,
-        sleep_schedule: formData.sleep_Schedule,
-        dietaryPreference: formData.dietaryPreference,
-        cooking_oil: formData.cooking_Oil,
-        regional_culture: formData.regional_Culture,
+        sleep_schedule: formData.sleepSchedule,
+        dietary_preference: formData.dietaryPreference,
+        preferred_cooking_oil: formData.cookingOil,
+        regional_culture: formData.regionalCulture,
         allergies: Array.isArray(formData.allergies) ? formData.allergies.join(', ') : "",
         health_issues: Array.isArray(formData.healthIssues) ? formData.healthIssues.join(', ') : "",
-        liked_foods: formData.liked_Foods,
-        disliked_foods: formData.disliked_Foods,
-        meal_intake_per_day: formData.meals_intake_per_day,
-        available_cooking_time: formData.available_cooking_time,
-        grocery_budget: formData.grocery_budget,
-        preferred_meal_location: formData.preferred_meal_location,
-        main_carbs_source: formData.main_carbs_source,
-        bmi: formData.bmi,
-        daily_calorie_target: formData.daily_calorie_target,
-        active_subscription: formData.active_subscription,
+        liked_foods: formData.likedFoods,
+        disliked_foods: formData.dislikedFoods,
+        meal_intake_per_day: parseInt(formData.mealsPerDay) || 3,
+        available_cooking_time: formData.cookingTime,
+        grocery_budget: formData.groceryBudget,
+        preferred_meal_location: formData.mealLocation,
+        main_carbs_source: formData.mainCarbs,
+        bmi: parseFloat(formData.bmi) || null,
+        daily_calorie_target: parseInt(formData.calorieTarget) || null,
       }, {
         headers: { Authorization: `Bearer ${token}` }
 
@@ -724,12 +725,12 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
                           {/* CTA */}
                           <button
                             className={`w-full py-3 rounded-2xl text-[14px] font-bold tracking-wide transition-all duration-200 ${selected
-                                ? 'bg-[#0D9488] text-white shadow-lg shadow-[#0D9488]/25'
-                                : plan.recommended
-                                  ? 'bg-[#0D9488] text-white hover:bg-[#0F766E] shadow-lg shadow-[#0D9488]/20'
-                                  : plan.free
-                                    ? dark ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                                    : dark ? 'border-2 border-[#0D9488]/50 text-[#14B8A6] hover:bg-[#0D9488]/10' : 'border-2 border-[#0D9488] text-[#0D9488] hover:bg-teal-50'
+                              ? 'bg-[#0D9488] text-white shadow-lg shadow-[#0D9488]/25'
+                              : plan.recommended
+                                ? 'bg-[#0D9488] text-white hover:bg-[#0F766E] shadow-lg shadow-[#0D9488]/20'
+                                : plan.free
+                                  ? dark ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                  : dark ? 'border-2 border-[#0D9488]/50 text-[#14B8A6] hover:bg-[#0D9488]/10' : 'border-2 border-[#0D9488] text-[#0D9488] hover:bg-teal-50'
                               }`}
                           >
                             {selected ? '✓ Selected' : plan.free ? 'Start Free' : plan.recommended ? 'Upgrade to Pro →' : 'Get Premium →'}
