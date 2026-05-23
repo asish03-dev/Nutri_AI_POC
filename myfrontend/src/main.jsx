@@ -6,7 +6,7 @@ import App from "./App.jsx";
 import { UserProvider } from "./context/UserContext.jsx";
 
 
-const clientId = "418733621307-ajvgk9mk30meca1cs7k83tcl63mse6b5.apps.googleusercontent.com";
+const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

@@ -211,17 +211,22 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
       const rawToken = localStorage.getItem('access_token');
       const token = rawToken ? rawToken.replace(/['"]+/g, '') : "";
 
-      let userId = "";  // change here for getting the user id from the token dynamically
+      let userId = "";
       if (token) {
         const payload = JSON.parse(atob(token.split('.')[1]));
-        console.log("User ID from token:", payload);
         userId = payload.user_id || payload.id || payload.sub;
       }
-      const response = await axios.patch(`${baseURL}/api/onboarding/${userId}/`, {
+
+
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      const monthInt = formData.dobMonth ? monthNames.indexOf(formData.dobMonth) + 1 : null;
+
+
+      const response = await axios.patch(`${import.meta.env.VITE_API_BASE_URL}/api/onboarding/${userId}/`, {
         first_name: formData.firstName,
         last_name: formData.lastName,
-        day_of_birth: parseInt(formData.dobDay) || null,
-        month_of_birth: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].indexOf(formData.dobMonth) + 1 || null,
+        date_of_birth: parseInt(formData.dobDay) || null,
+        month_of_birth: monthInt,
         year_of_birth: parseInt(formData.dobYear) || null,
         phone_number: formData.phone,
         profile_photo_url: photoPreview,
@@ -250,7 +255,6 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
         daily_calorie_target: parseInt(formData.calorieTarget) || null,
       }, {
         headers: { Authorization: `Bearer ${token}` }
-
       });
 
       console.log("Success:", response.data);
@@ -258,6 +262,7 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
       if (onComplete) {
         onComplete({
           ...formData,
+          photo: photoPreview,
           name: `${formData.firstName} ${formData.lastName}`.trim(),
           age: formData.dobYear ? new Date().getFullYear() - parseInt(formData.dobYear) : ''
         }, true);
@@ -271,6 +276,7 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
       setErrorMsg("Something went wrong. Please try again later");
     }
   };
+
   // Convert file to base64 for persistence across sessions
   const handlePhoto = (e) => {
     const file = e.target.files[0];

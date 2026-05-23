@@ -3,6 +3,11 @@ import axios from 'axios';
 import LandingPage from "./components/LandingPage";
 import LoginPage from "./components/LoginPage";
 import SignupPage from "./components/SignupPage";
+import axios from "axios";
+import { useState, useEffect } from "react";
+import LandingPage from "./components/LandingPage";
+import LoginPage from "./components/LoginPage";
+import SignupPage from "./components/SignupPage";
 import LoadingScreen from "./components/LoadingScreen";
 import Onboarding from "./components/Onboarding";
 import Profile from "./components/Profile";
@@ -35,7 +40,61 @@ export default function App() {
   const [showReport, setShowReport] = useState(false);
   const [niaMsgs, setNiaMsgs] = useState([]);
 
-  // Hydrate UserContext on initial load if we have saved data
+
+  async function fetchAndHydrateProfile(token) {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/profile/`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const dbData = response.data.data;
+
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      const monthName = dbData.month_of_birth ? monthNames[dbData.month_of_birth - 1] : '';
+
+
+      const mappedData = {
+        firstName: dbData.first_name || '',
+        lastName: dbData.last_name || '',
+        dobDay: dbData.date_of_birth ? String(dbData.date_of_birth).padStart(2, '0') : '',
+        dobMonth: monthName,
+        dobYear: dbData.year_of_birth ? String(dbData.year_of_birth) : '',
+        photo: dbData.profile_photo_url || null,
+        gender: dbData.gender || '',
+        phone: dbData.phone_number || '',
+        height: dbData.height_cm ? String(dbData.height_cm) : '',
+        weight: dbData.current_weight_kg ? String(dbData.current_weight_kg) : '',
+        targetWeight: dbData.targeted_weight_kg ? String(dbData.targeted_weight_kg) : '',
+        waterGoal: dbData.water_intake_litres ? String(dbData.water_intake_litres) : '3',
+        mainGoal: dbData.primary_goal || '',
+        activityLevel: dbData.activity_level || '',
+        occupation: dbData.occupation || '',
+        sleepSchedule: dbData.sleep_schedule || '',
+        dietaryPreference: dbData.dietary_preference || '',
+        cookingOil: dbData.preferred_cooking_oil || '',
+        regionalCulture: dbData.regional_culture || '',
+        allergies: dbData.allergies ? dbData.allergies.split(', ') : [],
+        healthIssues: dbData.health_issues ? dbData.health_issues.split(', ') : [],
+        likedFoods: dbData.liked_foods || '',
+        dislikedFoods: dbData.disliked_foods || '',
+        mealsPerDay: dbData.meal_intake_per_day ? String(dbData.meal_intake_per_day) : '',
+        cookingTime: dbData.available_cooking_time || '',
+        groceryBudget: dbData.grocery_budget || '',
+        mealLocation: dbData.preferred_meal_location || '',
+        mainCarbs: dbData.main_carbs_source || '',
+        calorieTarget: dbData.daily_calorie_target || 0,
+        bmi: dbData.bmi || 0
+      };
+
+      localStorage.setItem("nutriai_profile_data", JSON.stringify(mappedData));
+      setProfileData(mappedData);
+      saveOnboardingData(mappedData);
+    } catch (error) {
+      console.error("Failed to fetch user profile", error);
+    }
+  }
+
+
+
   useEffect(() => {
     // Load real profile from backend on every page load/refresh
     loadUserProfile();
@@ -47,18 +106,31 @@ export default function App() {
   const openLogin = () => { setSignup(false); setLogin(true); };
   const openSignup = () => { setLogin(false); setSignup(true); };
 
-  function startLoading(type, closeModal) {
-    closeModal();
+  function startLoading(type, isOnboarded) {
     setLoadingType(type);
     setLoading(true);
-    setTimeout(() => {
+    setTimeout(async () => {
       setLoading(false);
       setBackTo(type);
       setOnboarding(true);
       // Fetch real profile from backend after successful login/signup
       loadUserProfile();
+
+      if (isOnboarded) {
+        const token = localStorage.getItem("access_token")?.replace(/['"]+/g, '');
+        if (token) {
+          await fetchAndHydrateProfile(token);
+        }
+        localStorage.setItem("nutriai_onboarded", "true");
+        setOnboardingDone(true);
+        setCurrentView("dashboard");
+      } else {
+        setBackTo(type);
+        setOnboarding(true);
+      }
     }, 2200);
   }
+
 
   /* Onboarding complete with full data → mark done */
   function handleOnboardingComplete(data) {
@@ -127,12 +199,20 @@ export default function App() {
           onSwitchToSignup={openSignup}
           onSubmit={() => { setLogin(false); startLoading("login", () => { }); }}
         />
+        <LoginPage
+          open={loginOpen}
+          onClose={() => setLogin(false)}
+          dark={dark}
+          onSwitchToSignup={openSignup}
+          onSubmit={(isOnboarded) => { setLogin(false); startLoading("login", isOnboarded); }}
+        />
+
         <SignupPage
           open={signupOpen}
           onClose={() => setSignup(false)}
           dark={dark}
           onSwitchToLogin={openLogin}
-          onSubmit={() => { setSignup(false); startLoading("signup", () => { }); }}
+          onSubmit={(isOnboarded) => { setSignup(false); startLoading("signup", isOnboarded); }}
         />
 
         <LoadingScreen visible={loading} type={loadingType} dark={dark} />

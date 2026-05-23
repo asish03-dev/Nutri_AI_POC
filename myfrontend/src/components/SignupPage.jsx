@@ -91,6 +91,10 @@ export default function SignupPage({ open, onClose, dark, onSwitchToLogin, onSub
   const [loadingApple, setLoadingApple] = useState(false);
   const [visible, setVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [step, setStep] = useState(1);
+  const [otpArray, setOtpArray] = useState(["", "", "", "", "", ""]);
+  const [signupEmail, setSignupEmail] = useState("");
+  const inputRefs = useRef([]);
 
 
   const loginWithGoogle = useGoogleLogin({
@@ -107,7 +111,7 @@ export default function SignupPage({ open, onClose, dark, onSwitchToLogin, onSub
         localStorage.setItem("token", response.data.token || response.data.access_token);
 
         // Close the modal / trigger the redirect
-        onSubmit();
+        onSubmit(response.data.user?.is_onboarded || false);
       } catch (error) {
         setErrorMsg("Google authentication failed");
         setLoadingGoogle(false);
@@ -139,8 +143,13 @@ export default function SignupPage({ open, onClose, dark, onSwitchToLogin, onSub
         password: password,
         password2: confirmPassword,
       });
-      console.log("Success:", response.data);
-      onSubmit(); // Call the parent function to close the modal or navigate
+
+      if (response.data.requires_otp) {
+        setSignupEmail(response.data.email);
+        setStep(2);
+      } else {
+        onSubmit(response.data.user?.is_onboarded || false);
+      }
     } catch (error) {
       console.error("Error:", error.response?.data || error.message);
       // Try to extract a readable error message from the backend
@@ -159,6 +168,59 @@ export default function SignupPage({ open, onClose, dark, onSwitchToLogin, onSub
       setSubmitting(false);
     }
   };
+
+  const handleOtpChange = (index, value) => {
+    if (isNaN(value)) return;
+    const newOtpArray = [...otpArray];
+    newOtpArray[index] = value.slice(-1);
+    setOtpArray(newOtpArray);
+    if (value !== "" && index < 5) {
+      (inputRefs.current[index + 1]); {
+        inputRefs.current[index + 1].focus();
+      }
+    }
+  };
+
+  const handleOtpKeyDown = (index, e) => {
+    if (e.key === "Backspace" && otpArray[index] === "" && index > 0) {
+      const prevInput = document.getElementById('otp-${index - 1}');
+      inputRefs.current[index - 1].focus();
+      if (prevInput) prevInput.focus();
+    }
+  };
+
+  const submitOTPCode = () => {
+    const finalCode = otpArray.join("");
+    if (finalCode.length === 6) {
+      handleVerifyOtp(finalCode);
+    } else {
+      setErrorMsg("Please enter the 6-digit code");
+    }
+  };
+
+  const handleVerifyOtp = async (code) => {
+    setErrorMsg("");
+    setSubmitting(true);
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/verify-otp/`, {
+        email: signupEmail,
+        otp: code
+      });
+      localStorage.setItem("access_token", response.data.access_token);
+      onSubmit(response.data.user?.is_onboarded || false);
+    } catch (error) {
+      setErrorMsg("Invalid or expired OTP");
+    }
+    setSubmitting(false);
+  };
+
+  useEffect(() => {
+    if (!open) setSubmitting(false);
+    setStep(1);
+    setOtpArray(["", "", "", "", "", ""]);
+    setErrorMsg("");
+  }, [open]);
+
 
   const raf1 = useRef();
   const raf2 = useRef();
@@ -255,160 +317,221 @@ export default function SignupPage({ open, onClose, dark, onSwitchToLogin, onSub
           />
         </div>
 
-        <h2 className="text-2xl font-black mb-1">Create Your Account</h2>
-        <p className={`text-sm mb-7 ${dark ? "text-gray-400" : "text-gray-500"}`}>
-          Join thousands building healthier habits with AI
-        </p>
+        {/* ================= STEP 1: REGISTRATION FORM ================= */}
+        {step === 1 && (
+          <>
+            <h2 className="text-2xl font-black mb-1">Create Your Account</h2>
+            <p className={`text-sm mb-7 ${dark ? "text-gray-400" : "text-gray-500"}`}>
+              Join thousands building healthier habits with AI
+            </p>
 
-        <div className="space-y-4">
-          <div>
-            <FieldLabel dark={dark}>Email / Phone Number</FieldLabel>
-            <div className="relative">
-              <Mail size={15} className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${iconCls}`} />
-              <input
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={`w-full pl-10 pr-4 py-3 rounded-xl border text-sm outline-none transition-colors duration-200 ${input}`}
-              />
-            </div>
-          </div>
+            <div className="space-y-4">
+              <div>
+                <FieldLabel dark={dark}>Email / Phone Number</FieldLabel>
+                <div className="relative">
+                  <Mail size={15} className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${iconCls}`} />
+                  <input
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className={`w-full pl-10 pr-4 py-3 rounded-xl border text-sm outline-none transition-colors duration-200 ${input}`}
+                  />
+                </div>
+              </div>
 
-          <div>
-            <FieldLabel dark={dark}>Password</FieldLabel>
-            <div className="relative">
-              <Lock size={15} className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${iconCls}`} />
-              <input
-                type={showPw ? "text" : "password"}
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={`w-full pl-10 pr-11 py-3 rounded-xl border text-sm outline-none transition-colors duration-200 ${input}`}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPw(!showPw)}
-                className={`absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors ${eyeCls}`}
-              >
-                {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
-              </button>
-            </div>
-            <StrengthBar password={password} />
-          </div>
+              <div>
+                <FieldLabel dark={dark}>Password</FieldLabel>
+                <div className="relative">
+                  <Lock size={15} className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${iconCls}`} />
+                  <input
+                    type={showPw ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={`w-full pl-10 pr-11 py-3 rounded-xl border text-sm outline-none transition-colors duration-200 ${input}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPw(!showPw)}
+                    className={`absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors ${eyeCls}`}
+                  >
+                    {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
+                </div>
+                <StrengthBar password={password} />
+              </div>
 
-          <div>
-            <FieldLabel dark={dark}>Confirm Password</FieldLabel>
-            <div className="relative">
-              <Lock size={15} className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${iconCls}`} />
-              <input
-                type={showConfirm ? "text" : "password"}
-                placeholder="••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className={`w-full pl-10 pr-11 py-3 rounded-xl border text-sm outline-none transition-colors duration-200 ${input}`}
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirm(!showConfirm)}
-                className={`absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors ${eyeCls}`}
-              >
-                {showConfirm ? <EyeOff size={15} /> : <Eye size={15} />}
-              </button>
-            </div>
-          </div>
+              <div>
+                <FieldLabel dark={dark}>Confirm Password</FieldLabel>
+                <div className="relative">
+                  <Lock size={15} className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${iconCls}`} />
+                  <input
+                    type={showConfirm ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className={`w-full pl-10 pr-11 py-3 rounded-xl border text-sm outline-none transition-colors duration-200 ${input}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirm(!showConfirm)}
+                    className={`absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors ${eyeCls}`}
+                  >
+                    {showConfirm ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
+                </div>
+              </div>
 
-          <div className="flex items-start gap-2.5 pt-1">
-            <div
-              onClick={() => setAgreed(!agreed)}
-              className={`mt-0.5 w-4 h-4 rounded shrink-0 flex items-center justify-center border transition-colors duration-200 cursor-pointer
-                ${agreed
-                  ? "bg-emerald-500 border-emerald-500"
-                  : dark ? "border-gray-600 bg-gray-800" : "border-gray-300 bg-white"
-                }`}
-            >
-              {agreed && (
-                <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
-                  <path d="M1 3.5L3.5 6L8 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+              <div className="flex items-start gap-2.5 pt-1">
+                <div
+                  onClick={() => setAgreed(!agreed)}
+                  className={`mt-0.5 w-4 h-4 rounded shrink-0 flex items-center justify-center border transition-colors duration-200 cursor-pointer
+                    ${agreed
+                      ? "bg-emerald-500 border-emerald-500"
+                      : dark ? "border-gray-600 bg-gray-800" : "border-gray-300 bg-white"
+                    }`}
+                >
+                  {agreed && (
+                    <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
+                      <path d="M1 3.5L3.5 6L8 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </div>
+                <p className={`text-xs leading-relaxed ${dark ? "text-gray-400" : "text-gray-500"}`}>
+                  I agree to the{" "}
+                  <button className="font-semibold text-emerald-500 hover:text-emerald-400 transition-colors">
+                    Terms of Service
+                  </button>
+                  {" "}and{" "}
+                  <button className="font-semibold text-emerald-500 hover:text-emerald-400 transition-colors">
+                    Privacy Policy
+                  </button>
+                </p>
+              </div>
+
+              {errorMsg && (
+                <p className="text-xs text-red-500 font-medium">{errorMsg}</p>
               )}
-            </div>
-            <p className={`text-xs leading-relaxed ${dark ? "text-gray-400" : "text-gray-500"}`}>
-              I agree to the{" "}
-              <button className="font-semibold text-emerald-500 hover:text-emerald-400 transition-colors">
-                Terms of Service
+
+              <button
+                onClick={handleSubmit}
+                disabled={!agreed || submitting}
+                className="w-full flex items-center justify-center py-3.5 rounded-xl text-white font-bold text-sm shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                style={{ background: "linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)" }}
+              >
+                <span
+                  className="transition-all duration-200"
+                  style={{ opacity: submitting ? 0 : 1, position: submitting ? "absolute" : "relative" }}
+                >
+                  Create Account
+                </span>
+                {submitting && (
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                    <path className="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                  </svg>
+                )}
               </button>
-              {" "}and{" "}
-              <button className="font-semibold text-emerald-500 hover:text-emerald-400 transition-colors">
-                Privacy Policy
+
+              <div className={`flex items-center justify-center gap-1.5 ${dark ? "text-gray-500" : "text-gray-400"}`}>
+                <ShieldCheck size={12} />
+                <span className="text-[11px]">Your data is protected with end-to-end encryption</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 my-5">
+              <div className={`flex-1 h-px ${dark ? "bg-gray-700" : "bg-gray-200"}`} />
+              <span className={`text-xs font-medium ${dark ? "text-gray-500" : "text-gray-400"}`}>Or continue with</span>
+              <div className={`flex-1 h-px ${dark ? "bg-gray-700" : "bg-gray-200"}`} />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => loginWithGoogle()}
+                disabled={loadingGoogle}
+                className={`flex items-center justify-center gap-2.5 py-3 rounded-xl border text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-80 disabled:cursor-not-allowed ${social}`}
+              >
+                {loadingGoogle ? <Spinner /> : <GoogleIcon />}
+                Google
+              </button>
+              <button
+                onClick={() => handleSocial(setLoadingApple)}
+                disabled={loadingApple}
+                className={`flex items-center justify-center gap-2.5 py-3 rounded-xl border text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-80 disabled:cursor-not-allowed ${social}`}
+              >
+                {loadingApple ? <Spinner /> : <AppleIcon />}
+                Apple
+              </button>
+            </div>
+
+            <p className={`text-center text-sm mt-6 ${dark ? "text-gray-400" : "text-gray-500"}`}>
+              Already have an account?{" "}
+              <button
+                onClick={onSwitchToLogin}
+                className="font-bold text-emerald-500 hover:text-emerald-400 transition-colors"
+              >
+                Log In
               </button>
             </p>
-          </div>
+          </>
+        )}
 
-          {errorMsg && (
-            <p className="text-xs text-red-500 font-medium">{errorMsg}</p>
-          )}
+        {/* ================= STEP 2: OTP VERIFICATION ================= */}
+        {step === 2 && (
+          <div className="flex flex-col items-center animate-fade-in-up">
+            <h3 className={`text-xl font-bold mb-2 ${dark ? "text-white" : "text-gray-900"}`}>
+              Check your Email
+            </h3>
+            <p className={`text-sm text-center mb-6 ${dark ? "text-gray-400" : "text-gray-500"}`}>
+              We sent a 6-digit code to <br />
+              <span className="font-bold text-emerald-500">{signupEmail}</span>
+            </p>
 
-          <button
-            onClick={handleSubmit}
-            disabled={!agreed || submitting}
-            className="w-full flex items-center justify-center py-3.5 rounded-xl text-white font-bold text-sm shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
-            style={{ background: "linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)" }}
-          >
-            <span
-              className="transition-all duration-200"
-              style={{ opacity: submitting ? 0 : 1, position: submitting ? "absolute" : "relative" }}
+            {/* The 6 OTP Boxes */}
+            <div className="flex gap-3 justify-center w-full mb-6">
+              {otpArray.map((digit, index) => (
+                <input
+                  key={index}
+                  ref={el => inputRefs.current[index] = el}
+                  id={`otp-${index}`}
+                  type="text"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => handleOtpChange(index, e.target.value)}
+                  onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                  className={`w-12 h-14 text-center font-bold text-2xl rounded-xl border outline-none transition-all duration-200 
+                  ${dark ? "bg-gray-800 border-gray-700 text-white focus:border-emerald-500 focus:shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+                      : "bg-gray-50 border-gray-200 text-gray-900 focus:border-emerald-500 focus:shadow-[0_0_15px_rgba(16,185,129,0.3)]"}`}
+                />
+              ))}
+            </div>
+
+            {errorMsg && <p className="text-xs text-red-500 font-medium mb-4">{errorMsg}</p>}
+
+            {/* Submit Button */}
+            <button
+              onClick={submitOTPCode}
+              disabled={submitting}
+              className="w-full flex items-center justify-center py-3.5 mt-2 rounded-xl text-white font-bold text-sm shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-90"
+              style={{ background: "linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)" }}
             >
-              Create Account
-            </span>
-            {submitting && (
-              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
-                <path className="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-              </svg>
-            )}
-          </button>
+              {submitting ? <Spinner /> : "Verify Code"}
+            </button>
+            <button
+              onClick={() => {
+                setStep(1);
+                setOtpArray(["", "", "", "", "", ""]);
+                setErrorMsg("");
+              }}
+              className={`w-full py-3 mt-3 text-sm font-semibold transition-colors duration-200 
+                ${dark ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-800"}`}
+            >
+              Back to Login
+            </button>
 
-          <div className={`flex items-center justify-center gap-1.5 ${dark ? "text-gray-500" : "text-gray-400"}`}>
-            <ShieldCheck size={12} />
-            <span className="text-[11px]">Your data is protected with end-to-end encryption</span>
           </div>
-        </div>
-
-        <div className="flex items-center gap-3 my-5">
-          <div className={`flex-1 h-px ${dark ? "bg-gray-700" : "bg-gray-200"}`} />
-          <span className={`text-xs font-medium ${dark ? "text-gray-500" : "text-gray-400"}`}>Or continue with</span>
-          <div className={`flex-1 h-px ${dark ? "bg-gray-700" : "bg-gray-200"}`} />
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={() => loginWithGoogle()}
-            disabled={loadingGoogle}
-            className={`flex items-center justify-center gap-2.5 py-3 rounded-xl border text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-80 disabled:cursor-not-allowed ${social}`}
-          >
-            {loadingGoogle ? <Spinner /> : <GoogleIcon />}
-            Google
-          </button>
-          <button
-            onClick={() => handleSocial(setLoadingApple)}
-            disabled={loadingApple}
-            className={`flex items-center justify-center gap-2.5 py-3 rounded-xl border text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-80 disabled:cursor-not-allowed ${social}`}
-          >
-            {loadingApple ? <Spinner /> : <AppleIcon />}
-            Apple
-          </button>
-        </div>
-
-        <p className={`text-center text-sm mt-6 ${dark ? "text-gray-400" : "text-gray-500"}`}>
-          Already have an account?{" "}
-          <button
-            onClick={onSwitchToLogin}
-            className="font-bold text-emerald-500 hover:text-emerald-400 transition-colors"
-          >
-            Log In
-          </button>
-        </p>
+        )}
       </div>
     </div>
   );
