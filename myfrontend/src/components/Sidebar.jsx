@@ -2,7 +2,7 @@ import { User, LogOut, LayoutDashboard, UtensilsCrossed, Bot, Menu, ChevronRight
 import logo from '../assets/Screenshot_2026-05-08_184522-removebg-preview.png';
 
 const LIGHT = { bg: '#0D9488', card: '#0F766E', border: 'rgba(255,255,255,0.15)' };
-const DARK  = { bg: '#0F172A', card: '#1E293B', border: 'rgba(255,255,255,0.06)' };
+const DARK = { bg: '#0F172A', card: '#1E293B', border: 'rgba(255,255,255,0.06)' };
 
 function NavItem({ icon: Icon, label, active, onClick, collapsed }) {
   return (
@@ -30,10 +30,10 @@ export default function Sidebar({ dark, name, category, photo, activeNav, setAct
   const C = dark ? DARK : LIGHT;
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'meal-logs', label: 'Meal Logs',  icon: UtensilsCrossed },
-    { id: 'nia',       label: 'NIA',        icon: Bot },
-    { id: 'profile',   label: 'Profile',    icon: User },
-    { id: 'settings',  label: 'Settings',   icon: Settings },
+    { id: 'meal-logs', label: 'Meal Logs', icon: UtensilsCrossed },
+    { id: 'nia', label: 'NIA', icon: Bot },
+    { id: 'profile', label: 'Profile', icon: User },
+    { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
   return (

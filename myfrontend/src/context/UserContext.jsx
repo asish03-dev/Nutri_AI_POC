@@ -1,11 +1,14 @@
 import { createContext, useContext, useState } from 'react';
+import axios from 'axios';
 
+const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 const UserContext = createContext(null);
 
 export function UserProvider({ children }) {
   const [userData, setUserData] = useState(null);
   const [dark, setDark] = useState(false);
-  
+  const [profileLoading, setProfileLoading] = useState(false);
+
   // New state for Onboarding & Dashboard data
   const [userMetrics, setUserMetrics] = useState({
     current_weight: 0,
@@ -16,7 +19,7 @@ export function UserProvider({ children }) {
   });
 
   const [dailyLogs, setDailyLogs] = useState({
-    current_water: 2.4,
+    current_water: 0,
     daily_calories_consumed: 0,
     daily_protein: 0,
     daily_carbs: 0,
@@ -25,7 +28,43 @@ export function UserProvider({ children }) {
     junk_count: 0,
     recent_weight_logs: []
   });
-  
+
+  // ── Fetch real profile data from Django backend ──
+  const loadUserProfile = async () => {
+    const rawToken = localStorage.getItem('access_token');
+    const token = rawToken ? rawToken.replace(/['\"]+/g, '') : null;
+    if (!token) return;
+
+    setProfileLoading(true);
+    try {
+      const res = await axios.get(`${BASE_URL}/api/profile/`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const profile = res.data.data;
+
+      // Seed userMetrics with real backend data
+      setUserMetrics(prev => ({
+        ...prev,
+        daily_calorie_goal: profile.daily_calorie_target || prev.daily_calorie_goal,
+        water_goal: parseFloat(profile.water_intake_litres) || prev.water_goal,
+        current_weight: parseFloat(profile.current_weight_kg) || prev.current_weight,
+        target_weight: parseFloat(profile.targeted_weight_kg) || prev.target_weight,
+        goal_type: profile.primary_goal || prev.goal_type,
+      }));
+
+      // Reset today's water to 0 on fresh load (water isn't persisted in backend yet)
+      setDailyLogs(prev => ({ ...prev, current_water: 0 }));
+
+      // Also store raw profile in userData for Profile page use
+      setUserData(prev => ({ ...prev, ...profile }));
+
+      console.log('✅ Profile loaded from backend:', profile);
+    } catch (err) {
+      console.warn('⚠️ Could not load profile from backend:', err?.response?.data || err.message);
+    } finally {
+      setProfileLoading(false);
+    }
+  };
 
   const updateUserData = (data) => setUserData(prev => ({ ...prev, ...data }));
 
@@ -34,14 +73,14 @@ export function UserProvider({ children }) {
     setUserData(data);
     setUserMetrics(prev => ({
       ...prev,
-      current_weight:      parseFloat(data.weight)       || prev.current_weight,
-      target_weight:       parseFloat(data.targetWeight) || prev.target_weight,
-      daily_calorie_goal:  data.calorieTarget            || prev.daily_calorie_goal,
-      water_goal:          parseFloat(data.waterGoal)    || prev.water_goal,
+      current_weight: parseFloat(data.weight) || prev.current_weight,
+      target_weight: parseFloat(data.targetWeight) || prev.target_weight,
+      daily_calorie_goal: data.calorieTarget || prev.daily_calorie_goal,
+      water_goal: parseFloat(data.waterGoal) || prev.water_goal,
     }));
     setDailyLogs(prev => ({ ...prev, current_water: 0 }));
   };
-  
+
   const updateWaterIntake = (amount) => {
     setDailyLogs(prev => ({
       ...prev,
@@ -65,12 +104,13 @@ export function UserProvider({ children }) {
   };
 
   return (
-    <UserContext.Provider value={{ 
+    <UserContext.Provider value={{
       userData, setUserData, updateUserData, saveOnboardingData,
       dark, setDark,
       userMetrics, setUserMetrics,
       dailyLogs, setDailyLogs,
-      updateWaterIntake, addMealLog
+      updateWaterIntake, addMealLog,
+      loadUserProfile, profileLoading,
     }}>
       {children}
     </UserContext.Provider>

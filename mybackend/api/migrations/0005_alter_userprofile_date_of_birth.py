@@ -10,9 +10,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
+        migrations.RemoveField(
             model_name='userprofile',
             name='date_of_birth',
-            field=models.IntegerField(blank=True, null=True),
         ),
     ]

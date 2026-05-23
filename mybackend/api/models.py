@@ -11,7 +11,7 @@ class User(AbstractUser):
     is_verified = models.BooleanField(default=False)
     otp = models.CharField(max_length=6, null=True, blank=True)
     otp_created_at = models.DateTimeField(null=True, blank=True)
-    
+
     # Custom Role ENUM
     ROLE_CHOICES = (
         ('user', 'User'),
@@ -25,7 +25,6 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
-    
 class Subscription(models.Model):
     subscription_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscriptions')
@@ -37,12 +36,12 @@ class Subscription(models.Model):
     payment_id = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name='profile')
     first_name = models.CharField(max_length=100, null=True, blank=True)
     last_name = models.CharField(max_length=100, null=True, blank=True)
-    date_of_birth = models.IntegerField(null=True, blank=True)
+    day_of_birth = models.IntegerField(null=True, blank=True)
     month_of_birth = models.IntegerField(null=True, blank=True)
     year_of_birth = models.IntegerField(null=True, blank=True)
     height_cm = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
@@ -80,7 +79,6 @@ class UserProfile(models.Model):
     active_subscription = models.OneToOneField(Subscription, on_delete=models.SET_NULL, null=True, blank=True, related_name='active_for_profile')
     is_onboarded = models.BooleanField(default=False)
 
-
     def __str__(self):
         return f"{self.user.username}'s Profile"
 @receiver(post_save, sender=User)
@@ -89,4 +87,54 @@ def create_user_profile(sender, instance, created, **kwargs):
         UserProfile.objects.create(user=instance)
 
 
+class daily_tracking(models.Model):
+    tracking_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='daily_tracking')
+    total_calories_consumed = models.IntegerField(null=True, blank=True)
+    total_carbs = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    total_fat = models.DecimalField(max_digits=5, decimal_places=2, null=True,blank=True)
+    water_intake_liters = models.DecimalField(max_digits=5, decimal_places=2, null=True,blank=True)
+    junk_score_avg = models.DecimalField(max_digits=5, decimal_places=2, null=True,blank=True)
+    surplus_or_deficit = models.DecimalField(max_digits=5, decimal_places=2, null=True,blank=True)
+    behaviour_summary = models.CharField(max_length=100)
+    meal_count = models.IntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+class meal_logs(models.Model):
+    meal_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='meal_logs')
+    tracking_id = models.ForeignKey(daily_tracking, on_delete=models.CASCADE, related_name='meal_logs')
+    meal_type = models.CharField(max_length=50, null=True, blank=True)
+    meal_location = models.CharField(max_length=100, null=True, blank=True)
+    meal_timedate = models.DateTimeField(auto_now_add=True)
+    detected_items = models.CharField(max_length=100, null=True, blank=True)
+    calories = models.IntegerField(null=True, blank=True)
+    protein_gm = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    carbs_gm = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    fat_gm = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    junk_score = models.IntegerField(null=True, blank=True)
+    ai_insights = models.CharField(max_length=100, null=True, blank=True)
+    meal_photo_url = models.CharField(max_length=100, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now=True)
+
+
+class chat_logs(models.Model):
+    session_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chat_logs')
+    
+    message_type = models.CharField(max_length=50, default='text') # 'text', 'voice', 'image'
+    user_message = models.TextField(null=True, blank=True)
+    ai_response = models.TextField(null=True, blank=True)
+    
+    behaviour_summary = models.TextField(null=True, blank=True)
+    meal_context = models.TextField(null=True, blank=True)
+    
+    image_url = models.TextField(null=True, blank=True)
+    audio_file_url = models.TextField(null=True, blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Chat {self.session_id} - {self.user.username}"
 

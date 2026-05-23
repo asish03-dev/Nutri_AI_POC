@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Camera, ChevronLeft, Flame, Check, Activity, Plus, X, ChevronDown } from 'lucide-react';
 import logo from '../assets/Screenshot_2026-05-08_184522-removebg-preview.png';
 
+const baseURL = import.meta.env.VITE_BACKEND_URL;
+
 const TOTAL_STEPS = 7;
 
 const getBmiCategory = (bmi) => {
@@ -203,23 +205,23 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
     else if (onBack) onBack();
   };
 
-   const handleFinish = async () => {
+  const handleFinish = async () => {
     setErrorMsg("");
     try {
-      const rawToken = localStorage.getItem('access_token'); 
+      const rawToken = localStorage.getItem('access_token');
       const token = rawToken ? rawToken.replace(/['"]+/g, '') : "";
-      
-      let userId = "";  
+
+      let userId = "";
       if (token) {
         const payload = JSON.parse(atob(token.split('.')[1]));
-        userId = payload.user_id || payload.id || payload.sub; 
+        userId = payload.user_id || payload.id || payload.sub;
       }
 
-      
+
       const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
       const monthInt = formData.dobMonth ? monthNames.indexOf(formData.dobMonth) + 1 : null;
 
-    
+
       const response = await axios.patch(`${import.meta.env.VITE_API_BASE_URL}/api/onboarding/${userId}/`, {
         first_name: formData.firstName,
         last_name: formData.lastName,
@@ -244,14 +246,13 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
         health_issues: Array.isArray(formData.healthIssues) ? formData.healthIssues.join(', ') : "",
         liked_foods: formData.likedFoods,
         disliked_foods: formData.dislikedFoods,
-        meal_intake_per_day: parseInt(formData.mealsPerDay) || null,
+        meal_intake_per_day: parseInt(formData.mealsPerDay) || 3,
         available_cooking_time: formData.cookingTime,
         grocery_budget: formData.groceryBudget,
         preferred_meal_location: formData.mealLocation,
         main_carbs_source: formData.mainCarbs,
-        bmi: formData.bmi,
-        daily_calorie_target: formData.calorieTarget,
-        is_onboarded: true,
+        bmi: parseFloat(formData.bmi) || null,
+        daily_calorie_target: parseInt(formData.calorieTarget) || null,
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -268,6 +269,10 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
       }
     } catch (error) {
       console.error("Error submitting onboarding data:", error);
+
+      // ADD THIS LINE: This will print the exact message from Django!
+      console.error("Django Server Says:", JSON.stringify(error.response?.data));
+
       setErrorMsg("Something went wrong. Please try again later");
     }
   };
@@ -667,17 +672,15 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
                         key={plan.id}
                         onClick={() => set('selectedPlan', plan.id)}
                         className={`relative flex flex-col rounded-3xl border-2 cursor-pointer transition-all duration-300 hover:-translate-y-1
-                          ${
-                            selected
-                              ? 'border-[#0D9488] shadow-[0_0_0_4px_rgba(20,184,166,0.15),0_16px_48px_rgba(20,184,166,0.18)]'
-                              : plan.recommended
-                                ? 'border-[#0D9488]/50 shadow-lg shadow-[#0D9488]/10 hover:border-[#0D9488] hover:shadow-xl'
-                                : 'border-[#E2E8F0] dark:border-slate-700 shadow-sm hover:border-[#0D9488]/50 hover:shadow-lg'
+                          ${selected
+                            ? 'border-[#0D9488] shadow-[0_0_0_4px_rgba(20,184,166,0.15),0_16px_48px_rgba(20,184,166,0.18)]'
+                            : plan.recommended
+                              ? 'border-[#0D9488]/50 shadow-lg shadow-[#0D9488]/10 hover:border-[#0D9488] hover:shadow-xl'
+                              : 'border-[#E2E8F0] dark:border-slate-700 shadow-sm hover:border-[#0D9488]/50 hover:shadow-lg'
                           }
-                          ${
-                            plan.recommended
-                              ? dark ? 'bg-gradient-to-b from-[#0D9488]/10 to-slate-800' : 'bg-gradient-to-b from-teal-50/80 to-white'
-                              : dark ? 'bg-slate-800/60' : 'bg-white'
+                          ${plan.recommended
+                            ? dark ? 'bg-gradient-to-b from-[#0D9488]/10 to-slate-800' : 'bg-gradient-to-b from-teal-50/80 to-white'
+                            : dark ? 'bg-slate-800/60' : 'bg-white'
                           }
                         `}
                       >
@@ -693,9 +696,8 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
                         <div className="p-7 flex flex-col flex-1">
                           {/* Tag + price */}
                           <div className="mb-5">
-                            <p className={`text-[11px] font-black uppercase tracking-[0.15em] mb-3 ${
-                              plan.recommended ? 'text-[#0D9488]' : dark ? 'text-slate-500' : 'text-slate-400'
-                            }`}>{plan.tag}</p>
+                            <p className={`text-[11px] font-black uppercase tracking-[0.15em] mb-3 ${plan.recommended ? 'text-[#0D9488]' : dark ? 'text-slate-500' : 'text-slate-400'
+                              }`}>{plan.tag}</p>
                             <div className="flex items-baseline gap-1.5">
                               {plan.free ? (
                                 <span className={`text-4xl font-black tracking-tight ${dark ? 'text-white' : 'text-slate-900'}`}>Free</span>
@@ -717,9 +719,8 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
                           <ul className="space-y-3 flex-1 mb-7">
                             {plan.features.map(f => (
                               <li key={f} className="flex items-center gap-3">
-                                <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
-                                  plan.recommended ? 'bg-[#0D9488]/15' : dark ? 'bg-slate-700' : 'bg-slate-100'
-                                }`}>
+                                <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${plan.recommended ? 'bg-[#0D9488]/15' : dark ? 'bg-slate-700' : 'bg-slate-100'
+                                  }`}>
                                   <Check size={11} strokeWidth={3} className={plan.recommended ? 'text-[#0D9488]' : dark ? 'text-slate-400' : 'text-slate-500'} />
                                 </div>
                                 <span className={`text-[13px] font-medium ${dark ? 'text-slate-300' : 'text-slate-600'}`}>{f}</span>
@@ -729,15 +730,14 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
 
                           {/* CTA */}
                           <button
-                            className={`w-full py-3 rounded-2xl text-[14px] font-bold tracking-wide transition-all duration-200 ${
-                              selected
-                                ? 'bg-[#0D9488] text-white shadow-lg shadow-[#0D9488]/25'
-                                : plan.recommended
-                                  ? 'bg-[#0D9488] text-white hover:bg-[#0F766E] shadow-lg shadow-[#0D9488]/20'
-                                  : plan.free
-                                    ? dark ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                                    : dark ? 'border-2 border-[#0D9488]/50 text-[#14B8A6] hover:bg-[#0D9488]/10' : 'border-2 border-[#0D9488] text-[#0D9488] hover:bg-teal-50'
-                            }`}
+                            className={`w-full py-3 rounded-2xl text-[14px] font-bold tracking-wide transition-all duration-200 ${selected
+                              ? 'bg-[#0D9488] text-white shadow-lg shadow-[#0D9488]/25'
+                              : plan.recommended
+                                ? 'bg-[#0D9488] text-white hover:bg-[#0F766E] shadow-lg shadow-[#0D9488]/20'
+                                : plan.free
+                                  ? dark ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                  : dark ? 'border-2 border-[#0D9488]/50 text-[#14B8A6] hover:bg-[#0D9488]/10' : 'border-2 border-[#0D9488] text-[#0D9488] hover:bg-teal-50'
+                              }`}
                           >
                             {selected ? '✓ Selected' : plan.free ? 'Start Free' : plan.recommended ? 'Upgrade to Pro →' : 'Get Premium →'}
                           </button>

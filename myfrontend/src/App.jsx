@@ -1,40 +1,44 @@
+import { useState, useEffect, lazy, Suspense } from "react";
+import axios from 'axios';
+import LandingPage from "./components/LandingPage";
+import LoginPage from "./components/LoginPage";
+import SignupPage from "./components/SignupPage";
 import axios from "axios";
 import { useState, useEffect } from "react";
-import LandingPage   from "./components/LandingPage";
-import LoginPage     from "./components/LoginPage";
-import SignupPage    from "./components/SignupPage";
+import LandingPage from "./components/LandingPage";
+import LoginPage from "./components/LoginPage";
+import SignupPage from "./components/SignupPage";
 import LoadingScreen from "./components/LoadingScreen";
-import Onboarding    from "./components/Onboarding";
-import Profile       from "./components/Profile";
-import Dashboard     from "./components/Dashboard";
-import MealLogs      from "./components/MealLogs";
-import Nia           from "./components/Nia";
-import MainLayout        from "./components/MainLayout";
-import { lazy, Suspense } from 'react';
+import Onboarding from "./components/Onboarding";
+import Profile from "./components/Profile";
+import Dashboard from "./components/Dashboard";
+import MealLogs from "./components/MealLogs";
+import Nia from "./components/Nia";
+import MainLayout from "./components/MainLayout";
+import SuccessScreen from "./components/SuccessScreen";
+import { useUser } from "./context/UserContext";
 const WeeklyReportModal = lazy(() => import('./components/WeeklyReportModal'));
-import SuccessScreen     from "./components/SuccessScreen";
-import { useUser }       from "./context/UserContext";
 import { getProfileCompletion } from "./lib/profileCompletion";
 
 export default function App() {
-  const { saveOnboardingData } = useUser();
-  const [dark, setDark]                 = useState(false);
-  const [loginOpen, setLogin]           = useState(false);
-  const [signupOpen, setSignup]         = useState(false);
-  const [loading, setLoading]           = useState(false);
-  const [loadingType, setLoadingType]   = useState("login");
+  const { saveOnboardingData, loadUserProfile } = useUser();
+  const [dark, setDark] = useState(false);
+  const [loginOpen, setLogin] = useState(false);
+  const [signupOpen, setSignup] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [loadingType, setLoadingType] = useState("login");
   const [showOnboarding, setOnboarding] = useState(false);
-  const [backTo, setBackTo]             = useState("signup");
-  const [profileData, setProfileData]   = useState(() => {
+  const [backTo, setBackTo] = useState("signup");
+  const [profileData, setProfileData] = useState(() => {
     const saved = localStorage.getItem("nutriai_profile_data");
     return saved ? JSON.parse(saved) : {};
   });
-  
+
   const [onboardingDone, setOnboardingDone] = useState(false);
   const [showSuccessScreen, setShowSuccessScreen] = useState(false);
-  const [currentView, setCurrentView]       = useState("dashboard");
-  const [showReport, setShowReport]         = useState(false);
-  const [niaMsgs, setNiaMsgs]               = useState([]);
+  const [currentView, setCurrentView] = useState("dashboard");
+  const [showReport, setShowReport] = useState(false);
+  const [niaMsgs, setNiaMsgs] = useState([]);
 
 
   async function fetchAndHydrateProfile(token) {
@@ -43,11 +47,11 @@ export default function App() {
         headers: { Authorization: `Bearer ${token}` }
       });
       const dbData = response.data.data;
-      
+
       const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
       const monthName = dbData.month_of_birth ? monthNames[dbData.month_of_birth - 1] : '';
 
-    
+
       const mappedData = {
         firstName: dbData.first_name || '',
         lastName: dbData.last_name || '',
@@ -90,22 +94,28 @@ export default function App() {
   }
 
 
-  
+
   useEffect(() => {
+    // Load real profile from backend on every page load/refresh
+    loadUserProfile();
     if (onboardingDone && Object.keys(profileData).length > 0) {
       saveOnboardingData(profileData);
     }
   }, []);
 
-  const openLogin  = () => { setSignup(false); setLogin(true);  };
-  const openSignup = () => { setLogin(false);  setSignup(true); };
+  const openLogin = () => { setSignup(false); setLogin(true); };
+  const openSignup = () => { setLogin(false); setSignup(true); };
 
-   function startLoading(type, isOnboarded) {
+  function startLoading(type, isOnboarded) {
     setLoadingType(type);
     setLoading(true);
     setTimeout(async () => {
       setLoading(false);
-      
+      setBackTo(type);
+      setOnboarding(true);
+      // Fetch real profile from backend after successful login/signup
+      loadUserProfile();
+
       if (isOnboarded) {
         const token = localStorage.getItem("access_token")?.replace(/['"]+/g, '');
         if (token) {
@@ -182,13 +192,20 @@ export default function App() {
           />
         )}
 
-       <LoginPage
-        open={loginOpen}
-        onClose={() => setLogin(false)}
-        dark={dark}
-        onSwitchToSignup={openSignup}
-        onSubmit={(isOnboarded) => { setLogin(false); startLoading("login", isOnboarded); }}
-       />
+        <LoginPage
+          open={loginOpen}
+          onClose={() => setLogin(false)}
+          dark={dark}
+          onSwitchToSignup={openSignup}
+          onSubmit={() => { setLogin(false); startLoading("login", () => { }); }}
+        />
+        <LoginPage
+          open={loginOpen}
+          onClose={() => setLogin(false)}
+          dark={dark}
+          onSwitchToSignup={openSignup}
+          onSubmit={(isOnboarded) => { setLogin(false); startLoading("login", isOnboarded); }}
+        />
 
         <SignupPage
           open={signupOpen}
@@ -241,7 +258,11 @@ export default function App() {
         {showSuccessScreen && <SuccessScreen dark={dark} onGetStarted={handleSuccessComplete} />}
 
         {/* Weekly Report Modal */}
-        {showReport && <Suspense fallback={null}><WeeklyReportModal onClose={() => setShowReport(false)} /></Suspense>}
+        {showReport && (
+          <Suspense fallback={null}>
+            <WeeklyReportModal onClose={() => setShowReport(false)} />
+          </Suspense>
+        )}
       </div>
     </div>
   );

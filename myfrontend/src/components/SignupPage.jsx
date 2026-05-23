@@ -4,6 +4,8 @@ import axios from "axios";
 import { Mail, Lock, Eye, EyeOff, X, ShieldCheck } from "lucide-react";
 import logo from '../assets/Screenshot_2026-05-08_184522-removebg-preview.png';
 
+const baseURL = import.meta.env.VITE_BACKEND_URL;
+
 /* ── Spinner ────────────────────────────────────────────────── */
 function Spinner() {
   return (
@@ -18,10 +20,10 @@ function Spinner() {
 function GoogleIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 48 48">
-      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
     </svg>
   );
 }
@@ -29,7 +31,7 @@ function GoogleIcon() {
 function AppleIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 814 1000" fill="currentColor">
-      <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-57.8-155.5-127.4C46 790.7 0 663 0 541.8c0-207.5 135.4-317.3 269-317.3 70.1 0 128.4 46.4 172.5 46.4 42.8 0 109.6-49 192.5-49 30.8 0 108.2 2.6 168.6 71.9zm-174.5-89.3c-27.6-32.5-67.4-56.4-111.9-56.4-5.8 0-11.6.6-17.4 1.3 1.3-6.5 1.9-13 1.9-19.5 0-57.8-24.6-119.4-70.1-159.5C373.6 4.5 320.4 0 282.2 0c-5.8 0-11.6.6-17.4 1.3 1.3 6.5 1.9 13 1.9 19.5 0 57.8 24.6 119.4 70.1 159.5 44.2 38.7 97.4 56.4 135.6 56.4 5.8 0 11.6-.6 17.4-1.3z"/>
+      <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-57.8-155.5-127.4C46 790.7 0 663 0 541.8c0-207.5 135.4-317.3 269-317.3 70.1 0 128.4 46.4 172.5 46.4 42.8 0 109.6-49 192.5-49 30.8 0 108.2 2.6 168.6 71.9zm-174.5-89.3c-27.6-32.5-67.4-56.4-111.9-56.4-5.8 0-11.6.6-17.4 1.3 1.3-6.5 1.9-13 1.9-19.5 0-57.8-24.6-119.4-70.1-159.5C373.6 4.5 320.4 0 282.2 0c-5.8 0-11.6.6-17.4 1.3 1.3 6.5 1.9 13 1.9 19.5 0 57.8 24.6 119.4 70.1 159.5 44.2 38.7 97.4 56.4 135.6 56.4 5.8 0 11.6-.6 17.4-1.3z" />
     </svg>
   );
 }
@@ -46,15 +48,15 @@ function StrengthBar({ password }) {
   const score = (() => {
     if (!password) return 0;
     let s = 0;
-    if (password.length >= 8)          s++;
-    if (/[A-Z]/.test(password))        s++;
-    if (/[0-9]/.test(password))        s++;
+    if (password.length >= 8) s++;
+    if (/[A-Z]/.test(password)) s++;
+    if (/[0-9]/.test(password)) s++;
     if (/[^A-Za-z0-9]/.test(password)) s++;
     return s;
   })();
 
-  const labels    = ["", "Weak", "Fair", "Good", "Strong"];
-  const colors    = ["", "bg-red-400", "bg-orange-400", "bg-yellow-400", "bg-emerald-500"];
+  const labels = ["", "Weak", "Fair", "Good", "Strong"];
+  const colors = ["", "bg-red-400", "bg-orange-400", "bg-yellow-400", "bg-emerald-500"];
   const textColors = ["", "text-red-400", "text-orange-400", "text-yellow-500", "text-emerald-500"];
 
   if (!password) return null;
@@ -65,9 +67,8 @@ function StrengthBar({ password }) {
         {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-              i <= score ? colors[score] : "bg-gray-200"
-            }`}
+            className={`h-1 flex-1 rounded-full transition-all duration-300 ${i <= score ? colors[score] : "bg-gray-200"
+              }`}
           />
         ))}
       </div>
@@ -78,18 +79,18 @@ function StrengthBar({ password }) {
 
 /* ── Signup Page ──────────────────────────────────────────── */
 export default function SignupPage({ open, onClose, dark, onSwitchToLogin, onSubmit }) {
-  const [showPw, setShowPw]               = useState(false);
-  const [showConfirm, setShowConfirm]     = useState(false);
-  const [agreed, setAgreed]               = useState(false);
-  const [password, setPassword]           = useState("");
+  const [showPw, setShowPw] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [agreed, setAgreed] = useState(false);
+  const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [email, setEmail]                 = useState("");
-  const [errorMsg, setErrorMsg]           = useState("");
-  const [submitting, setSubmitting]       = useState(false);
+  const [email, setEmail] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const [loadingGoogle, setLoadingGoogle] = useState(false);
-  const [loadingApple, setLoadingApple]   = useState(false);
-  const [visible, setVisible]             = useState(false);
-  const [mounted, setMounted]             = useState(false);
+  const [loadingApple, setLoadingApple] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState(1);
   const [otpArray, setOtpArray] = useState(["", "", "", "", "", ""]);
   const [signupEmail, setSignupEmail] = useState("");
@@ -100,17 +101,17 @@ export default function SignupPage({ open, onClose, dark, onSwitchToLogin, onSub
     onSuccess: async (tokenResponse) => {
       try {
         setLoadingGoogle(true);
-        
+
         // Send the Google token to your Django endpoint
-        const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/google/`, {
+        const response = await axios.post(`${baseURL}/api/auth/google/`, {
           token: tokenResponse.access_token
         });
-        
+
         // Save the token returned by your backend
         localStorage.setItem("token", response.data.token || response.data.access_token);
-        
+
         // Close the modal / trigger the redirect
-        onSubmit(response.data.user?.is_onboarded || false); 
+        onSubmit(response.data.user?.is_onboarded || false);
       } catch (error) {
         setErrorMsg("Google authentication failed");
         setLoadingGoogle(false);
@@ -127,27 +128,27 @@ export default function SignupPage({ open, onClose, dark, onSwitchToLogin, onSub
     setTimeout(() => setLoading(false), 800);
   }
 
-   const handleSubmit = async () => {
+  const handleSubmit = async () => {
     setErrorMsg("");
     if (password !== confirmPassword) {
       setErrorMsg("Passwords do not match");
       return;
     }
-    
+
     setSubmitting(true);
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/register/`, {
+      const response = await axios.post(`${baseURL}/api/register/`, {
         username: email, // Django needs a username, we use email
         email: email,
         password: password,
         password2: confirmPassword,
       });
-    
-    if (response.data.requires_otp) {
-      setSignupEmail(response.data.email);
-      setStep(2); 
+
+      if (response.data.requires_otp) {
+        setSignupEmail(response.data.email);
+        setStep(2);
       } else {
-        onSubmit(response.data.user?.is_onboarded || false); 
+        onSubmit(response.data.user?.is_onboarded || false);
       }
     } catch (error) {
       console.error("Error:", error.response?.data || error.message);
@@ -168,49 +169,50 @@ export default function SignupPage({ open, onClose, dark, onSwitchToLogin, onSub
     }
   };
 
-const handleOtpChange = (index, value) => {
-  if (isNaN(value)) return;
-  const newOtpArray = [...otpArray];
-  newOtpArray[index] = value.slice(-1);
-  setOtpArray(newOtpArray);
-  if (value !== "" && index < 5) {
-    (inputRefs.current[index + 1]); {
-    inputRefs.current[index + 1].focus();}    
-  }
-};
+  const handleOtpChange = (index, value) => {
+    if (isNaN(value)) return;
+    const newOtpArray = [...otpArray];
+    newOtpArray[index] = value.slice(-1);
+    setOtpArray(newOtpArray);
+    if (value !== "" && index < 5) {
+      (inputRefs.current[index + 1]); {
+        inputRefs.current[index + 1].focus();
+      }
+    }
+  };
 
-const handleOtpKeyDown = (index, e) => {
-  if (e.key === "Backspace" && otpArray[index] === "" && index > 0) {
-    const prevInput = document.getElementById('otp-${index - 1}');
-    inputRefs.current[index - 1].focus();
-    if (prevInput) prevInput.focus();
-  }
-};
+  const handleOtpKeyDown = (index, e) => {
+    if (e.key === "Backspace" && otpArray[index] === "" && index > 0) {
+      const prevInput = document.getElementById('otp-${index - 1}');
+      inputRefs.current[index - 1].focus();
+      if (prevInput) prevInput.focus();
+    }
+  };
 
-const submitOTPCode = () => {
-  const finalCode = otpArray.join("");
+  const submitOTPCode = () => {
+    const finalCode = otpArray.join("");
     if (finalCode.length === 6) {
       handleVerifyOtp(finalCode);
     } else {
       setErrorMsg("Please enter the 6-digit code");
     }
-};
+  };
 
-  const handleVerifyOtp = async (code) => { 
-  setErrorMsg("");
-  setSubmitting(true);
-  try {
-    const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/verify-otp/`, {
-      email: signupEmail,
-      otp: code
-    });
-    localStorage.setItem("access_token", response.data.access_token);
-    onSubmit(response.data.user?.is_onboarded || false);
-  } catch (error) {
-    setErrorMsg("Invalid or expired OTP");
-  }
-  setSubmitting(false);
-};
+  const handleVerifyOtp = async (code) => {
+    setErrorMsg("");
+    setSubmitting(true);
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/verify-otp/`, {
+        email: signupEmail,
+        otp: code
+      });
+      localStorage.setItem("access_token", response.data.access_token);
+      onSubmit(response.data.user?.is_onboarded || false);
+    } catch (error) {
+      setErrorMsg("Invalid or expired OTP");
+    }
+    setSubmitting(false);
+  };
 
   useEffect(() => {
     if (!open) setSubmitting(false);
@@ -276,15 +278,15 @@ const submitOTPCode = () => {
     : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50";
 
   const iconCls = dark ? "text-gray-500" : "text-gray-400";
-  const eyeCls  = dark ? "text-gray-500 hover:text-gray-300" : "text-gray-400 hover:text-gray-600";
+  const eyeCls = dark ? "text-gray-500 hover:text-gray-300" : "text-gray-400 hover:text-gray-600";
 
-    return (
+  return (
     <div
       onClick={onClose}
       className="fixed inset-0 z-[100] flex items-center justify-center px-4 py-6"
       style={{
         backgroundColor: visible ? "rgba(0,0,0,0.55)" : "rgba(0,0,0,0)",
-        backdropFilter:  visible ? "blur(6px)" : "blur(0px)",
+        backdropFilter: visible ? "blur(6px)" : "blur(0px)",
         transition: "background-color 350ms ease, backdrop-filter 350ms ease",
       }}
     >
@@ -292,7 +294,7 @@ const submitOTPCode = () => {
         onClick={(e) => e.stopPropagation()}
         className={`relative w-full max-w-lg rounded-3xl shadow-2xl p-8 overflow-y-auto max-h-[calc(100vh-3rem)] ${card}`}
         style={{
-          opacity:   visible ? 1 : 0,
+          opacity: visible ? 1 : 0,
           transform: visible
             ? "scale(1) rotate(0deg) translateY(0px)"
             : "scale(0.92) rotate(4deg) translateY(28px)",
@@ -307,13 +309,13 @@ const submitOTPCode = () => {
           <X size={16} />
         </button>
 
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <img
-              src={logo}
-              alt="NutriAI"
-              style={{ height: 52, width: 'auto', objectFit: 'contain', filter: dark ? 'brightness(0) invert(1)' : 'none' }}
-            />
-          </div>
+        <div className="flex items-center justify-center gap-2 mb-6">
+          <img
+            src={logo}
+            alt="NutriAI"
+            style={{ height: 52, width: 'auto', objectFit: 'contain', filter: dark ? 'brightness(0) invert(1)' : 'none' }}
+          />
+        </div>
 
         {/* ================= STEP 1: REGISTRATION FORM ================= */}
         {step === 1 && (
@@ -392,7 +394,7 @@ const submitOTPCode = () => {
                 >
                   {agreed && (
                     <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
-                      <path d="M1 3.5L3.5 6L8 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M1 3.5L3.5 6L8 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   )}
                 </div>
@@ -448,11 +450,11 @@ const submitOTPCode = () => {
               <button
                 onClick={() => loginWithGoogle()}
                 disabled={loadingGoogle}
-               className={`flex items-center justify-center gap-2.5 py-3 rounded-xl border text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-80 disabled:cursor-not-allowed ${social}`}
-            >
-              {loadingGoogle ? <Spinner /> : <GoogleIcon />}
-              Google
-            </button>
+                className={`flex items-center justify-center gap-2.5 py-3 rounded-xl border text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-80 disabled:cursor-not-allowed ${social}`}
+              >
+                {loadingGoogle ? <Spinner /> : <GoogleIcon />}
+                Google
+              </button>
               <button
                 onClick={() => handleSocial(setLoadingApple)}
                 disabled={loadingApple}
@@ -476,16 +478,16 @@ const submitOTPCode = () => {
         )}
 
         {/* ================= STEP 2: OTP VERIFICATION ================= */}
-       {step === 2 && (
+        {step === 2 && (
           <div className="flex flex-col items-center animate-fade-in-up">
             <h3 className={`text-xl font-bold mb-2 ${dark ? "text-white" : "text-gray-900"}`}>
               Check your Email
             </h3>
             <p className={`text-sm text-center mb-6 ${dark ? "text-gray-400" : "text-gray-500"}`}>
-              We sent a 6-digit code to <br/>
+              We sent a 6-digit code to <br />
               <span className="font-bold text-emerald-500">{signupEmail}</span>
             </p>
-            
+
             {/* The 6 OTP Boxes */}
             <div className="flex gap-3 justify-center w-full mb-6">
               {otpArray.map((digit, index) => (
@@ -499,14 +501,14 @@ const submitOTPCode = () => {
                   onChange={(e) => handleOtpChange(index, e.target.value)}
                   onKeyDown={(e) => handleOtpKeyDown(index, e)}
                   className={`w-12 h-14 text-center font-bold text-2xl rounded-xl border outline-none transition-all duration-200 
-                  ${dark ? "bg-gray-800 border-gray-700 text-white focus:border-emerald-500 focus:shadow-[0_0_15px_rgba(16,185,129,0.3)]" 
-                         : "bg-gray-50 border-gray-200 text-gray-900 focus:border-emerald-500 focus:shadow-[0_0_15px_rgba(16,185,129,0.3)]"}`}
+                  ${dark ? "bg-gray-800 border-gray-700 text-white focus:border-emerald-500 focus:shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+                      : "bg-gray-50 border-gray-200 text-gray-900 focus:border-emerald-500 focus:shadow-[0_0_15px_rgba(16,185,129,0.3)]"}`}
                 />
               ))}
             </div>
 
             {errorMsg && <p className="text-xs text-red-500 font-medium mb-4">{errorMsg}</p>}
-            
+
             {/* Submit Button */}
             <button
               onClick={submitOTPCode}
@@ -516,10 +518,10 @@ const submitOTPCode = () => {
             >
               {submitting ? <Spinner /> : "Verify Code"}
             </button>
-             <button
+            <button
               onClick={() => {
-                setStep(1); 
-                setOtpArray(["", "", "", "", "", ""]); 
+                setStep(1);
+                setOtpArray(["", "", "", "", "", ""]);
                 setErrorMsg("");
               }}
               className={`w-full py-3 mt-3 text-sm font-semibold transition-colors duration-200 
