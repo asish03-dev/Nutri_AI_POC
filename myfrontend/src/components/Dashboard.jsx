@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { BarChart, Bar, AreaChart, Area, Line,
   XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, ReferenceLine, CartesianGrid
 } from 'recharts';
@@ -6,6 +7,8 @@ import {
   Flame, Target, TrendingUp, TrendingDown, Droplets, Download, Loader2, CheckCircle2
 } from 'lucide-react';
 import { useUser } from '../context/UserContext';
+
+const baseURL = import.meta.env.VITE_BACKEND_URL;
 
 /* ── PREMIUM PROFESSIONAL COLOR PALETTE ── */
 const COLORS = {
@@ -121,13 +124,50 @@ const AnalyticsDashboard = ({ dark, onOpenReport, profileComplete }) => {
       setTimeout(() => setReportState('idle'), 2500);
     }, 1500);
   };
-  const { userMetrics, dailyLogs, updateWaterIntake } = useUser();
+  const { userMetrics, dailyLogs, updateWaterIntake, setDailyLogs } = useUser();
+  const [dashboardData, setDashboardData] = useState(DASHBOARD_DATA);
+
+  useEffect(() => {
+    const rawToken = localStorage.getItem('access_token');
+    const token = rawToken ? rawToken.replace(/['\"]+/g, '') : "";
+    if (!token) return;
+
+    axios.get(`${baseURL}/api/dashboard/`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    .then(res => {
+      setDashboardData(prev => ({
+        ...prev,
+        calTrend: res.data.cal_trend && res.data.cal_trend.length ? res.data.cal_trend : prev.calTrend,
+        junkScore: res.data.junk_trend && res.data.junk_trend.length ? res.data.junk_trend : prev.junkScore,
+      }));
+
+      // Hydrate today's tracking data from real backend database
+      if (res.data.today) {
+        setDailyLogs(prev => ({
+          ...prev,
+          daily_calories_consumed: res.data.today.calories || 0,
+          daily_protein: res.data.today.protein || 0,
+          daily_carbs: res.data.today.carbs || 0,
+          daily_fat: res.data.today.fat || 0,
+          junk_score: res.data.today.junk_score || 0,
+          junk_count: res.data.today.junk_count || 0,
+        }));
+      }
+    })
+    .catch(err => {
+      console.warn('Could not fetch weekly dashboard trends:', err.message);
+    });
+  }, []);
+
   const water = dailyLogs?.current_water || 0;
   const waterGoal = userMetrics?.water_goal || 3.0;
   const addWater = updateWaterIntake;
 
   const calGoal = userMetrics?.daily_calorie_goal || 1920;
-  const data = { ...DASHBOARD_DATA, calGoal };
+  const data = { ...dashboardData, calGoal };
 
   const displayCal = Math.round(data.calTrend.reduce((a, b) => a + b.val, 0) / data.calTrend.length);
   const avgJunk = (data.junkScore.reduce((a, b) => a + b.score, 0) / data.junkScore.length).toFixed(1);
@@ -138,9 +178,9 @@ const AnalyticsDashboard = ({ dark, onOpenReport, profileComplete }) => {
   const todayCarbs = dailyLogs?.daily_carbs || 0;
   const todayFat = dailyLogs?.daily_fat || 0;
   const todayJunk = (dailyLogs?.junk_count > 0) ? (dailyLogs?.junk_score || 0) : 0;
-  const junkColor = todayJunk >= 7.5 ? COLORS.danger : todayJunk >= 5 ? COLORS.warning : COLORS.success;
-  const junkLabel = todayJunk === 0 ? 'No meals yet' : todayJunk >= 7.5 ? 'High Junk Intake' : todayJunk >= 5 ? 'Moderate Control' : 'Excellent Control';
-  const junkMessage = todayJunk === 0 ? 'Log your first meal to see your junk score.' : todayJunk >= 7.5 ? 'Your cravings were high today. Try focusing on whole foods for your next meal.' : 'Great job keeping junk food low today!';
+  const junkColor = todayJunk >= 75 ? COLORS.danger : todayJunk >= 50 ? COLORS.warning : COLORS.success;
+  const junkLabel = todayJunk === 0 ? 'No meals yet' : todayJunk >= 75 ? 'High Junk Intake' : todayJunk >= 50 ? 'Moderate Control' : 'Excellent Control';
+  const junkMessage = todayJunk === 0 ? 'Log your first meal to see your junk score.' : todayJunk >= 75 ? 'Your cravings were high today. Try focusing on whole foods for your next meal.' : 'Great job keeping junk food low today!';
 
   return (
     <div className="w-full relative px-6 md:px-10 py-8">
@@ -252,13 +292,13 @@ const AnalyticsDashboard = ({ dark, onOpenReport, profileComplete }) => {
                 <circle stroke={dark ? "#1E293B" : "#F1F5F9"} fill="transparent" strokeWidth="16" r="74" cx="90" cy="90" />
                 <circle 
                   stroke={junkColor} fill="transparent" strokeWidth="16" strokeLinecap="round" 
-                  strokeDasharray="465" strokeDashoffset={465 - (todayJunk / 10) * 465}
+                  strokeDasharray="465" strokeDashoffset={465 - (todayJunk / 100) * 465}
                   r="74" cx="90" cy="90" className="transition-all duration-1500 ease-out" 
                 />
               </svg>
               <div className="absolute flex flex-col items-center justify-center text-center">
                 <div className="text-[42px] font-extrabold tracking-tight leading-none mb-1" style={{ color: junkColor }}>{todayJunk || '—'}</div>
-                <div className="text-[13px] font-bold text-[#94A3B8] uppercase tracking-wider">/ 10</div>
+                <div className="text-[13px] font-bold text-[#94A3B8] uppercase tracking-wider">/ 100</div>
               </div>
             </div>
             <div className="mt-auto flex flex-col items-center text-center">
@@ -375,11 +415,11 @@ const AnalyticsDashboard = ({ dark, onOpenReport, profileComplete }) => {
               <div>
                 <h3 className="text-[14px] font-bold text-[#475569] dark:text-slate-400 uppercase tracking-[0.06em] mb-1">Junk Score Trend</h3>
                 <div className="text-[32px] font-extrabold text-[#0F172A] dark:text-white tracking-[-0.03em] leading-none">
-                  {avgJunk} <span className="text-[16px] font-semibold text-[#94A3B8]">/ 10</span>
+                  {avgJunk} <span className="text-[16px] font-semibold text-[#94A3B8]">/ 100</span>
                 </div>
               </div>
-              <div className={`p-2 rounded-[12px]`} style={{ backgroundColor: avgJunk >= 7.5 ? (dark ? 'rgba(248, 113, 113, 0.1)' : COLORS.bgCoral) : avgJunk >= 5 ? (dark ? 'rgba(251, 191, 36, 0.1)' : COLORS.bgAmber) : (dark ? 'rgba(74, 222, 128, 0.1)' : COLORS.bgMint), color: avgJunk >= 7.5 ? COLORS.coral : avgJunk >= 5 ? COLORS.amber : COLORS.mint }}>
-                {avgJunk >= 7 ? <TrendingUp size={24} strokeWidth={2.5} /> : <TrendingDown size={24} strokeWidth={2.5} />}
+              <div className={`p-2 rounded-[12px]`} style={{ backgroundColor: parseFloat(avgJunk) >= 75 ? (dark ? 'rgba(248, 113, 113, 0.1)' : COLORS.bgCoral) : parseFloat(avgJunk) >= 50 ? (dark ? 'rgba(251, 191, 36, 0.1)' : COLORS.bgAmber) : (dark ? 'rgba(74, 222, 128, 0.1)' : COLORS.bgMint), color: parseFloat(avgJunk) >= 75 ? COLORS.coral : parseFloat(avgJunk) >= 50 ? COLORS.amber : COLORS.mint }}>
+                {parseFloat(avgJunk) >= 70 ? <TrendingUp size={24} strokeWidth={2.5} /> : <TrendingDown size={24} strokeWidth={2.5} />}
               </div>
             </div>
             <div className="h-[220px] w-full mt-auto">
@@ -390,7 +430,7 @@ const AnalyticsDashboard = ({ dark, onOpenReport, profileComplete }) => {
                   <Tooltip content={<CustomTooltip dark={dark} />} cursor={{ fill: dark ? '#1E293B' : '#F8FAFC' }} />
                   <Bar dataKey="score" radius={[8, 8, 8, 8]} animationDuration={1500} animationEasing="ease-out" maxBarSize={32}>
                     {data.junkScore.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.score >= 7.5 ? 'url(#barOver)' : entry.score >= 5 ? 'url(#barWarning)' : 'url(#barExcellent)'} />
+                      <Cell key={`cell-${index}`} fill={entry.score >= 75 ? 'url(#barOver)' : entry.score >= 50 ? 'url(#barWarning)' : 'url(#barExcellent)'} />
                     ))}
                   </Bar>
                 </BarChart>

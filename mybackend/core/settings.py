@@ -27,7 +27,7 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-j9yjsxh-r071eupo41np#_a6t-@c^i1c3ztt#d@p&(3yl5#ug)'
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -36,6 +36,9 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-j9yjsxh-r071eupo41np#
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+
+# Gemini API Key configuration
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
 
 
 ALLOWED_HOSTS = []
@@ -69,7 +72,9 @@ MIDDLEWARE = [
 
 CORS_ALLOW_ALL_ORIGINS = True
 # Allow your machine's IP so Android emulator can reach it
-ALLOWED_HOSTS = ['10.135.4.38']
+# ALLOWED_HOSTS = ['10.83.193.38','10.135.4.38']
+allowed_hosts_str = os.environ.get('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost')
+ALLOWED_HOSTS = allowed_hosts_str.split(',')
 
 ROOT_URLCONF = 'core.urls'
 

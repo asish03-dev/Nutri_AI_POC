@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { 
-  Plus, History, Mic, MicOff, Camera, Paperclip, 
-  Download, FileText, AlertTriangle, Trash2, X, 
+import {
+  Plus, History, Mic, MicOff, Camera, Paperclip,
+  Download, FileText, AlertTriangle, Trash2, X,
   Copy, Check, ChevronRight, User, Sparkles, Image as ImageIcon,
   ArrowUp, MessageSquare, Info, Eye, Search, Clock, Utensils,
   Flame, Dumbbell, Wheat
@@ -15,54 +15,54 @@ const HISTORY_KEY = "nutriai_nia_history";
 
 /* ── Meal tag colours (shared) ─────────────────────────────── */
 const MEAL_TAG_COLORS = {
-  Breakfast: { bg: 'rgba(20,184,166,0.15)',  text: '#14B8A6',  border: 'rgba(20,184,166,0.25)' },
-  Lunch:     { bg: 'rgba(59,130,246,0.15)',  text: '#60A5FA',  border: 'rgba(59,130,246,0.25)' },
-  Dinner:    { bg: 'rgba(139,92,246,0.15)',  text: '#A78BFA',  border: 'rgba(139,92,246,0.25)' },
-  Snack:     { bg: 'rgba(245,158,11,0.15)',  text: '#FCD34D',  border: 'rgba(245,158,11,0.25)' },
-  'Pre-WO':  { bg: 'rgba(239,68,68,0.15)',   text: '#FCA5A5',  border: 'rgba(239,68,68,0.25)'  },
-  'Post-WO': { bg: 'rgba(16,185,129,0.15)',  text: '#6EE7B7',  border: 'rgba(16,185,129,0.25)' },
+  Breakfast: { bg: 'rgba(20,184,166,0.15)', text: '#14B8A6', border: 'rgba(20,184,166,0.25)' },
+  Lunch: { bg: 'rgba(59,130,246,0.15)', text: '#60A5FA', border: 'rgba(59,130,246,0.25)' },
+  Dinner: { bg: 'rgba(139,92,246,0.15)', text: '#A78BFA', border: 'rgba(139,92,246,0.25)' },
+  Snack: { bg: 'rgba(245,158,11,0.15)', text: '#FCD34D', border: 'rgba(245,158,11,0.25)' },
+  'Pre-WO': { bg: 'rgba(239,68,68,0.15)', text: '#FCA5A5', border: 'rgba(239,68,68,0.25)' },
+  'Post-WO': { bg: 'rgba(16,185,129,0.15)', text: '#6EE7B7', border: 'rgba(16,185,129,0.25)' },
 };
 
 function DayPlanTable({ dayLabel, rows, onDownload, dark }) {
   const [searchOpen, setSearchOpen] = useState(false);
-  const [query, setQuery]           = useState('');
+  const [query, setQuery] = useState('');
 
   const filtered = rows.filter(r =>
     !query ||
     r.food.toLowerCase().includes(query.toLowerCase()) ||
     r.meal.toLowerCase().includes(query.toLowerCase())
   );
-  const totalCal     = rows.reduce((s, r) => s + r.cal,     0);
+  const totalCal = rows.reduce((s, r) => s + r.cal, 0);
   const totalProtein = rows.reduce((s, r) => s + r.protein, 0);
-  const totalCarbs   = rows.reduce((s, r) => s + r.carbs,   0);
+  const totalCarbs = rows.reduce((s, r) => s + r.carbs, 0);
 
   // Theme tokens
-  const border      = dark ? '1px solid rgba(255,255,255,0.08)' : '1px solid #E2E8F0';
+  const border = dark ? '1px solid rgba(255,255,255,0.08)' : '1px solid #E2E8F0';
   const borderFaint = dark ? '1px solid rgba(255,255,255,0.04)' : '1px solid #F1F5F9';
-  const headerBg    = dark ? 'rgba(255,255,255,0.04)' : '#F8FAFC';
-  const headerBorder= dark ? '1px solid rgba(255,255,255,0.06)' : '1px solid #E2E8F0';
+  const headerBg = dark ? 'rgba(255,255,255,0.04)' : '#F8FAFC';
+  const headerBorder = dark ? '1px solid rgba(255,255,255,0.06)' : '1px solid #E2E8F0';
   const stripBorder = dark ? '1px solid rgba(255,255,255,0.05)' : '1px solid #F1F5F9';
-  const theadBg     = dark ? 'rgba(255,255,255,0.02)' : '#F1F5F9';
-  const theadColor  = dark ? 'rgba(255,255,255,0.25)' : '#94A3B8';
-  const theadIcon   = dark ? 'rgba(255,255,255,0.18)' : '#CBD5E1';
-  const tfootBg     = dark ? 'rgba(255,255,255,0.02)' : '#F8FAFC';
+  const theadBg = dark ? 'rgba(255,255,255,0.02)' : '#F1F5F9';
+  const theadColor = dark ? 'rgba(255,255,255,0.25)' : '#94A3B8';
+  const theadIcon = dark ? 'rgba(255,255,255,0.18)' : '#CBD5E1';
+  const tfootBg = dark ? 'rgba(255,255,255,0.02)' : '#F8FAFC';
   const tfootBorder = dark ? '1px solid rgba(255,255,255,0.07)' : '1px solid #E2E8F0';
-  const totalLabel  = dark ? 'rgba(255,255,255,0.2)'  : '#94A3B8';
+  const totalLabel = dark ? 'rgba(255,255,255,0.2)' : '#94A3B8';
   const dayLabelCol = dark ? '#FFFFFF' : '#0F172A';
-  const kcalCol     = dark ? 'rgba(255,255,255,0.3)'  : '#64748B';
-  const dividerCol  = dark ? 'rgba(255,255,255,0.12)' : '#E2E8F0';
-  const iconBtnBg   = dark ? 'rgba(255,255,255,0.05)' : '#F1F5F9';
-  const iconBtnCol  = dark ? 'rgba(255,255,255,0.4)'  : '#64748B';
-  const searchBg    = dark ? 'rgba(255,255,255,0.07)' : '#F8FAFC';
-  const searchBorder= dark ? '1px solid rgba(255,255,255,0.12)' : '1px solid #E2E8F0';
+  const kcalCol = dark ? 'rgba(255,255,255,0.3)' : '#64748B';
+  const dividerCol = dark ? 'rgba(255,255,255,0.12)' : '#E2E8F0';
+  const iconBtnBg = dark ? 'rgba(255,255,255,0.05)' : '#F1F5F9';
+  const iconBtnCol = dark ? 'rgba(255,255,255,0.4)' : '#64748B';
+  const searchBg = dark ? 'rgba(255,255,255,0.07)' : '#F8FAFC';
+  const searchBorder = dark ? '1px solid rgba(255,255,255,0.12)' : '1px solid #E2E8F0';
   const searchColor = dark ? '#fff' : '#0F172A';
-  const timeColor   = dark ? 'rgba(255,255,255,0.38)' : '#64748B';
-  const timeIcon    = dark ? 'rgba(255,255,255,0.15)' : '#CBD5E1';
-  const foodColor   = dark ? 'rgba(255,255,255,0.78)' : '#0F172A';
-  const barTrack    = dark ? 'rgba(255,255,255,0.08)' : '#E2E8F0';
-  const evenRowBg   = dark ? 'transparent'            : '#FFFFFF';
-  const oddRowBg    = dark ? 'rgba(255,255,255,0.02)' : '#F8FAFC';
-  const hoverRowBg  = dark ? 'rgba(20,184,166,0.04)'  : 'rgba(20,184,166,0.04)';
+  const timeColor = dark ? 'rgba(255,255,255,0.38)' : '#64748B';
+  const timeIcon = dark ? 'rgba(255,255,255,0.15)' : '#CBD5E1';
+  const foodColor = dark ? 'rgba(255,255,255,0.78)' : '#0F172A';
+  const barTrack = dark ? 'rgba(255,255,255,0.08)' : '#E2E8F0';
+  const evenRowBg = dark ? 'transparent' : '#FFFFFF';
+  const oddRowBg = dark ? 'rgba(255,255,255,0.02)' : '#F8FAFC';
+  const hoverRowBg = dark ? 'rgba(20,184,166,0.04)' : 'rgba(20,184,166,0.04)';
 
   return (
     <div className="w-full rounded-2xl overflow-hidden" style={{ border }}>
@@ -93,8 +93,8 @@ function DayPlanTable({ dayLabel, rows, onDownload, dark }) {
             />
           )}
           {[
-            { Icon: Eye,    tip: 'Preview' },
-            { Icon: Search, tip: 'Search',  action: () => { setSearchOpen(s => !s); setQuery(''); } },
+            { Icon: Eye, tip: 'Preview' },
+            { Icon: Search, tip: 'Search', action: () => { setSearchOpen(s => !s); setQuery(''); } },
           ].map(({ Icon, tip, action }) => (
             <button key={tip} title={tip} onClick={action}
               className="w-7 h-7 rounded-lg flex items-center justify-center transition-all"
@@ -120,8 +120,8 @@ function DayPlanTable({ dayLabel, rows, onDownload, dark }) {
       <div className="grid grid-cols-3" style={{ borderBottom: stripBorder }}>
         {[
           { label: 'Calories', val: `${totalCal} kcal`, color: '#F97316' },
-          { label: 'Protein',  val: `${totalProtein}g`,  color: '#3B82F6' },
-          { label: 'Carbs',    val: `${totalCarbs}g`,    color: dark ? '#FCD34D' : '#D97706' },
+          { label: 'Protein', val: `${totalProtein}g`, color: '#3B82F6' },
+          { label: 'Carbs', val: `${totalCarbs}g`, color: dark ? '#FCD34D' : '#D97706' },
         ].map(({ label, val, color }, idx) => (
           <div key={label} className="flex flex-col items-center py-2.5 gap-0.5"
             style={{ borderRight: idx < 2 ? stripBorder : 'none' }}>
@@ -137,12 +137,12 @@ function DayPlanTable({ dayLabel, rows, onDownload, dark }) {
           <thead>
             <tr style={{ borderBottom: headerBorder, background: theadBg }}>
               {[
-                { label: 'Time',        Icon: Clock,    w: '10%' },
-                { label: 'Meal',        Icon: Utensils, w: '14%' },
-                { label: 'Food',        Icon: null,     w: '38%' },
-                { label: 'Cal',         Icon: Flame,    w: '10%' },
+                { label: 'Time', Icon: Clock, w: '10%' },
+                { label: 'Meal', Icon: Utensils, w: '14%' },
+                { label: 'Food', Icon: null, w: '38%' },
+                { label: 'Cal', Icon: Flame, w: '10%' },
                 { label: 'Protein (g)', Icon: Dumbbell, w: '14%' },
-                { label: 'Carbs (g)',   Icon: Wheat,    w: '14%' },
+                { label: 'Carbs (g)', Icon: Wheat, w: '14%' },
               ].map(({ label, Icon, w }, ci) => (
                 <th key={label} style={{
                   width: w, padding: '9px 12px', textAlign: 'left',
@@ -160,9 +160,9 @@ function DayPlanTable({ dayLabel, rows, onDownload, dark }) {
           </thead>
           <tbody>
             {filtered.map((row, i) => {
-              const tag    = MEAL_TAG_COLORS[row.meal] || { bg: 'rgba(148,163,184,0.12)', text: '#94A3B8', border: 'rgba(148,163,184,0.18)' };
+              const tag = MEAL_TAG_COLORS[row.meal] || { bg: 'rgba(148,163,184,0.12)', text: '#94A3B8', border: 'rgba(148,163,184,0.18)' };
               const isEven = i % 2 === 0;
-              const rowBg  = row.flag ? 'rgba(239,68,68,0.06)' : isEven ? evenRowBg : oddRowBg;
+              const rowBg = row.flag ? 'rgba(239,68,68,0.06)' : isEven ? evenRowBg : oddRowBg;
               return (
                 <tr key={i} style={{
                   background: rowBg,
@@ -265,7 +265,7 @@ export default function Nia({ dark, profileData, niaMsgs, setNiaMsgs }) {
   const streamRef = useRef(null);
 
   const firstName = profileData?.firstName || profileData?.name?.split(" ")[0] || "there";
-  
+
   // Real-time context from Dashboard
   const todayJunk = (dailyLogs?.junk_count > 0) ? (dailyLogs?.junk_score || 0) : 0;
   const calGoal = userMetrics?.daily_calorie_goal || 2000;
@@ -310,12 +310,12 @@ export default function Nia({ dark, profileData, niaMsgs, setNiaMsgs }) {
   const streamMessage = useCallback(async (fullMsg) => {
     setIsTyping(true);
     let currentText = "";
-    
+
     // Initial delay for "thinking"
     await new Promise(r => setTimeout(r, 600));
-    
+
     setMessages(prev => [...prev, { ...fullMsg, text: "" }]);
-    
+
     const characters = fullMsg.text.split("");
     for (let i = 0; i < characters.length; i++) {
       currentText += characters[i];
@@ -324,7 +324,7 @@ export default function Nia({ dark, profileData, niaMsgs, setNiaMsgs }) {
         next[next.length - 1] = { ...fullMsg, text: currentText };
         return next;
       });
-      await new Promise(r => setTimeout(r, 15 + Math.random() * 10)); 
+      await new Promise(r => setTimeout(r, 15 + Math.random() * 10));
     }
     setIsTyping(false);
   }, []);
@@ -374,26 +374,51 @@ export default function Nia({ dark, profileData, niaMsgs, setNiaMsgs }) {
     setInput("");
     setCapturedImage(null);
 
-    // Get response with real-time context
-    const aiResponse = getNiaResponse(text || "image", profileData, { todayJunk, calGoal });
-    
-    if (aiResponse.hasMealPlan) {
-      aiResponse.mealPlanData = generateWeeklyMealPlan(profileData?.mainGoal, calGoal);
-    }
-    if (aiResponse.hasCourses) {
-      aiResponse.coursesData = [
-        { title: 'How to Read Nutrition Labels', channel: 'Healthline', url: 'https://www.youtube.com/watch?v=wI_SZapXCgk', tag: 'YouTube' },
-        { title: 'Nutrition for Beginners — Full Guide', channel: 'Doctor Mike', url: 'https://www.youtube.com/watch?v=fqhYBTg73fw', tag: 'YouTube' },
-        { title: 'Indian Diet Plan for Weight Loss', channel: 'Fit Tuber', url: 'https://www.youtube.com/watch?v=3JZ_D3ELwOQ', tag: 'YouTube' },
-        { title: 'Protein, Carbs & Fat — Macros Explained', channel: 'Jeff Nippard', url: 'https://www.youtube.com/watch?v=2oFsGMHFMo4', tag: 'YouTube' },
-        { title: 'The Science of Healthy Eating', channel: 'Kurzgesagt', url: 'https://www.youtube.com/watch?v=TLpbfOJ4bJU', tag: 'YouTube' },
-        { title: 'Best Foods for Muscle Gain & Fat Loss', channel: 'Jeremy Ethier', url: 'https://www.youtube.com/watch?v=YIBR4mMhSo8', tag: 'YouTube' },
-        { title: 'Gut Health & Nutrition — What You Need to Know', channel: 'Andrew Huberman', url: 'https://www.youtube.com/watch?v=euMsOyBKhMQ', tag: 'YouTube' },
-        { title: 'Calorie Deficit Explained Simply', channel: 'Natacha Océane', url: 'https://www.youtube.com/watch?v=OSpCCONFBMk', tag: 'YouTube' },
-      ];
-    }
+    try {
+      // Show typing indicator during fetch
+      setIsTyping(true);
 
-    await streamMessage(aiResponse);
+      const token = localStorage.getItem("access_token");
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/nia/chat/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` })
+        },
+        body: JSON.stringify({ message: text || "image" })
+      });
+
+      const data = await response.json();
+
+      // Stop typing indicator early before stream starts
+      setIsTyping(false);
+
+      const aiResponse = {
+        type: "ai",
+        text: data.ai_response || "Sorry, I couldn't generate a response.",
+        hasMealPlan: text.toLowerCase().includes("meal plan"),
+        hasCourses: text.toLowerCase().includes("course") || text.toLowerCase().includes("learn")
+      };
+
+      if (aiResponse.hasMealPlan) {
+        aiResponse.mealPlanData = generateWeeklyMealPlan(profileData?.mainGoal, calGoal);
+      }
+      if (aiResponse.hasCourses) {
+        aiResponse.coursesData = [
+          { title: 'How to Read Nutrition Labels', channel: 'Healthline', url: 'https://www.youtube.com/watch?v=wI_SZapXCgk', tag: 'YouTube' },
+          { title: 'Nutrition for Beginners — Full Guide', channel: 'Doctor Mike', url: 'https://www.youtube.com/watch?v=fqhYBTg73fw', tag: 'YouTube' },
+          { title: 'Indian Diet Plan for Weight Loss', channel: 'Fit Tuber', url: 'https://www.youtube.com/watch?v=3JZ_D3ELwOQ', tag: 'YouTube' },
+          { title: 'Protein, Carbs & Fat — Macros Explained', channel: 'Jeff Nippard', url: 'https://www.youtube.com/watch?v=2oFsGMHFMo4', tag: 'YouTube' },
+          { title: 'The Science of Healthy Eating', channel: 'Kurzgesagt', url: 'https://www.youtube.com/watch?v=TLpbfOJ4bJU', tag: 'YouTube' }
+        ];
+      }
+
+      await streamMessage(aiResponse);
+    } catch (error) {
+      console.error("Nia API Error:", error);
+      setIsTyping(false);
+      showToast("Error connecting to backend");
+    }
   };
 
   // Clipboard
@@ -443,15 +468,15 @@ export default function Nia({ dark, profileData, niaMsgs, setNiaMsgs }) {
         const isCaution = text.includes("[!CAUTION]");
         return (
           <div key={lidx} className={`p-4 rounded-2xl my-4 border flex gap-3 ${isCaution ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-blue-500/10 border-blue-500/20 text-blue-500'}`}>
-             <Info size={18} className="shrink-0 mt-0.5" />
-             <div className="text-sm leading-relaxed">{line.replace("> ", "")}</div>
+            <Info size={18} className="shrink-0 mt-0.5" />
+            <div className="text-sm leading-relaxed">{line.replace("> ", "")}</div>
           </div>
         );
       }
-      
+
       return (
         <p key={lidx} className={line.trim() === "" ? "h-4" : "mb-2"}>
-          {line.split("**").map((part, index) => 
+          {line.split("**").map((part, index) =>
             index % 2 === 1 ? <b key={index} className="text-teal-500 font-bold">{part}</b> : part
           )}
         </p>
@@ -461,7 +486,7 @@ export default function Nia({ dark, profileData, niaMsgs, setNiaMsgs }) {
 
   return (
     <div className={`h-screen w-full flex flex-col overflow-hidden relative ${bgClass}`}>
-      
+
       {/* ── Nia Dedicated Header ── */}
       <header className={`h-16 px-6 flex items-center justify-between border-b shrink-0 z-40 ${dark ? 'bg-[#0B0F1A]/80 border-slate-800' : 'bg-white/80 border-slate-200'} backdrop-blur-xl sticky top-0`}>
         <div className="flex items-center gap-3">
@@ -479,26 +504,26 @@ export default function Nia({ dark, profileData, niaMsgs, setNiaMsgs }) {
         <div className="flex items-center gap-4">
           {/* User Context Preview */}
           <div className="hidden md:flex items-center gap-3 px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-             <div className="flex flex-col items-end">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider leading-none">Junk Score</span>
-                <span className={`text-[12px] font-black ${todayJunk >= 7 ? 'text-red-500' : todayJunk >= 5 ? 'text-amber-500' : 'text-emerald-500'}`}>{todayJunk}/10</span>
-             </div>
-             <div className="w-[1px] h-6 bg-slate-300 dark:bg-slate-700"></div>
-             <div className="flex flex-col items-end">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider leading-none">Daily Goal</span>
-                <span className="text-[12px] font-black text-teal-500">{calGoal} kcal</span>
-             </div>
+            <div className="flex flex-col items-end">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider leading-none">Junk Score</span>
+              <span className={`text-[12px] font-black ${todayJunk >= 7 ? 'text-red-500' : todayJunk >= 5 ? 'text-amber-500' : 'text-emerald-500'}`}>{todayJunk}/10</span>
+            </div>
+            <div className="w-[1px] h-6 bg-slate-300 dark:bg-slate-700"></div>
+            <div className="flex flex-col items-end">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider leading-none">Daily Goal</span>
+              <span className="text-[12px] font-black text-teal-500">{calGoal} kcal</span>
+            </div>
           </div>
 
           <div className="flex items-center gap-1">
-            <button 
+            <button
               onClick={startNewChat}
               title="New Chat"
               className={`p-2 rounded-lg transition-all ${dark ? 'hover:bg-slate-800 text-slate-400' : 'hover:bg-slate-100 text-slate-600'}`}
             >
               <Plus size={20} />
             </button>
-            <button 
+            <button
               onClick={() => setShowHistory(true)}
               title="History"
               className={`p-2 rounded-lg transition-all ${dark ? 'hover:bg-slate-800 text-slate-400' : 'hover:bg-slate-100 text-slate-600'}`}
@@ -510,22 +535,22 @@ export default function Nia({ dark, profileData, niaMsgs, setNiaMsgs }) {
       </header>
 
       {/* ── Chat Container ── */}
-      <main 
+      <main
         ref={scrollContainerRef}
         className="flex-1 overflow-y-auto overflow-x-hidden scroll-smooth bg-transparent"
       >
         <div className="max-w-4xl mx-auto px-6 py-10 space-y-10 pb-40">
-          
+
           {/* Welcome screen */}
           <AnimatePresence>
             {messages.length === 0 && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
                 className="text-center space-y-10 pt-16"
               >
                 <div className="space-y-4">
                   <h2 className="text-[40px] font-black tracking-tight leading-tight">
-                    Hey <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-500">{firstName}</span>,<br/>What's on the menu today?
+                    Hey <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-500">{firstName}</span>,<br />What's on the menu today?
                   </h2>
                   <p className={`text-lg font-medium max-w-xl mx-auto ${dark ? 'text-slate-400' : 'text-slate-500'}`}>
                     Ask me for personalized meal plans, analyze your junk intake, or get scientific nutritional insights.
@@ -537,9 +562,8 @@ export default function Nia({ dark, profileData, niaMsgs, setNiaMsgs }) {
                     <button
                       key={i}
                       onClick={() => sendMessage(p.text)}
-                      className={`p-6 rounded-[24px] border text-left flex items-center justify-between group transition-all duration-300 ${
-                        dark ? 'bg-slate-900/40 border-slate-800 hover:border-teal-500/50 hover:bg-slate-900' : 'bg-white border-slate-200 hover:border-teal-500/50 hover:shadow-xl hover:shadow-teal-500/10'
-                      }`}
+                      className={`p-6 rounded-[24px] border text-left flex items-center justify-between group transition-all duration-300 ${dark ? 'bg-slate-900/40 border-slate-800 hover:border-teal-500/50 hover:bg-slate-900' : 'bg-white border-slate-200 hover:border-teal-500/50 hover:shadow-xl hover:shadow-teal-500/10'
+                        }`}
                     >
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
@@ -562,18 +586,17 @@ export default function Nia({ dark, profileData, niaMsgs, setNiaMsgs }) {
 
           {/* Messages List */}
           {messages.map((msg, i) => (
-            <motion.div 
+            <motion.div
               key={i} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
               className={`flex ${msg.type === "user" ? "justify-end" : "justify-start"}`}
             >
               <div className={`flex gap-6 w-full ${msg.type === "user" ? "flex-row-reverse" : "flex-row"}`}>
                 {/* Avatar */}
-                <div className={`w-9 h-9 rounded-xl shrink-0 flex items-center justify-center shadow-md ${
-                  msg.type === "user" ? "bg-teal-500 text-white" : (dark ? "bg-slate-800 text-teal-500 border border-slate-700" : "bg-white text-teal-600 border border-slate-200")
-                }`}>
+                <div className={`w-9 h-9 rounded-xl shrink-0 flex items-center justify-center shadow-md ${msg.type === "user" ? "bg-teal-500 text-white" : (dark ? "bg-slate-800 text-teal-500 border border-slate-700" : "bg-white text-teal-600 border border-slate-200")
+                  }`}>
                   {msg.type === "user" ? <User size={18} /> : <Sparkles size={18} />}
                 </div>
-                
+
                 <div className={`flex flex-col gap-3 min-w-0 ${msg.type === "user" ? "items-end" : "items-start"}`}>
                   {msg.type === "user" ? (
                     <div className="bg-teal-500 text-white px-5 py-3 rounded-[20px] rounded-tr-none max-w-2xl text-[15px] leading-relaxed font-medium">
@@ -597,44 +620,37 @@ export default function Nia({ dark, profileData, niaMsgs, setNiaMsgs }) {
                   )}
 
                   {msg.coursesData && (
-                    <div className={`w-full mt-4 rounded-2xl border overflow-hidden ${
-                      dark ? 'border-slate-700' : 'border-slate-200'
-                    }`}>
-                      <div className={`px-5 py-3 border-b flex items-center gap-2 ${
-                        dark ? 'bg-slate-800/60 border-slate-700' : 'bg-slate-50 border-slate-200'
+                    <div className={`w-full mt-4 rounded-2xl border overflow-hidden ${dark ? 'border-slate-700' : 'border-slate-200'
                       }`}>
+                      <div className={`px-5 py-3 border-b flex items-center gap-2 ${dark ? 'bg-slate-800/60 border-slate-700' : 'bg-slate-50 border-slate-200'
+                        }`}>
                         <span className="text-base">🎓</span>
-                        <span className={`text-[13px] font-black uppercase tracking-widest ${
-                          dark ? 'text-slate-300' : 'text-slate-700'
-                        }`}>Recommended Nutrition Courses</span>
+                        <span className={`text-[13px] font-black uppercase tracking-widest ${dark ? 'text-slate-300' : 'text-slate-700'
+                          }`}>Recommended Nutrition Courses</span>
                       </div>
-                      <div className={`divide-y ${ dark ? 'divide-slate-800' : 'divide-slate-100' }`}>
+                      <div className={`divide-y ${dark ? 'divide-slate-800' : 'divide-slate-100'}`}>
                         {msg.coursesData.map((c, ci) => (
                           <a
                             key={ci}
                             href={c.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className={`flex items-center justify-between px-5 py-3.5 group transition-colors ${
-                              dark ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50'
-                            }`}
+                            className={`flex items-center justify-between px-5 py-3.5 group transition-colors ${dark ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50'
+                              }`}
                           >
                             <div className="flex items-center gap-3 min-w-0">
-                              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-sm ${
-                                dark ? 'bg-slate-800' : 'bg-slate-100'
-                              }`}>▶</div>
+                              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-sm ${dark ? 'bg-slate-800' : 'bg-slate-100'
+                                }`}>▶</div>
                               <div className="min-w-0">
-                                <div className={`text-[13px] font-semibold truncate ${
-                                  dark ? 'text-slate-200 group-hover:text-teal-400' : 'text-slate-800 group-hover:text-teal-600'
-                                }`}>{c.title}</div>
-                                <div className={`text-[11px] ${ dark ? 'text-slate-500' : 'text-slate-400' }`}>{c.channel}</div>
+                                <div className={`text-[13px] font-semibold truncate ${dark ? 'text-slate-200 group-hover:text-teal-400' : 'text-slate-800 group-hover:text-teal-600'
+                                  }`}>{c.title}</div>
+                                <div className={`text-[11px] ${dark ? 'text-slate-500' : 'text-slate-400'}`}>{c.channel}</div>
                               </div>
                             </div>
-                            <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full shrink-0 ml-3 ${
-                              c.tag === 'Free'
+                            <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full shrink-0 ml-3 ${c.tag === 'Free'
                                 ? (dark ? 'bg-teal-500/10 text-teal-400' : 'bg-teal-50 text-teal-600')
                                 : (dark ? 'bg-red-500/10 text-red-400' : 'bg-red-50 text-red-500')
-                            }`}>{c.tag}</span>
+                              }`}>{c.tag}</span>
                           </a>
                         ))}
                       </div>
@@ -653,9 +669,8 @@ export default function Nia({ dark, profileData, niaMsgs, setNiaMsgs }) {
                             <FileText size={12} className="text-white" />
                           </div>
                           <span className={`text-[14px] font-bold ${dark ? 'text-white' : 'text-slate-900'}`}>7-Day Nutrition Plan</span>
-                          <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
-                            dark ? 'bg-teal-500/10 text-teal-400' : 'bg-teal-50 text-teal-700'
-                          }`}>{calGoal} kcal/day</span>
+                          <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${dark ? 'bg-teal-500/10 text-teal-400' : 'bg-teal-50 text-teal-700'
+                            }`}>{calGoal} kcal/day</span>
                         </div>
                         <button
                           onClick={() => copyToClipboard(
@@ -663,9 +678,8 @@ export default function Nia({ dark, profileData, niaMsgs, setNiaMsgs }) {
                               `${d.day}\n` + d.meals.map(m => `  ${m.type}: ${m.food} (${m.cal} kcal, P:${m.p}g)`).join('\n')
                             ).join('\n\n')
                           )}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all ${
-                            dark ? 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                          }`}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all ${dark ? 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                            }`}
                         >
                           <Copy size={11} /> Copy All
                         </button>
@@ -673,7 +687,7 @@ export default function Nia({ dark, profileData, niaMsgs, setNiaMsgs }) {
 
                       {/* Build full-7-day PDF once, pass to every table */}
                       {(() => {
-                        const TIME_MAP = { Breakfast:'07:30', Lunch:'13:00', 'Evening Snack':'16:30', Dinner:'20:00', Snack:'16:30', 'Pre-WO':'17:00', 'Post-WO':'20:30' };
+                        const TIME_MAP = { Breakfast: '07:30', Lunch: '13:00', 'Evening Snack': '16:30', Dinner: '20:00', Snack: '16:30', 'Pre-WO': '17:00', 'Post-WO': '20:30' };
 
                         const allDayRows = msg.mealPlanData.map(d => ({
                           day: d.day,
@@ -693,59 +707,59 @@ export default function Nia({ dark, profileData, niaMsgs, setNiaMsgs }) {
                           const date = new Date().toLocaleDateString('en-IN', { dateStyle: 'long' });
                           const goal = profileData?.mainGoal || 'General Fitness';
                           const cols = [
-                            { x: ml,      w: 16 }, { x: ml+16,  w: 22 },
-                            { x: ml+38,   w: 80 }, { x: ml+118, w: 16 },
-                            { x: ml+134,  w: 22 }, { x: ml+156, w: cw-156 },
+                            { x: ml, w: 16 }, { x: ml + 16, w: 22 },
+                            { x: ml + 38, w: 80 }, { x: ml + 118, w: 16 },
+                            { x: ml + 134, w: 22 }, { x: ml + 156, w: cw - 156 },
                           ];
                           let y = 18;
                           const checkPage = (need = 10) => { if (y + need > ph - 12) { pdf.addPage(); y = 18; } };
 
                           // Cover header
-                          pdf.setFont('helvetica','bold'); pdf.setFontSize(16); pdf.setTextColor(15,23,42);
+                          pdf.setFont('helvetica', 'bold'); pdf.setFontSize(16); pdf.setTextColor(15, 23, 42);
                           pdf.text('NutriAI — 7-Day Meal Plan', ml, y); y += 7;
-                          pdf.setFont('helvetica','normal'); pdf.setFontSize(8); pdf.setTextColor(100,116,139);
+                          pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8); pdf.setTextColor(100, 116, 139);
                           pdf.text(`Generated: ${date}  |  Goal: ${goal}  |  Target: ${calGoal} kcal/day`, ml, y); y += 4;
-                          pdf.setDrawColor(226,232,240); pdf.line(ml, y, ml+cw, y); y += 7;
+                          pdf.setDrawColor(226, 232, 240); pdf.line(ml, y, ml + cw, y); y += 7;
 
                           allDayRows.forEach(({ day, totals, rows }) => {
                             checkPage(30);
                             // Day header bar
-                            pdf.setFillColor(240,253,250); pdf.roundedRect(ml, y, cw, 8, 1, 1, 'F');
-                            pdf.setDrawColor(209,250,229); pdf.roundedRect(ml, y, cw, 8, 1, 1, 'S');
-                            pdf.setFont('helvetica','bold'); pdf.setFontSize(8); pdf.setTextColor(13,148,136);
-                            pdf.text(day.toUpperCase(), ml+3, y+5.2);
-                            pdf.setFont('helvetica','normal'); pdf.setFontSize(7.5); pdf.setTextColor(148,163,184);
+                            pdf.setFillColor(240, 253, 250); pdf.roundedRect(ml, y, cw, 8, 1, 1, 'F');
+                            pdf.setDrawColor(209, 250, 229); pdf.roundedRect(ml, y, cw, 8, 1, 1, 'S');
+                            pdf.setFont('helvetica', 'bold'); pdf.setFontSize(8); pdf.setTextColor(13, 148, 136);
+                            pdf.text(day.toUpperCase(), ml + 3, y + 5.2);
+                            pdf.setFont('helvetica', 'normal'); pdf.setFontSize(7.5); pdf.setTextColor(148, 163, 184);
                             pdf.text(
                               `Total: ${totals.cal} kcal  |  P ${totals.p}g  |  C ${totals.c}g  |  F ${totals.f}g`,
-                              ml+cw-3, y+5.2, { align: 'right' }
+                              ml + cw - 3, y + 5.2, { align: 'right' }
                             );
                             y += 10;
                             // Column headers
-                            pdf.setFillColor(248,250,252); pdf.rect(ml, y, cw, 6, 'F');
-                            pdf.setFont('helvetica','bold'); pdf.setFontSize(7); pdf.setTextColor(148,163,184);
-                            ['TIME','MEAL','FOOD','CAL','PROTEIN','CARBS'].forEach((h, ci) => pdf.text(h, cols[ci].x+2, y+4.2));
-                            y += 6; pdf.setDrawColor(226,232,240); pdf.line(ml, y, ml+cw, y);
+                            pdf.setFillColor(248, 250, 252); pdf.rect(ml, y, cw, 6, 'F');
+                            pdf.setFont('helvetica', 'bold'); pdf.setFontSize(7); pdf.setTextColor(148, 163, 184);
+                            ['TIME', 'MEAL', 'FOOD', 'CAL', 'PROTEIN', 'CARBS'].forEach((h, ci) => pdf.text(h, cols[ci].x + 2, y + 4.2));
+                            y += 6; pdf.setDrawColor(226, 232, 240); pdf.line(ml, y, ml + cw, y);
                             // Rows
                             rows.forEach((row, ri) => {
                               checkPage(13);
-                              if (ri%2===1) { pdf.setFillColor(250,250,250); pdf.rect(ml, y, cw, 12, 'F'); }
-                              pdf.setFont('helvetica','normal'); pdf.setFontSize(7.5); pdf.setTextColor(100,116,139);
-                              pdf.text(row.time, cols[0].x+2, y+7.5);
-                              pdf.setFont('helvetica','bold'); pdf.setTextColor(51,65,85);
-                              pdf.text(row.meal, cols[1].x+2, y+7.5);
-                              pdf.setFont('helvetica','normal'); pdf.setFontSize(8);
-                              pdf.text(pdf.splitTextToSize(row.food, cols[2].w-3)[0], cols[2].x+2, y+7.5);
-                              pdf.setFont('helvetica','bold'); pdf.setTextColor(13,148,136);
-                              pdf.text(String(row.cal), cols[3].x+2, y+7.5);
-                              pdf.setTextColor(51,65,85);
-                              pdf.text(`${row.protein}g`, cols[4].x+2, y+7.5);
-                              pdf.text(`${row.carbs}g`, cols[5].x+2, y+7.5);
-                              y += 12; pdf.setDrawColor(241,245,249); pdf.line(ml, y, ml+cw, y);
+                              if (ri % 2 === 1) { pdf.setFillColor(250, 250, 250); pdf.rect(ml, y, cw, 12, 'F'); }
+                              pdf.setFont('helvetica', 'normal'); pdf.setFontSize(7.5); pdf.setTextColor(100, 116, 139);
+                              pdf.text(row.time, cols[0].x + 2, y + 7.5);
+                              pdf.setFont('helvetica', 'bold'); pdf.setTextColor(51, 65, 85);
+                              pdf.text(row.meal, cols[1].x + 2, y + 7.5);
+                              pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8);
+                              pdf.text(pdf.splitTextToSize(row.food, cols[2].w - 3)[0], cols[2].x + 2, y + 7.5);
+                              pdf.setFont('helvetica', 'bold'); pdf.setTextColor(13, 148, 136);
+                              pdf.text(String(row.cal), cols[3].x + 2, y + 7.5);
+                              pdf.setTextColor(51, 65, 85);
+                              pdf.text(`${row.protein}g`, cols[4].x + 2, y + 7.5);
+                              pdf.text(`${row.carbs}g`, cols[5].x + 2, y + 7.5);
+                              y += 12; pdf.setDrawColor(241, 245, 249); pdf.line(ml, y, ml + cw, y);
                             });
                             y += 6;
                           });
 
-                          pdf.save(`NutriAI_7Day_MealPlan_${new Date().toLocaleDateString('en-IN').replace(/\//g,'-')}.pdf`);
+                          pdf.save(`NutriAI_7Day_MealPlan_${new Date().toLocaleDateString('en-IN').replace(/\//g, '-')}.pdf`);
                           showToast('7-Day PDF downloaded!');
                         };
 
@@ -768,11 +782,10 @@ export default function Nia({ dark, profileData, niaMsgs, setNiaMsgs }) {
                   {msg.followUps && !isTyping && i === messages.length - 1 && (
                     <div className="flex flex-wrap gap-2.5 pt-4">
                       {msg.followUps.map((f, fi) => (
-                        <button 
+                        <button
                           key={fi} onClick={() => sendMessage(f)}
-                          className={`px-5 py-2.5 rounded-full text-[13px] font-bold border transition-all duration-300 ${
-                            dark ? 'bg-slate-900 border-slate-800 hover:border-teal-500/50 hover:bg-slate-800 text-slate-400 hover:text-teal-500' : 'bg-white border-slate-200 hover:border-teal-500/50 hover:shadow-lg text-slate-600 hover:text-teal-600'
-                          }`}
+                          className={`px-5 py-2.5 rounded-full text-[13px] font-bold border transition-all duration-300 ${dark ? 'bg-slate-900 border-slate-800 hover:border-teal-500/50 hover:bg-slate-800 text-slate-400 hover:text-teal-500' : 'bg-white border-slate-200 hover:border-teal-500/50 hover:shadow-lg text-slate-600 hover:text-teal-600'
+                            }`}
                         >
                           {f}
                         </button>
@@ -787,14 +800,14 @@ export default function Nia({ dark, profileData, niaMsgs, setNiaMsgs }) {
           {/* Typing Skeleton */}
           {isTyping && (
             <div className="flex gap-6">
-               <div className={`w-9 h-9 rounded-xl bg-slate-800 text-teal-500 flex items-center justify-center border border-slate-700 shadow-md`}>
-                  <Sparkles size={18} />
-                </div>
-                <div className={`px-6 py-4 rounded-[24px] bg-slate-900 border border-slate-800 text-slate-400 flex items-center gap-2`}>
-                  <span className="nia-dot"></span>
-                  <span className="nia-dot"></span>
-                  <span className="nia-dot"></span>
-                </div>
+              <div className={`w-9 h-9 rounded-xl bg-slate-800 text-teal-500 flex items-center justify-center border border-slate-700 shadow-md`}>
+                <Sparkles size={18} />
+              </div>
+              <div className={`px-6 py-4 rounded-[24px] bg-slate-900 border border-slate-800 text-slate-400 flex items-center gap-2`}>
+                <span className="nia-dot"></span>
+                <span className="nia-dot"></span>
+                <span className="nia-dot"></span>
+              </div>
             </div>
           )}
 
@@ -805,20 +818,19 @@ export default function Nia({ dark, profileData, niaMsgs, setNiaMsgs }) {
       {/* ── Fixed Chat Input Area ── */}
       <footer className="absolute bottom-0 left-0 w-full p-6 pb-10 z-30 bg-gradient-to-t from-inherit to-transparent pointer-events-none">
         <div className="max-w-3xl mx-auto pointer-events-auto">
-          
+
           {capturedImage && (
-            <motion.div 
-              initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} 
+            <motion.div
+              initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
               className="mb-4 relative w-28 h-28 rounded-[24px] overflow-hidden border-2 border-teal-500 shadow-2xl shadow-teal-500/20"
             >
               <img src={capturedImage} className="w-full h-full object-cover" />
-              <button onClick={() => setCapturedImage(null)} className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg"><X size={14}/></button>
+              <button onClick={() => setCapturedImage(null)} className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg"><X size={14} /></button>
             </motion.div>
           )}
 
-          <div className={`nia-glass rounded-[32px] border p-3 flex flex-col gap-2 shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-all duration-500 group focus-within:shadow-[0_20px_50px_rgba(20,184,166,0.15)] focus-within:border-teal-500/50 ${
-            dark ? 'border-slate-800/80' : 'border-slate-200/80'
-          }`}>
+          <div className={`nia-glass rounded-[32px] border p-3 flex flex-col gap-2 shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-all duration-500 group focus-within:shadow-[0_20px_50px_rgba(20,184,166,0.15)] focus-within:border-teal-500/50 ${dark ? 'border-slate-800/80' : 'border-slate-200/80'
+            }`}>
             <div className="flex items-center gap-2 px-2 py-1">
               <button onClick={startCamera} className={`p-2 rounded-lg transition-all shrink-0 ${dark ? 'text-slate-500 hover:bg-slate-800 hover:text-slate-300' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600'}`}>
                 <Camera size={17} strokeWidth={2} />
@@ -848,18 +860,16 @@ export default function Nia({ dark, profileData, niaMsgs, setNiaMsgs }) {
 
               <button
                 onClick={() => setIsListening(!isListening)}
-                className={`p-2 rounded-lg transition-all shrink-0 ${
-                  isListening ? 'bg-red-500 text-white nia-pulse' : (dark ? 'text-slate-500 hover:bg-slate-800 hover:text-slate-300' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600')
-                }`}
+                className={`p-2 rounded-lg transition-all shrink-0 ${isListening ? 'bg-red-500 text-white nia-pulse' : (dark ? 'text-slate-500 hover:bg-slate-800 hover:text-slate-300' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600')
+                  }`}
               >
                 {isListening ? <MicOff size={17} /> : <Mic size={17} />}
               </button>
               <button
                 disabled={!input.trim() && !capturedImage}
                 onClick={() => sendMessage()}
-                className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-200 shrink-0 ${
-                  input.trim() || capturedImage ? 'bg-teal-500 text-white shadow-md shadow-teal-500/30' : (dark ? 'bg-slate-800 text-slate-600' : 'bg-slate-100 text-slate-300')
-                }`}
+                className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-200 shrink-0 ${input.trim() || capturedImage ? 'bg-teal-500 text-white shadow-md shadow-teal-500/30' : (dark ? 'bg-slate-800 text-slate-600' : 'bg-slate-100 text-slate-300')
+                  }`}
               >
                 <ArrowUp size={15} strokeWidth={2.5} />
               </button>
@@ -873,13 +883,13 @@ export default function Nia({ dark, profileData, niaMsgs, setNiaMsgs }) {
         {showCamera && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-6">
             <div className="relative w-full max-w-4xl aspect-video rounded-[32px] overflow-hidden border border-white/10 shadow-2xl">
-               <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
-               <div className="absolute inset-0 border-[24px] border-black/20 pointer-events-none"></div>
+              <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
+              <div className="absolute inset-0 border-[24px] border-black/20 pointer-events-none"></div>
             </div>
             <div className="mt-10 flex items-center gap-12">
-              <button onClick={stopCamera} className="w-16 h-16 rounded-full bg-slate-900 border border-slate-800 text-white flex items-center justify-center hover:bg-slate-800 transition-colors shadow-xl"><X size={28}/></button>
+              <button onClick={stopCamera} className="w-16 h-16 rounded-full bg-slate-900 border border-slate-800 text-white flex items-center justify-center hover:bg-slate-800 transition-colors shadow-xl"><X size={28} /></button>
               <button onClick={captureImage} className="w-24 h-24 rounded-full bg-white border-[10px] border-slate-300 flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition-all"></button>
-              <button onClick={() => fileRef.current.click()} className="w-16 h-16 rounded-full bg-slate-900 border border-slate-800 text-white flex items-center justify-center hover:bg-slate-800 transition-colors shadow-xl"><ImageIcon size={28}/></button>
+              <button onClick={() => fileRef.current.click()} className="w-16 h-16 rounded-full bg-slate-900 border border-slate-800 text-white flex items-center justify-center hover:bg-slate-800 transition-colors shadow-xl"><ImageIcon size={28} /></button>
             </div>
           </motion.div>
         )}
@@ -896,7 +906,7 @@ export default function Nia({ dark, profileData, niaMsgs, setNiaMsgs }) {
                   <h3 className="font-black text-2xl tracking-tight">Archives</h3>
                   <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">Previous Conversations</p>
                 </div>
-                <button onClick={() => setShowHistory(false)} className="p-3 hover:bg-slate-800 rounded-2xl transition-colors"><X size={24}/></button>
+                <button onClick={() => setShowHistory(false)} className="p-3 hover:bg-slate-800 rounded-2xl transition-colors"><X size={24} /></button>
               </div>
               <div className="flex-1 overflow-y-auto p-6 space-y-4">
                 {history.length === 0 ? (
@@ -917,7 +927,7 @@ export default function Nia({ dark, profileData, niaMsgs, setNiaMsgs }) {
                 )}
               </div>
               <div className="p-6 border-t border-slate-800/30">
-                 <button onClick={startNewChat} className="w-full py-4 rounded-2xl bg-teal-500 text-white font-black text-sm tracking-widest uppercase shadow-lg shadow-teal-500/20 hover:bg-teal-600 transition-all">Start New Session</button>
+                <button onClick={startNewChat} className="w-full py-4 rounded-2xl bg-teal-500 text-white font-black text-sm tracking-widest uppercase shadow-lg shadow-teal-500/20 hover:bg-teal-600 transition-all">Start New Session</button>
               </div>
             </motion.div>
           </>

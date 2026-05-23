@@ -4,6 +4,8 @@ import axios from "axios";
 import { Mail, Lock, Eye, EyeOff, X, ShieldCheck } from "lucide-react";
 import logo from '../assets/Screenshot_2026-05-08_184522-removebg-preview.png';
 
+const baseURL = import.meta.env.VITE_BACKEND_URL;
+
 /* ── Spinner ────────────────────────────────────────────────── */
 function Spinner() {
   return (
@@ -97,7 +99,7 @@ export default function SignupPage({ open, onClose, dark, onSwitchToLogin, onSub
         setLoadingGoogle(true);
 
         // Send the Google token to your Django endpoint
-        const response = await axios.post("http://10.83.193.151:8000/api/auth/google/", {
+        const response = await axios.post(`${baseURL}/api/auth/google/`, {
           token: tokenResponse.access_token
         });
 
@@ -131,7 +133,7 @@ export default function SignupPage({ open, onClose, dark, onSwitchToLogin, onSub
 
     setSubmitting(true);
     try {
-      const response = await axios.post("http://10.83.193.151:8000/api/register/", {
+      const response = await axios.post(`${baseURL}/api/register/`, {
         username: email, // Django needs a username, we use email
         email: email,
         password: password,
