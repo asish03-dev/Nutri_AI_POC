@@ -3,11 +3,6 @@ import axios from 'axios';
 import LandingPage from "./components/LandingPage";
 import LoginPage from "./components/LoginPage";
 import SignupPage from "./components/SignupPage";
-import axios from "axios";
-import { useState, useEffect } from "react";
-import LandingPage from "./components/LandingPage";
-import LoginPage from "./components/LoginPage";
-import SignupPage from "./components/SignupPage";
 import LoadingScreen from "./components/LoadingScreen";
 import Onboarding from "./components/Onboarding";
 import Profile from "./components/Profile";
@@ -55,7 +50,7 @@ export default function App() {
       const mappedData = {
         firstName: dbData.first_name || '',
         lastName: dbData.last_name || '',
-        dobDay: dbData.date_of_birth ? String(dbData.date_of_birth).padStart(2, '0') : '',
+        dobDay: dbData.day_of_birth ? String(dbData.day_of_birth).padStart(2, '0') : '',
         dobMonth: monthName,
         dobYear: dbData.year_of_birth ? String(dbData.year_of_birth) : '',
         photo: dbData.profile_photo_url || null,
@@ -96,8 +91,22 @@ export default function App() {
 
 
   useEffect(() => {
-    // Load real profile from backend on every page load/refresh
-    loadUserProfile();
+    async function initSession() {
+      const profile = await loadUserProfile();
+      if (profile) {
+        // Fallback to checking local storage if API field is missing/falsy but we know they onboarded
+        if (profile.is_Onboarded || profile.is_onboarded || localStorage.getItem("nutriai_onboarded") === "true") {
+          setOnboardingDone(true);
+          localStorage.setItem("nutriai_onboarded", "true");
+        } else {
+          setOnboardingDone(false);
+          // Only show onboarding if they have a profile but haven't onboarded
+          // Assuming we don't auto-open it on refresh unless they try to log in
+        }
+      }
+    }
+    initSession();
+
     if (onboardingDone && Object.keys(profileData).length > 0) {
       saveOnboardingData(profileData);
     }
@@ -107,29 +116,33 @@ export default function App() {
   const openSignup = () => { setLogin(false); setSignup(true); };
 
   function startLoading(type, isOnboarded) {
-    setLoadingType(type);
-    setLoading(true);
-    setTimeout(async () => {
-      setLoading(false);
-      setBackTo(type);
+  setLoadingType(type);
+  setLoading(true);
+  setTimeout(async () => {
+    setLoading(false);
+    setBackTo(type);
+    
+    // Always fetch profile from backend
+    const token = localStorage.getItem("access_token")?.replace(/['"]+/g, '');
+    if (token) {
+      await fetchAndHydrateProfile(token);
+    }
+    loadUserProfile();
+    
+    // If from LOGIN, always go to dashboard
+    if (type === "login") {
+      localStorage.setItem("nutriai_onboarded", "true");
+      setOnboardingDone(true);
+      setOnboarding(false);
+      setCurrentView("dashboard");
+    } 
+    // If from SIGNUP, show onboarding
+    else if (type === "signup") {
+      setOnboardingDone(false);
       setOnboarding(true);
-      // Fetch real profile from backend after successful login/signup
-      loadUserProfile();
-
-      if (isOnboarded) {
-        const token = localStorage.getItem("access_token")?.replace(/['"]+/g, '');
-        if (token) {
-          await fetchAndHydrateProfile(token);
-        }
-        localStorage.setItem("nutriai_onboarded", "true");
-        setOnboardingDone(true);
-        setCurrentView("dashboard");
-      } else {
-        setBackTo(type);
-        setOnboarding(true);
-      }
-    }, 2200);
-  }
+    }
+  }, 2200);
+}
 
 
   /* Onboarding complete with full data → mark done */
@@ -197,14 +210,7 @@ export default function App() {
           onClose={() => setLogin(false)}
           dark={dark}
           onSwitchToSignup={openSignup}
-          onSubmit={() => { setLogin(false); startLoading("login", () => { }); }}
-        />
-        <LoginPage
-          open={loginOpen}
-          onClose={() => setLogin(false)}
-          dark={dark}
-          onSwitchToSignup={openSignup}
-          onSubmit={(isOnboarded) => { setLogin(false); startLoading("login", isOnboarded); }}
+           onSubmit={() => { setLogin(false); startLoading("login"); }}
         />
 
         <SignupPage
@@ -212,7 +218,7 @@ export default function App() {
           onClose={() => setSignup(false)}
           dark={dark}
           onSwitchToLogin={openLogin}
-          onSubmit={(isOnboarded) => { setSignup(false); startLoading("signup", isOnboarded); }}
+          onSubmit={() => { setSignup(false); startLoading("signup"); }}
         />
 
         <LoadingScreen visible={loading} type={loadingType} dark={dark} />

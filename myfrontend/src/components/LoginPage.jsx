@@ -68,7 +68,7 @@ export default function LoginPage({ open, onClose, dark, onSwitchToSignup, onSub
         localStorage.setItem("access_token", response.data.access_token);
 
         // Close the modal / trigger the redirect
-        onSubmit(response.data.user.is_onboarded);
+        onSubmit("login");
       } catch (error) {
         setErrorMsg("Google authentication failed");
         setLoadingGoogle(false);
@@ -94,72 +94,19 @@ export default function LoginPage({ open, onClose, dark, onSwitchToSignup, onSub
 
     try {
       const response = await axios.post(`${baseURL}/api/login/`, {
-        username: email, // Backend expects 'username' field
+        username: email,
         password,
       });
-      if (response.data.requires_otp) {
-        setLoginEmail(response.data.email);
-        setStep(2);
-      } else {
-        localStorage.setItem("access_token", response.data.access_token);
-        onSubmit(response.data.user?.is_onboarded || false);
-      }
+      localStorage.setItem("access_token", response.data.access_token);
+      onSubmit("login");
     } catch (error) {
       setErrorMsg("Invalid credentials");
     }
     setSubmitting(false);
   }
 
-  const handleOtpChange = (index, value) => {
-    if (isNaN(value)) return;
-    const newOtpArray = [...otpArray];
-    newOtpArray[index] = value.slice(-1);
-    setOtpArray(newOtpArray);
-    if (value !== "" && index < 5) {
-      (inputRefs.current[index + 1]); {
-        inputRefs.current[index + 1].focus();
-      }
-    }
-  };
-
-  const handleOtpKeyDown = (index, e) => {
-    if (e.key === "Backspace" && otpArray[index] === "" && index > 0) {
-      const prevInput = document.getElementById('otp-${index - 1}');
-      inputRefs.current[index - 1].focus();
-      if (prevInput) prevInput.focus();
-    }
-  };
-
-  const submitOTPCode = () => {
-    const finalCode = otpArray.join("");
-    if (finalCode.length === 6) {
-      handleVerifyOtp(finalCode);
-    } else {
-      setErrorMsg("Please enter the 6-digit code");
-    }
-  };
-
-
-  const handleVerifyOtp = async (code) => {
-    setErrorMsg("");
-    setSubmitting(true);
-    try {
-      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/verify-otp/`, {
-        email: loginEmail,
-        otp: code
-      });
-      localStorage.setItem("access_token", response.data.access_token);
-      onSubmit(response.data.user.is_onboarded);
-    } catch (error) {
-      setErrorMsg("Invalid or expired OTP");
-    }
-    setSubmitting(false);
-  };
-
   useEffect(() => {
     if (!open) setSubmitting(false);
-    setStep(1);
-    setOtpArray(["", "", "", "", "", ""]);
     setErrorMsg("");
   }, [open]);
 
@@ -241,8 +188,8 @@ export default function LoginPage({ open, onClose, dark, onSwitchToSignup, onSub
           />
         </div>
 
-        {/* ================= STEP 1: EMAIL & PASSWORD ================= */}
-        {step === 1 && (
+        {/* ================= LOGIN FORM ================= */}
+        {true && (
           <>
             <h2 className="text-2xl font-black mb-1">
               Welcome Back <span className="not-italic">👋</span>
@@ -379,61 +326,7 @@ export default function LoginPage({ open, onClose, dark, onSwitchToSignup, onSub
         )}
 
 
-        {/* ------ STEP 2: 6 BOX OTP VERIFICATION ------ */}
-        {step === 2 && (
-          <div className="flex flex-col items-center animate-fade-in-up">
-            <h3 className={`text-xl font-bold mb-2 ${dark ? "text-white" : "text-gray-900"}`}>
-              Check your Email
-            </h3>
-            <p className={`text-sm text-center mb-6 ${dark ? "text-gray-400" : "text-gray-500"}`}>
-              We sent a 6-digit code to <br />
-              <span className="font-bold text-emerald-500">{loginEmail}</span>
-            </p>
-
-            {/* The 6 OTP Boxes */}
-            <div className="flex gap-3 justify-center w-full mb-6">
-              {otpArray.map((digit, index) => (
-                <input
-                  key={index}
-                  ref={el => inputRefs.current[index] = el}
-                  id={`otp-${index}`}
-                  type="text"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handleOtpChange(index, e.target.value)}
-                  onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                  className={`w-12 h-14 text-center font-bold text-2xl rounded-xl border outline-none transition-all duration-200 
-                  ${dark ? "bg-gray-800 border-gray-700 text-white focus:border-emerald-500 focus:shadow-[0_0_15px_rgba(16,185,129,0.3)]"
-                      : "bg-gray-50 border-gray-200 text-gray-900 focus:border-emerald-500 focus:shadow-[0_0_15px_rgba(16,185,129,0.3)]"}`}
-                />
-              ))}
-            </div>
-
-            {errorMsg && <p className="text-xs text-red-500 font-medium mb-4">{errorMsg}</p>}
-
-            {/* Submit Button */}
-            <button
-              onClick={submitOTPCode}
-              disabled={submitting}
-              className="w-full flex items-center justify-center py-3.5 mt-2 rounded-xl text-white font-bold text-sm shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-90"
-              style={{ background: "linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)" }}
-            >
-              {submitting ? <Spinner /> : "Verify Code"}
-            </button>
-            <button
-              onClick={() => {
-                setStep(1);
-                setOtpArray(["", "", "", "", "", ""]);
-                setErrorMsg("");
-              }}
-              className={`w-full py-3 mt-3 text-sm font-semibold transition-colors duration-200 
-                ${dark ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-800"}`}
-            >
-              Back to Login
-            </button>
-
-          </div>
-        )}
+      )
       </div>
     </div>
   );

@@ -225,7 +225,7 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
       const response = await axios.patch(`${import.meta.env.VITE_API_BASE_URL}/api/onboarding/${userId}/`, {
         first_name: formData.firstName,
         last_name: formData.lastName,
-        date_of_birth: parseInt(formData.dobDay) || null,
+        day_of_birth: parseInt(formData.dobDay) || null,
         month_of_birth: monthInt,
         year_of_birth: parseInt(formData.dobYear) || null,
         phone_number: formData.phone,
@@ -253,6 +253,7 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
         main_carbs_source: formData.mainCarbs,
         bmi: parseFloat(formData.bmi) || null,
         daily_calorie_target: parseInt(formData.calorieTarget) || null,
+        is_Onboarded: true
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -749,7 +750,8 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
                 </div>
 
                 {formData.selectedPlan && (
-                  <div className="flex items-center justify-center mt-10 pt-8 border-t border-[#E2E8F0] dark:border-slate-800 fade-in">
+                  <div className="flex flex-col items-center justify-center mt-10 pt-8 border-t border-[#E2E8F0] dark:border-slate-800 fade-in gap-3">
+                    {errorMsg && <div className="text-red-500 text-sm font-medium">{errorMsg}</div>}
                     <button
                       className="w-full inline-flex items-center justify-center h-[60px] px-8 bg-[#14B8A6] text-white text-[17px] font-bold rounded-[20px] tracking-[-0.01em] transition-all duration-300 shadow-[0_8px_24px_rgba(20,184,166,0.3)] hover:bg-[#0D9488] hover:shadow-[0_12px_32px_rgba(20,184,166,0.4)] hover:-translate-y-[2px] active:translate-y-0"
                       onClick={handleFinish}
@@ -763,31 +765,34 @@ const Onboarding = ({ onComplete, onBack, dark = false, initialData = null, back
 
             {/* Footer actions for steps 1–5 */}
             {step < 6 && (
-              <div className="flex items-center justify-between mt-12 pt-8 border-t border-[#E2E8F0] dark:border-slate-800">
-                {isEditMode ? (
-                  <button
-                    className="text-[15px] font-bold text-[#475569] dark:text-slate-500 px-4 py-2.5 rounded-[14px] hover:text-[#0F172A] dark:hover:text-slate-300 hover:bg-[#FAFBFC] dark:hover:bg-slate-800 transition-all duration-200"
-                    onClick={() => onBack && onBack()}
-                  >Cancel</button>
-                ) : (
-                  <button className="text-[15px] font-bold text-[#475569] dark:text-slate-500 px-4 py-2.5 rounded-[14px] hover:text-[#0F172A] dark:hover:text-slate-300 hover:bg-[#FAFBFC] dark:hover:bg-slate-800 transition-all duration-200" onClick={handleNext}>Skip for now</button>
-                )}
-                <div className="flex items-center gap-3">
-                  {isEditMode && (
+              <div className="flex flex-col mt-12 pt-8 border-t border-[#E2E8F0] dark:border-slate-800 gap-3">
+                {errorMsg && <div className="text-red-500 text-sm font-medium text-center">{errorMsg}</div>}
+                <div className="flex items-center justify-between w-full">
+                  {isEditMode ? (
                     <button
-                      className="inline-flex items-center justify-center h-[52px] px-8 text-[#0D9488] text-[15px] font-bold rounded-[18px] border-2 border-[#14B8A6] hover:bg-[#14B8A6]/10 transition-all duration-200"
-                      onClick={handleSaveChanges}
-                    >
-                      Save Changes
-                    </button>
+                      className="text-[15px] font-bold text-[#475569] dark:text-slate-500 px-4 py-2.5 rounded-[14px] hover:text-[#0F172A] dark:hover:text-slate-300 hover:bg-[#FAFBFC] dark:hover:bg-slate-800 transition-all duration-200"
+                      onClick={() => onBack && onBack()}
+                    >Cancel</button>
+                  ) : (
+                    <button className="text-[15px] font-bold text-[#475569] dark:text-slate-500 px-4 py-2.5 rounded-[14px] hover:text-[#0F172A] dark:hover:text-slate-300 hover:bg-[#FAFBFC] dark:hover:bg-slate-800 transition-all duration-200" onClick={handleNext}>Skip for now</button>
                   )}
-                  <button
-                    className={`inline-flex items-center justify-center h-[52px] px-10 text-white text-[16px] font-bold rounded-[18px] tracking-[-0.01em] transition-all duration-300 ${canProceed() ? 'bg-[#14B8A6] shadow-[0_8px_24px_rgba(20,184,166,0.3)] hover:bg-[#0D9488] hover:shadow-[0_12px_32px_rgba(20,184,166,0.4)] hover:-translate-y-[2px] active:translate-y-0' : 'bg-[#94A3B8] dark:bg-slate-700 cursor-not-allowed opacity-70'}`}
-                    onClick={() => canProceed() && handleNext()}
-                    disabled={!canProceed()}
-                  >
-                    {isEditMode ? 'Next →' : 'Continue'}
-                  </button>
+                  <div className="flex items-center gap-3">
+                    {isEditMode && (
+                      <button
+                        className="inline-flex items-center justify-center h-[52px] px-8 text-[#0D9488] text-[15px] font-bold rounded-[18px] border-2 border-[#14B8A6] hover:bg-[#14B8A6]/10 transition-all duration-200"
+                        onClick={handleSaveChanges}
+                      >
+                        Save Changes
+                      </button>
+                    )}
+                    <button
+                      className={`inline-flex items-center justify-center h-[52px] px-10 text-white text-[16px] font-bold rounded-[18px] tracking-[-0.01em] transition-all duration-300 ${canProceed() ? 'bg-[#14B8A6] shadow-[0_8px_24px_rgba(20,184,166,0.3)] hover:bg-[#0D9488] hover:shadow-[0_12px_32px_rgba(20,184,166,0.4)] hover:-translate-y-[2px] active:translate-y-0' : 'bg-[#94A3B8] dark:bg-slate-700 cursor-not-allowed opacity-70'}`}
+                      onClick={() => canProceed() && handleNext()}
+                      disabled={!canProceed()}
+                    >
+                      {isEditMode ? 'Next →' : 'Continue'}
+                    </button>
+                  </div>
                 </div>
               </div>
             )}

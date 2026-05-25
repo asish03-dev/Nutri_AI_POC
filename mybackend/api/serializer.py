@@ -5,23 +5,23 @@ from .models import UserProfile,meal_logs, chat_logs
 User = get_user_model()
 
 
-class RegisterSerializer(serializers.ModelSerializer):
-    password2 = serializers.CharField(write_only =True)
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'password', 'password2']
-        extra_kwargs = {
-            'password': {'write_only': True}
-        }
+class RegisterSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(write_only=True, required=True)
+    confirm_password = serializers.CharField(write_only=True, required=True)
 
     def validate(self, data):
-        if data['password'] != data['password2']:
-            raise serializers.ValidationError("passwords don't match")
+        if data['password'] != data['confirm_password']:
+            raise serializers.ValidationError({"password": "Passwords don't match"})
+            
+        if User.objects.filter(email=data['email']).exists():
+            raise serializers.ValidationError({"email": "User with this email already exists"})
+            
         return data
     
     def create(self, validated_data):
         user = User.objects.create_user(
-            username=validated_data['username'],
+            username=validated_data['email'],
             email=validated_data['email'],
             password=validated_data['password'],
         )

@@ -59,8 +59,10 @@ export function UserProvider({ children }) {
       setUserData(prev => ({ ...prev, ...profile }));
 
       console.log('✅ Profile loaded from backend:', profile);
+      return profile;
     } catch (err) {
       console.warn('⚠️ Could not load profile from backend:', err?.response?.data || err.message);
+      return null;
     } finally {
       setProfileLoading(false);
     }
